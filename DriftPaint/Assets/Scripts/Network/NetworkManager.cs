@@ -50,10 +50,20 @@ namespace DriftPaint.Networking
         // Reconexión: hasta cuándo se reserva el lugar en la sala y cuándo toca el próximo intento (0 = esperando uno en curso).
         float _reconnectDeadline;
         float _nextRejoinTime;
-        string _reservedRoom;
-        string _reservedMatch;
-        double _reservedStartTime;
-        int _reservedRound;
+        [Serializable]
+        sealed class Reservation
+        {
+            public string Room;
+            public string Match;
+            public double StartTime;
+            public int Round;
+            public bool HasCar;
+            public Pose CarPose;
+            public long ExpiresUtcMs;
+        }
+
+        readonly string _reservationKey;
+        Reservation _reservation;
         Pose? _reservedCarPose;
         float _reservationDeadline;
         bool _manualRejoin;
@@ -61,6 +71,8 @@ namespace DriftPaint.Networking
         public NetworkManager(INetworkProvider provider)
         {
             _provider = provider ?? throw new ArgumentNullException(nameof(provider));
+            _reservationKey = "driftpaint.reservation." + PlayerProfile.LoadNetworkId();
+            RestoreReservation();
 
             _provider.ConnectedToServer += OnConnectedToServer;
             _provider.Disconnected += OnDisconnected;
@@ -104,7 +116,7 @@ namespace DriftPaint.Networking
         public byte Winner => _winner;
         /// <summary>La sala decide al recibir el pedido si todavía conserva al actor.</summary>
         public bool CanRejoinLastMatch => _state == ConnectionState.Disconnected && HasReservation;
-        bool HasReservation => _reservedRoom != null && Time.realtimeSinceStartup < _reservationDeadline;
+        bool HasReservation => _reservation != null && Time.realtimeSinceStartup < _reservationDeadline;
         /// <summary>La escena que se abre debe esperar el auto que repone la caché de la sala.</summary>
         public bool ReturningFromMenu { get; private set; }
         /// <summary>Ubicación del auto que la caché de instanciación solo recuerda en su punto de salida.</summary>
@@ -185,6 +197,7 @@ namespace DriftPaint.Networking
         {
             if (_state == ConnectionState.Disconnected) return;
 
+            if (_state == ConnectionState.InRoom) RememberMatch();
             _disconnectRequested = true;
             // Durante una reconexión puede no haber conexión que cerrar: se suelta la sala acá mismo.
             if (_state == ConnectionState.Reconnecting) StopReconnecting(ConnectionState.Disconnected);
@@ -292,9 +305,11 @@ namespace DriftPaint.Networking
         void RememberMatch()
         {
             // La sala se cierra al quedar vacía. Hace falta otro jugador activo para que siga la partida.
-            _reservedRoom = null;
-            if (_phase.IsBetweenMatches() || !_players.Exists(player => !player.IsLocal && !player.IsInactive)) return;
-            _reservedRoom = _currentRoom.Id;
+            if (_phase.IsBetweenMatches() || !_players.Exists(player => !player.IsLocal && !player.IsInactive))
+            {
+                ForgetReservation();
+                return;
+            }
             _reservedCarPose = null;
             foreach (NetworkObjectInfo info in _objects)
             {
@@ -302,10 +317,56 @@ namespace DriftPaint.Networking
                 _reservedCarPose = new Pose(car.Position, car.Rotation);
                 break;
             }
-            _reservedMatch = _currentMatchId;
-            _reservedStartTime = _matchStartTime;
-            _reservedRound = _round;
+            _reservation = new Reservation
+            {
+                Room = _currentRoom.Id,
+                Match = _currentMatchId,
+                StartTime = _matchStartTime,
+                Round = _round,
+                HasCar = _reservedCarPose.HasValue,
+                CarPose = _reservedCarPose.GetValueOrDefault(),
+                ExpiresUtcMs = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() + RoomRules.PlayerTtlMs
+            };
             _reservationDeadline = Time.realtimeSinceStartup + RoomRules.PlayerTtlMs / 1000f;
+            PlayerPrefs.SetString(_reservationKey, JsonUtility.ToJson(_reservation));
+            PlayerPrefs.Save();
+        }
+
+        /// <summary>Conserva el lugar al cerrar el juego o detener Play, antes de que Photon desarme la sala local.</summary>
+        public void OnApplicationClosing()
+        {
+            if (_state == ConnectionState.InRoom && !_disconnectRequested) RememberMatch();
+            _disconnectRequested = true;
+        }
+
+        void RestoreReservation()
+        {
+            if (!PlayerPrefs.HasKey(_reservationKey)) return;
+            try
+            {
+                _reservation = JsonUtility.FromJson<Reservation>(PlayerPrefs.GetString(_reservationKey));
+            }
+            catch (ArgumentException)
+            {
+                ForgetReservation();
+                return;
+            }
+            long remaining = (_reservation?.ExpiresUtcMs ?? 0) - DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            if (string.IsNullOrEmpty(_reservation?.Room) || remaining <= 0 || remaining > RoomRules.PlayerTtlMs)
+            {
+                ForgetReservation();
+                return;
+            }
+            _reservationDeadline = Time.realtimeSinceStartup + remaining / 1000f;
+            _reservedCarPose = _reservation.HasCar ? _reservation.CarPose : (Pose?)null;
+        }
+
+        void ForgetReservation()
+        {
+            _reservation = null;
+            if (!PlayerPrefs.HasKey(_reservationKey)) return;
+            PlayerPrefs.DeleteKey(_reservationKey);
+            PlayerPrefs.Save();
         }
 
         #endregion
@@ -595,7 +656,7 @@ namespace DriftPaint.Networking
 
             if (_manualRejoin)
             {
-                if (HasReservation && _provider.RejoinRoom(_reservedRoom))
+                if (HasReservation && _provider.RejoinRoom(_reservation.Room))
                 {
                     SetState(ConnectionState.JoiningRoom);
                     return;
@@ -626,7 +687,9 @@ namespace DriftPaint.Networking
                 _nextRejoinTime = Time.realtimeSinceStartup + RejoinRetrySeconds;
                 return;
             }
-            // Sin causa es un cierre pedido por este cliente (por ejemplo al salir de la aplicación): no se vuelve.
+            // Una desconexión directa del transporte también deja al actor inactivo en el servidor.
+            if (!expected && wasInRoom && _state == ConnectionState.InRoom && string.IsNullOrEmpty(cause))
+                RememberMatch();
             if (!expected && wasInRoom && _state == ConnectionState.InRoom && !string.IsNullOrEmpty(cause))
             {
                 BeginReconnecting(cause);
@@ -724,7 +787,7 @@ namespace DriftPaint.Networking
             }
             ReturningFromMenu = manual;
             _manualRejoin = false;
-            _reservedRoom = null;
+            ForgetReservation();
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
@@ -782,16 +845,17 @@ namespace DriftPaint.Networking
 
         bool IsReservedMatch()
         {
-            if (_phase.IsBetweenMatches() || _currentRoom.Id != _reservedRoom) return false;
-            if (_reservedMatch != null || _currentMatchId != null) return _reservedMatch == _currentMatchId;
+            if (_phase.IsBetweenMatches() || _reservation == null || _currentRoom.Id != _reservation.Room) return false;
+            if (!string.IsNullOrEmpty(_reservation.Match) || !string.IsNullOrEmpty(_currentMatchId))
+                return _reservation.Match == _currentMatchId;
             // Salas creadas por versiones que solo publicaban la ronda y su hora de inicio.
-            return _round > _reservedRound || (_round == _reservedRound && _matchStartTime == _reservedStartTime);
+            return _round > _reservation.Round || (_round == _reservation.Round && _matchStartTime == _reservation.StartTime);
         }
 
         void RejectManualRejoin()
         {
             _manualRejoin = false;
-            _reservedRoom = null;
+            ForgetReservation();
             RaiseError("Ya no se puede volver a esa partida.");
         }
 

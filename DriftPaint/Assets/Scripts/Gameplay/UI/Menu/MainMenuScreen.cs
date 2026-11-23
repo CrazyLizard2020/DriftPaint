@@ -10,6 +10,7 @@ namespace DriftPaint.UI.Menu
     {
         [SerializeField] Button _roomsButton;
         [SerializeField] Button _rejoinButton;
+        [SerializeField] GameObject[] _rejoinPrefabs;
         [SerializeField] Button _quitButton;
 
         void Awake()
@@ -29,7 +30,16 @@ namespace DriftPaint.UI.Menu
                 _rejoinButton.gameObject.SetActive(show);
         }
 
-        void Rejoin() => NetworkServices.Mediator?.RejoinLastMatch();
+        void Rejoin()
+        {
+            INetworkMediator mediator = NetworkServices.Mediator;
+            if (mediator == null) return;
+            // Al reiniciar, la caché de la sala puede llegar antes de que se cargue la pista.
+            if (_rejoinPrefabs != null)
+                foreach (GameObject prefab in _rejoinPrefabs)
+                    if (prefab != null) mediator.RegisterPrefab(prefab.name, prefab);
+            mediator.RejoinLastMatch();
+        }
 
         void OpenRooms()
         {

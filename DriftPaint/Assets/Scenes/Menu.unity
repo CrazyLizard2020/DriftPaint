@@ -8406,6 +8406,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MainMenuScreen
   _rejoinButton: {fileID: 2107700006}
+  _rejoinPrefabs:
+  - {fileID: 2607641468622744200, guid: 76ba85344932f344eb1415660ff427a7, type: 3}
+  - {fileID: 3953813282216916749, guid: 315d9110263c7464799295fe555b3fb1, type: 3}
+  - {fileID: 4817976010221654215, guid: 3f240221337161643bf4343a43e2116d, type: 3}
+  - {fileID: 8402283619651009580, guid: 3a92666c8c5cb314d89d9effd3c2b950, type: 3}
   _roomsButton: {fileID: 1078418833}
   _quitButton: {fileID: 2056371638}
 --- !u!1 &627209378

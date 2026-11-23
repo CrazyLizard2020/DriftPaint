@@ -11,5 +11,7 @@ namespace DriftPaint.App
         public void Bind(NetworkManager manager) => _manager = manager;
 
         void Update() => _manager?.Tick();
+
+        void OnApplicationQuit() => _manager?.OnApplicationClosing();
     }
 }

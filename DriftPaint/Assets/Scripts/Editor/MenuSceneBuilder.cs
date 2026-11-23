@@ -232,6 +232,15 @@ namespace DriftPaint.EditorTools
                 button = CreateButton(screen, "Rejoin Button", "VOLVER A LA PARTIDA", ButtonStyle.Outline, 42f,
                     new Vector2(0.5f, 0.5f), new Vector2(0f, -326f), new Vector2(540f, 78f));
             Bind(view, ("_rejoinButton", button));
+            var prefabs = AssetDatabase.FindAssets("t:Prefab", new[] { "Assets/Prefabs/Cars" })
+                .Select(AssetDatabase.GUIDToAssetPath).OrderBy(path => path)
+                .Concat(new[] { "Assets/Prefabs/Combat/Barrel.prefab" })
+                .Select(AssetDatabase.LoadAssetAtPath<GameObject>).Where(prefab => prefab != null).ToArray();
+            var serializedView = new SerializedObject(view);
+            var pool = serializedView.FindProperty("_rejoinPrefabs");
+            pool.arraySize = prefabs.Length;
+            for (int i = 0; i < prefabs.Length; i++) pool.GetArrayElementAtIndex(i).objectReferenceValue = prefabs[i];
+            serializedView.ApplyModifiedPropertiesWithoutUndo();
             button.gameObject.SetActive(false);
             if (screen.Find("Quit Button") is RectTransform quit)
                 quit.anchoredPosition = new Vector2(0f, -432f);
