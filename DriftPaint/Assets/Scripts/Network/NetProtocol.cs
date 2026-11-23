@@ -67,6 +67,6 @@ namespace DriftPaint.Networking
         public const int PlayerTtlMs = 30000;
         public const double CountdownSeconds = 3.0;
         public const int MaxChatLength = 160;
-        public const string DefaultMapId = "drift_arena";
+        public const string DefaultMapId = DriftPaint.Match.MapCatalog.DefaultMapId;
     }
 }

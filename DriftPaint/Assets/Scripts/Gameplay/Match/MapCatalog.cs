@@ -1,16 +1,23 @@
 namespace DriftPaint.Match
 {
-    /// <summary>Mapas disponibles: identificador que viaja en la sala, nombre visible y escena.</summary>
+    /// <summary>
+    /// Mapas disponibles: identificador que viaja en la sala, nombre visible y escena.
+    /// El identificador también es el contexto de música del mapa.
+    /// </summary>
     public static class MapCatalog
     {
         public const string MenuScene = "Menu";
-        public const string DriftArenaId = "drift_arena";
+        public const string GraffithasiaId = "graffithasia";
+        public const string RoyalDriftRoadId = "royal_drift_road";
+        /// <summary>Mapa que se usa al crear una sala sin elegir otro y al jugar sin sala.</summary>
+        public const string DefaultMapId = GraffithasiaId;
 
         public static string SceneFor(string mapId)
         {
             switch (mapId)
             {
-                case DriftArenaId:
+                case RoyalDriftRoadId: return "Match_RoyalDriftRoad";
+                case GraffithasiaId:
                 default:
                     return "Match_DriftArena";
             }
@@ -20,7 +27,8 @@ namespace DriftPaint.Match
         {
             switch (mapId)
             {
-                case DriftArenaId: return "Drift Arena";
+                case GraffithasiaId: return "Graffithasia";
+                case RoyalDriftRoadId: return "Royal Drift Road";
                 default: return mapId;
             }
         }

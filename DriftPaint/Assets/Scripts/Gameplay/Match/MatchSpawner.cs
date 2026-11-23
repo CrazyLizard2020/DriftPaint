@@ -3,7 +3,6 @@ using DriftPaint.Cars;
 using DriftPaint.Net;
 using DriftPaint.Teams;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 namespace DriftPaint.Match
 {
@@ -304,10 +303,6 @@ namespace DriftPaint.Match
                 _rejoinCarDeadline = -1f;
                 if (_localCar == null && _mediator != null && _mediator.State == ConnectionState.InRoom) SpawnLocalCar();
             }
-
-            Keyboard keyboard = Keyboard.current;
-            if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
-                SetCursorLocked(Cursor.lockState != CursorLockMode.Locked);
         }
 
         static void SetCursorLocked(bool locked)

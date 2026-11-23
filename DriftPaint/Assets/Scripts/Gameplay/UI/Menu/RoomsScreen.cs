@@ -17,7 +17,7 @@ namespace DriftPaint.UI.Menu
         const int MinDuration = 120;
         const int MaxDuration = 300;
         const int DurationStep = 60;
-        const string DefaultMapId = "drift_arena";
+        const string DefaultMapId = DriftPaint.Match.MapCatalog.DefaultMapId;
 
         [Header("Lista")]
         [SerializeField] RoomRowView _rowTemplate;

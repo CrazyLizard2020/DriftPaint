@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 21467a2d74403914aa5397321d714f52, type: 3}
+  m_Name: MusicLibrary
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Audio.MusicLibrary
+  _routes:
+  - Context: menu
+    Track: {fileID: 11400000, guid: 29b44bca87d1faf40966e5d916e011be, type: 2}
+  - Context: graffithasia
+    Track: {fileID: 11400000, guid: 047e028ea57b7ab4580522830e8b599a, type: 2}
+  - Context: royal_drift_road
+    Track: {fileID: 11400000, guid: 635dbdac76cb68247bed9db305e908a9, type: 2}
+  _fallback: {fileID: 0}
+  _extraTracks: []
+  _fadeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4

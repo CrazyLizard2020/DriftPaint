@@ -108,5 +108,42 @@ namespace DriftPaint.Input
 
         /// <summary>Instancia compartida del mapa UI.</summary>
         public static UiMap UI => _ui ??= new UiMap();
+
+        /// <summary>Busca una acción como "Driving/Fire" o "UI/Menu". Sin mapa, busca en los dos.</summary>
+        public static InputAction Find(string mapAndAction)
+        {
+            if (string.IsNullOrEmpty(mapAndAction)) return null;
+            int slash = mapAndAction.IndexOf('/');
+            if (slash < 0) return Driving.Map.FindAction(mapAndAction) ?? UI.Map.FindAction(mapAndAction);
+
+            string mapName = mapAndAction.Substring(0, slash);
+            string actionName = mapAndAction.Substring(slash + 1);
+            InputActionMap map = mapName == Driving.Map.name ? Driving.Map : mapName == UI.Map.name ? UI.Map : null;
+            return map?.FindAction(actionName);
+        }
+
+        /// <summary>
+        /// Teclas o botones asignados a una acción, listos para mostrar. Separa el joystick del teclado y
+        /// el mouse; un compuesto (como A/D) se muestra como una sola entrada.
+        /// </summary>
+        public static string BindingsText(InputAction action, bool gamepad, string separator = "  /  ")
+        {
+            if (action == null) return string.Empty;
+            var parts = new System.Collections.Generic.List<string>();
+            var bindings = action.bindings;
+            for (int i = 0; i < bindings.Count; i++)
+            {
+                InputBinding binding = bindings[i];
+                if (binding.isPartOfComposite) continue;
+
+                string path = binding.isComposite && i + 1 < bindings.Count ? bindings[i + 1].effectivePath : binding.effectivePath;
+                bool isGamepad = path != null && path.StartsWith("<Gamepad>");
+                if (isGamepad != gamepad) continue;
+
+                string text = action.GetBindingDisplayString(i);
+                if (!string.IsNullOrEmpty(text) && !parts.Contains(text)) parts.Add(text);
+            }
+            return parts.Count > 0 ? string.Join(separator, parts) : "-";
+        }
     }
 }

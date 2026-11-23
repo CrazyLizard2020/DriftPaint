@@ -87,7 +87,9 @@ namespace DriftPaint.Match
         void Update()
         {
             if (_match == null) return;
-            bool showLeave = _match.IsOnline && _match.Phase != MatchPhase.Results && Cursor.lockState != CursorLockMode.Locked;
+            // Con las opciones abiertas, la salida la ofrece el propio menú.
+            bool showLeave = _match.IsOnline && _match.Phase != MatchPhase.Results && Cursor.lockState != CursorLockMode.Locked
+                && !UI.Options.OptionsMenu.IsOpen;
             if (_leaveMatchButton != null && _leaveMatchButton.gameObject.activeSelf != showLeave)
                 _leaveMatchButton.gameObject.SetActive(showLeave);
 

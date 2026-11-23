@@ -37,6 +37,12 @@ namespace DriftPaint.EditorTools
         static TMP_FontAsset _bodyFont;
         static Texture2D _logo;
 
+        internal static Sprite WhiteSprite => _white;
+        internal static TMP_FontAsset TitleFont => _titleFont;
+        internal static TMP_FontAsset LabelFont => _labelFont;
+        internal static TMP_FontAsset BodyFont => _bodyFont;
+        internal static Color FieldColor => InputColor;
+
         [MenuItem("DriftPaint/Generar escena de menú")]
         public static void BuildFromMenu()
         {
@@ -74,6 +80,7 @@ namespace DriftPaint.EditorTools
             lobby.SetActive(false);
             busy.SetActive(false);
             error.SetActive(false);
+            OptionsMenuBuilder.Install(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);

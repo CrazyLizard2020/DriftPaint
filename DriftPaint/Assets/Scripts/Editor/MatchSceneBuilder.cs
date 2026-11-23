@@ -92,6 +92,7 @@ namespace DriftPaint.EditorTools
             DisconnectIndicatorBuilder.Connect(spawner);
 
             nameplate.gameObject.SetActive(false);
+            OptionsMenuBuilder.Install(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
