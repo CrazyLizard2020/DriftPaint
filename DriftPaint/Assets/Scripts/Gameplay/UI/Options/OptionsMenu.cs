@@ -17,6 +17,11 @@ namespace DriftPaint.UI.Options
     public class OptionsMenu : MonoBehaviour
     {
         [SerializeField] GameObject _root;
+        [Header("Restablecer opciones")]
+        [SerializeField] CanvasGroup _settingsGroup;
+        [SerializeField] DisplayOptions _display;
+        [SerializeField] GameObject _confirmation;
+        [SerializeField] Button _restoreButton, _confirmButton, _cancelButton;
 
         [Header("Volumen")]
         [SerializeField] Slider _masterSlider;
@@ -53,6 +58,9 @@ namespace DriftPaint.UI.Options
             SetupSlider(_effectsSlider, VolumeChannel.Effects, _effectsValue);
 
             if (_closeButton != null) _closeButton.onClick.AddListener(Close);
+            if (_restoreButton != null) _restoreButton.onClick.AddListener(() => ShowConfirmation(true));
+            if (_cancelButton != null) _cancelButton.onClick.AddListener(() => ShowConfirmation(false));
+            if (_confirmButton != null) _confirmButton.onClick.AddListener(RestoreDefaults);
             if (_leaveButton != null) _leaveButton.onClick.AddListener(LeaveMatch);
             if (_openButtons != null)
                 foreach (Button button in _openButtons)
@@ -76,7 +84,8 @@ namespace DriftPaint.UI.Options
         {
             if (DriftPaintInputMaps.UI.Menu.WasPressedThisFrame())
             {
-                if (_open) Close();
+                if (_open && _confirmation != null && _confirmation.activeSelf) ShowConfirmation(false);
+                else if (_open) Close();
                 else Open();
             }
 
@@ -107,8 +116,26 @@ namespace DriftPaint.UI.Options
             else Open();
         }
 
+        void ShowConfirmation(bool show)
+        {
+            _settingsGroup.interactable = !show;
+            _settingsGroup.blocksRaycasts = !show;
+            _confirmation.SetActive(show);
+            (show ? _cancelButton : _restoreButton).Select();
+        }
+
+        void RestoreDefaults()
+        {
+            VolumeSettings.RestoreDefaults();
+            DisplaySettings.RestoreDefaults();
+            RefreshSliders();
+            _display.Refresh();
+            ShowConfirmation(false);
+        }
+
         void SetOpen(bool open, bool applyCursor)
         {
+            if (!open && _confirmation != null && _confirmation.activeSelf) ShowConfirmation(false);
             _open = open;
             IsOpen = open;
             if (_root != null) _root.SetActive(open);

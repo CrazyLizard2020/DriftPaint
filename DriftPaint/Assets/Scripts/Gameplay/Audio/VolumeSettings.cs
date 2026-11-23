@@ -64,6 +64,17 @@ namespace DriftPaint.Audio
         /// <summary>Escribe los valores en disco. Se llama al cerrar las opciones, no en cada movimiento del control.</summary>
         public static void Save() => PlayerPrefs.Save();
 
+        /// <summary>Recupera las ganancias originales y actualiza las fuentes que ya están sonando.</summary>
+        public static void RestoreDefaults()
+        {
+            for (int i = 0; i < Defaults.Length; i++)
+                PlayerPrefs.DeleteKey(KeyPrefix + (VolumeChannel)i);
+            Load();
+            Apply();
+            Changed?.Invoke();
+            Save();
+        }
+
         static void Load()
         {
             _values = new float[Defaults.Length];

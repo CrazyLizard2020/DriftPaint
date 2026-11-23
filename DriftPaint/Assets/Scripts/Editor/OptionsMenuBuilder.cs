@@ -86,7 +86,7 @@ namespace DriftPaint.EditorTools
                 Button openButton = mainMenu != null ? ConnectOptionsButton(mainMenu) : null;
                 BuildOptions(match, openButton);
             }
-            else Debug.Log("La escena ya tiene menú de opciones; se dejó como estaba. Borrá \"Options UI\" para regenerarlo.", existing);
+            else InstallDisplay(existing);
 
             if (Find<EventSystem>(scene) == null) MenuSceneBuilder.BuildEventSystem();
         }
@@ -240,7 +240,129 @@ namespace DriftPaint.EditorTools
             so.FindProperty("_lockCursorOnClose").boolValue = inMatch;
             so.ApplyModifiedPropertiesWithoutUndo();
 
+            InstallDisplay(menu);
             panel.gameObject.SetActive(false);
+        }
+
+        /// <summary>Agrega los ajustes de pantalla al panel existente sin reemplazar sus controles.</summary>
+        [MenuItem("DriftPaint/Conectar opciones de pantalla")]
+        static void ConnectDisplay()
+        {
+            var scene = SceneManager.GetActiveScene();
+            var menu = Find<OptionsMenu>(scene);
+            if (menu == null) return;
+            MenuSceneBuilder.LoadAssets();
+            if (InstallDisplay(menu)) EditorSceneManager.MarkSceneDirty(scene);
+        }
+
+        static bool InstallDisplay(OptionsMenu menu)
+        {
+            Transform box = menu.transform.Find("Options Panel/Box");
+            if (box == null || box.GetComponentInChildren<DisplayOptions>(true) != null) return false;
+            var volume = (RectTransform)box.Find("Volume");
+            volume.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 320f);
+            int index = 0;
+            foreach (string row in new[] { "Master", "Music", "Effects" })
+            {
+                float y = -64f - 79f * index++;
+                foreach (string part in new[] { " Label", " Value", " Slider" })
+                {
+                    var rect = (RectTransform)volume.Find(row + part);
+                    rect.anchoredPosition = new Vector2(rect.anchoredPosition.x, part == " Slider" ? y - 42f : y);
+                }
+            }
+
+            Image section = CreateSection(box, "Display", "PANTALLA", volume.anchoredPosition.x, volume.rect.width);
+            RectTransform panel = section.rectTransform;
+            panel.anchoredPosition = volume.anchoredPosition + Vector2.down * 336f;
+            panel.SetSizeWithCurrentAnchors(RectTransform.Axis.Vertical, 224f);
+            var caption = MenuSceneBuilder.CreateLabel(panel, "Resolution Caption", MenuSceneBuilder.LabelFont, 28f,
+                TextAlignmentOptions.Left, DriftPaintPalette.OffWhite, FontStyles.Bold, TopLeft, TopLeft,
+                new Vector2(28f, -75f), new Vector2(150f, 48f));
+            caption.text = "Resolución";
+            TMP_Dropdown resolution = ResolutionDropdown(panel);
+            Button fullscreen = DisplayButton(panel, "Fullscreen", "PANTALLA COMPLETA", 32f, -150f, 290f);
+            Button windowed = DisplayButton(panel, "Windowed", "VENTANA", 344f, -150f, 185f);
+            var options = panel.gameObject.AddComponent<DisplayOptions>();
+            MenuSceneBuilder.Bind(options, ("_resolution", resolution),
+                ("_fullscreen", fullscreen), ("_windowed", windowed));
+            AddRestoreDialog(menu, box, options);
+            return true;
+        }
+
+        static void AddRestoreDialog(OptionsMenu menu, Transform box, DisplayOptions display)
+        {
+            var bottomLeft = Vector2.zero;
+            Button restore = MenuSceneBuilder.CreateButton(box, "Restore Defaults", "", ButtonStyle.Outline, 26f,
+                bottomLeft, new Vector2(68f, 50f), new Vector2(72f, 64f), bottomLeft);
+            Image icon = UiFactory.CreatePanel(restore.transform, "Reset Icon", Center, Center, Center,
+                Vector2.zero, new Vector2(42f, 42f), DriftPaintPalette.OffWhite);
+            icon.sprite = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Art/Generated/T_Restore.png");
+            var group = box.gameObject.AddComponent<CanvasGroup>();
+            var modal = UiFactory.CreatePanel(box.parent, "Restore Confirmation", Vector2.zero, Vector2.one,
+                Center, Vector2.zero, Vector2.zero, Color.black.WithAlpha(.76f));
+            modal.raycastTarget = true;
+            var card = UiFactory.CreatePanel(modal.transform, "Card", Center, Center, Center, Vector2.zero,
+                new Vector2(820f, 260f), DriftPaintPalette.HudNavy);
+            var label = MenuSceneBuilder.CreateLabel(card.transform, "Question", MenuSceneBuilder.LabelFont, 38f,
+                TextAlignmentOptions.Center, DriftPaintPalette.OffWhite, FontStyles.Bold, Center, Center,
+                new Vector2(0f, 48f), new Vector2(780f, 90f));
+            label.text = "¿Quieres reiniciar las opciones a default?";
+            Button yes = MenuSceneBuilder.CreateButton(card.transform, "Confirm", "Sí", ButtonStyle.Outline,
+                34f, Center, new Vector2(-130f, -57f), new Vector2(210f, 64f));
+            Button no = MenuSceneBuilder.CreateButton(card.transform, "Cancel", "No", ButtonStyle.Primary,
+                34f, Center, new Vector2(130f, -57f), new Vector2(210f, 64f));
+            yes.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnLeft = no, selectOnRight = no };
+            no.navigation = new Navigation { mode = Navigation.Mode.Explicit, selectOnLeft = yes, selectOnRight = yes };
+            MenuSceneBuilder.Bind(menu, ("_display", display), ("_settingsGroup", group),
+                ("_confirmation", modal.gameObject), ("_restoreButton", restore), ("_confirmButton", yes), ("_cancelButton", no));
+            modal.gameObject.SetActive(false);
+        }
+
+        static TMP_Dropdown ResolutionDropdown(Transform panel)
+        {
+            var white = MenuSceneBuilder.WhiteSprite;
+            var root = TMP_DefaultControls.CreateDropdown(new TMP_DefaultControls.Resources
+            {
+                standard = white, background = white, mask = white, knob = white,
+                dropdown = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd"),
+                checkmark = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd")
+            });
+            root.name = "Resolution";
+            var rect = (RectTransform)root.transform;
+            rect.SetParent(panel, false);
+            rect.anchorMin = rect.anchorMax = rect.pivot = TopLeft;
+            rect.anchoredPosition = new Vector2(169f, -75f);
+            rect.sizeDelta = new Vector2(360f, 50f);
+
+            var list = root.GetComponent<TMP_Dropdown>();
+            list.ClearOptions();
+            list.captionText.text = "Resolución";
+            list.itemText.text = "";
+            foreach (var label in new[] { list.captionText, list.itemText })
+            {
+                label.font = MenuSceneBuilder.BodyFont;
+                label.fontSize = 24f;
+                label.color = DriftPaintPalette.OffWhite;
+                label.textWrappingMode = TextWrappingModes.NoWrap;
+            }
+            root.GetComponent<Image>().color = MenuSceneBuilder.FieldColor;
+            list.template.GetComponent<Image>().color = DriftPaintPalette.HudNavy;
+            list.template.sizeDelta = new Vector2(0f, 320f);
+            var scroll = list.template.GetComponent<ScrollRect>();
+            scroll.scrollSensitivity = 36f;
+            scroll.content.sizeDelta = new Vector2(0f, 50f);
+            var item = list.template.GetComponentInChildren<Toggle>(true);
+            ((RectTransform)item.transform).sizeDelta = new Vector2(0f, 48f);
+            ((Image)item.targetGraphic).color = MenuSceneBuilder.FieldColor;
+            ((Image)item.graphic).color = DriftPaintPalette.Cyan;
+            return list;
+        }
+
+        static Button DisplayButton(Transform panel, string name, string label, float x, float y, float width)
+        {
+            return MenuSceneBuilder.CreateButton(panel, name, label, ButtonStyle.Primary, 26f, TopLeft,
+                new Vector2(x, y), new Vector2(width, 48f), TopLeft);
         }
 
         static Image CreateSection(Transform box, string name, string header, float x, float width)

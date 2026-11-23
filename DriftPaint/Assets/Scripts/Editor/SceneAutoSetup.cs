@@ -40,8 +40,8 @@ namespace DriftPaint.EditorTools
 
         static readonly Step[] Steps =
         {
-            new Step(MenuSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic) }, OptionsMenuBuilder.Install),
-            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic) }, OptionsMenuBuilder.Install),
+            new Step(MenuSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
+            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
         };
 
         static SceneAutoSetup()
