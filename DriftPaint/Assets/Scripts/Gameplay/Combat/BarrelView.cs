@@ -3,9 +3,9 @@ using UnityEngine;
 namespace DriftPaint.Combat
 {
     /// <summary>
-    /// Barril soltado: sale por el baúl a 5 km/h y frena enseguida. Cada cliente lo anima por su cuenta a
-    /// partir de su posición y orientación iniciales, así no hace falta sincronizar su movimiento.
-    /// No tiene colisionador: la explosión la decide el Master por distancia.
+    /// Barril soltado: sale por el baúl y frena enseguida, con la velocidad y el tiempo de BarrelSettingsSO.
+    /// Cada cliente lo anima por su cuenta a partir de su posición y orientación iniciales, así no hace
+    /// falta sincronizar su movimiento. No tiene colisionador: la explosión la decide el Master por distancia.
     /// </summary>
     public class BarrelView : MonoBehaviour
     {
@@ -13,6 +13,8 @@ namespace DriftPaint.Combat
         [SerializeField] Renderer[] _tinted;
         [Tooltip("Capas que cuentan como piso para apoyar el barril.")]
         [SerializeField] LayerMask _groundMask = ~0;
+        [Tooltip("Valores del barril. BarrelSystem lo reemplaza por el suyo al aparecer el barril.")]
+        [SerializeField] BarrelSettingsSO _settings;
 
         static readonly RaycastHit[] GroundHits = new RaycastHit[8];
 
@@ -20,6 +22,11 @@ namespace DriftPaint.Combat
         float _spawnTime;
 
         public void SetColor(Color color) => RendererTint.Apply(_tinted, color);
+
+        public void UseSettings(BarrelSettingsSO settings)
+        {
+            if (settings != null) _settings = settings;
+        }
 
         void OnEnable()
         {
@@ -46,12 +53,13 @@ namespace DriftPaint.Combat
 
         void Update()
         {
+            if (_settings == null) return;
             float t = Time.time - _spawnTime;
-            if (t > CombatRules.BarrelSlideTime) return;
+            if (t > _settings.SlideTime) return;
 
             Vector3 forward = transform.forward;
             forward.y = 0f;
-            transform.position = _start + forward.normalized * CombatRules.BarrelSlideDistance(t);
+            transform.position = _start + forward.normalized * _settings.SlideDistance(t);
         }
     }
 }

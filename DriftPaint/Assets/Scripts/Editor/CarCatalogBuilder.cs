@@ -16,10 +16,10 @@ namespace DriftPaint.EditorTools
     /// </summary>
     public static class CarCatalogBuilder
     {
-        const string CatalogPath = "Assets/Data/Cars/CarCatalog.asset";
+        const string CatalogPath = ScriptableObjectPaths.CarCatalog;
         const string PrefabFolder = "Assets/Prefabs/Cars";
         const string PreviewFolder = "Assets/Art/Generated/CarPreviews";
-        const string PalettePath = "Assets/Data/Teams/TeamPalette_Default.asset";
+        const string PalettePath = ScriptableObjectPaths.TeamPalette;
         const int PreviewWidth = 768;
         const int PreviewHeight = 384;
 

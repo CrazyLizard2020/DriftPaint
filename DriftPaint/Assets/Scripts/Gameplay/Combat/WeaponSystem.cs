@@ -21,6 +21,8 @@ namespace DriftPaint.Combat
         [SerializeField] BarrelSystem _barrels;
         [SerializeField] MatchHUD _hud;
         [SerializeField] TeamPaletteSO _palette;
+        [Tooltip("Cooldown, vuelo y efectos del disparo. Sin asset se usan los valores por defecto.")]
+        [SerializeField] ProjectileSettingsSO _settings;
 
         [Header("Plantillas de la escena")]
         [Tooltip("Proyectil inactivo que se clona por cada disparo.")]
@@ -62,9 +64,16 @@ namespace DriftPaint.Combat
 
         double Clock => _mediator.ServerTime;
 
+        public ProjectileSettingsSO Settings => _settings;
+
         /// <summary>Segundos que faltan para que el auto local pueda volver a disparar.</summary>
         public float CooldownRemaining =>
-            _mediator == null ? 0f : Mathf.Max(0f, CombatRules.FireCooldown - (float)(Clock - _localLastFire));
+            _mediator == null ? 0f : Mathf.Max(0f, _settings.Cooldown - (float)(Clock - _localLastFire));
+
+        void Awake()
+        {
+            if (_settings == null) _settings = ScriptableObject.CreateInstance<ProjectileSettingsSO>();
+        }
 
         void OnEnable()
         {
@@ -113,7 +122,7 @@ namespace DriftPaint.Combat
             forward = forward.sqrMagnitude > 0.0001f ? forward.normalized : Vector3.forward;
 
             Vector3 origin = local.Position + Vector3.up * _muzzleHeight + forward * _muzzleForward;
-            Vector3 velocity = CombatRules.ProjectileVelocity(forward, local.Car.Velocity);
+            Vector3 velocity = _settings.Velocity(forward, local.Car.Velocity);
 
             _localLastFire = Clock;
             _mediator.RequestFire(_nextShotId++, origin, velocity);
@@ -140,7 +149,7 @@ namespace DriftPaint.Combat
             {
                 double last = _lastFireByActor.TryGetValue(info.ShooterActorId, out double lastFire)
                     ? lastFire : double.NegativeInfinity;
-                shot.Rejected = !CombatRules.IsFireAllowed(last, info.FireTime) || shot.Team == TeamId.None;
+                shot.Rejected = !_settings.IsFireAllowed(last, info.FireTime) || shot.Team == TeamId.None;
                 if (!shot.Rejected) _lastFireByActor[info.ShooterActorId] = info.FireTime;
             }
 
@@ -166,13 +175,13 @@ namespace DriftPaint.Combat
                 Shot shot = pair.Value;
                 // Quien recibe el disparo tarde lo adelanta: el proyectil está donde estaría desde FireTime.
                 float t = Mathf.Max(0f, (float)(Clock - shot.Info.FireTime));
-                if (t > CombatRules.ProjectileLifetime)
+                if (t > _settings.Lifetime)
                 {
                     _finished.Add(pair.Key);
                     continue;
                 }
 
-                Vector3 position = CombatRules.ProjectilePosition(shot.Info.Origin, shot.Info.Velocity, t);
+                Vector3 position = _settings.Position(shot.Info.Origin, shot.Info.Velocity, t);
                 if (!shot.Landed)
                 {
                     if (_match.IsAuthority && !shot.Rejected)
@@ -190,7 +199,7 @@ namespace DriftPaint.Combat
                 shot.Last = position;
                 if (shot.View != null && shot.View.gameObject.activeSelf)
                 {
-                    Vector3 velocity = shot.Info.Velocity + Vector3.down * (CombatRules.ProjectileGravity * t);
+                    Vector3 velocity = shot.Info.Velocity + Vector3.down * (_settings.Gravity * t);
                     shot.View.transform.SetPositionAndRotation(position,
                         velocity.sqrMagnitude > 0.01f ? Quaternion.LookRotation(velocity) : Quaternion.identity);
                 }
@@ -215,6 +224,7 @@ namespace DriftPaint.Combat
             float bestDistance = float.PositiveInfinity;
             Vector3 bestPoint = to;
             int stunned = -1;
+            float hitRadiusSq = _settings.DirectHitRadius * _settings.DirectHitRadius;
 
             if (TryHitScenery(from, to, out RaycastHit ground))
             {
@@ -230,7 +240,7 @@ namespace DriftPaint.Combat
                 Vector3 center = car.Position + Vector3.up * _carHitHeight;
                 float along = length > 0.0001f ? Mathf.Clamp(Vector3.Dot(center - from, segment / length), 0f, length) : 0f;
                 Vector3 closest = from + (length > 0.0001f ? segment / length * along : Vector3.zero);
-                if ((center - closest).sqrMagnitude > CombatRules.DirectHitRadius * CombatRules.DirectHitRadius) continue;
+                if ((center - closest).sqrMagnitude > hitRadiusSq) continue;
                 if (along >= bestDistance) continue;
 
                 bestDistance = along;
@@ -240,9 +250,11 @@ namespace DriftPaint.Combat
 
             if (float.IsPositiveInfinity(bestDistance)) return false;
 
-            int size = CombatRules.ProjectileChunkSize;
+            ImpactEffectSettings effects = _settings.Impact;
+            int size = effects.BlastSize;
             int[] slowed = MatchCars.EnemiesInSquare(_cars, shot.Team, bestPoint, size, stunned);
-            if (_paint != null) _paint.PaintArea(bestPoint, size, shot.Team, shot.Info.ShooterActorId);
+            if (_paint != null)
+                _paint.PaintArea(bestPoint, size, shot.Team, shot.Info.ShooterActorId, effects.PaintPrioritySeconds);
             _mediator.SendImpact(new ImpactInfo(bestPoint, ImpactKind.Projectile, shot.Info.ShooterActorId,
                 shot.Info.ShotId, stunned, slowed));
             return true;
@@ -299,19 +311,30 @@ namespace DriftPaint.Combat
                 }
             }
 
+            ImpactEffectSettings effects = EffectsFor(impact.Kind);
+            int size = effects.BlastSize;
+
             if (_burstTemplate != null)
             {
                 ImpactBurst burst = Instantiate(_burstTemplate, _burstTemplate.transform.parent);
                 burst.name = "Impact";
-                float size = impact.Kind == ImpactKind.Barrel ? CombatRules.BarrelBlastSize : CombatRules.ProjectileChunkSize;
                 burst.Play(impact.Position, size, TeamColor(team));
             }
 
+            // La zona recién pintada no la tapan los rastros, tampoco la predicción local.
+            if (_paint != null)
+                _paint.RegisterImpact(impact.Position, size, effects.PaintPrioritySeconds, impact.StunnedActorId, effects.StunDuration);
+
             // Cada jugador aplica los efectos sobre su propio auto, que es el que simula.
             if (!MatchCars.TryGetLocal(_mediator, out MatchCar local)) return;
-            if (impact.StunnedActorId >= 0 && impact.StunnedActorId == local.OwnerActorId) local.Car.StatusEffects.ApplyStun();
-            else if (impact.Slows(local.OwnerActorId)) local.Car.StatusEffects.ApplySlow();
+            if (impact.StunnedActorId >= 0 && impact.StunnedActorId == local.OwnerActorId)
+                local.Car.StatusEffects.ApplyStun(effects.StunDuration, effects.StunSpeedFactor);
+            else if (impact.Slows(local.OwnerActorId))
+                local.Car.StatusEffects.ApplySlow(effects.SlowDuration, effects.SlowDeceleration);
         }
+
+        ImpactEffectSettings EffectsFor(ImpactKind kind) =>
+            kind == ImpactKind.Barrel && _barrels != null ? _barrels.Settings.Impact : _settings.Impact;
 
         #endregion
 
@@ -326,7 +349,7 @@ namespace DriftPaint.Combat
 
             _shownTenths = tenths;
             _shownBarrels = barrels;
-            _hud.SetAbilities(remaining, CombatRules.FireCooldown, barrels);
+            _hud.SetAbilities(remaining, _settings.Cooldown, barrels);
         }
 
         Color TeamColor(byte team) => _palette != null ? _palette.Get(team).Main : Color.white;

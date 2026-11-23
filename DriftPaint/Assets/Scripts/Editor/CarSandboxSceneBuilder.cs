@@ -21,8 +21,8 @@ namespace DriftPaint.EditorTools
     /// </summary>
     public static class CarSandboxSceneBuilder
     {
-        const string DataPath = "Assets/Data/Cars/CarData_Default.asset";
-        const string PalettePath = "Assets/Data/Teams/TeamPalette_Default.asset";
+        const string DataPath = ScriptableObjectPaths.CarData;
+        const string PalettePath = ScriptableObjectPaths.TeamPalette;
         const string ArtFolder = "Assets/Art/Generated";
         const string MaterialFolder = "Assets/Art/Materials";
         const string ScenePath = "Assets/Scenes/Sandbox_Car.unity";

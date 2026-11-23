@@ -26,8 +26,8 @@ namespace DriftPaint.EditorTools
     public static class MatchSceneBuilder
     {
         const string ScenePath = "Assets/Scenes/Match_DriftArena.unity";
-        const string DataPath = "Assets/Data/Cars/CarData_Default.asset";
-        const string PalettePath = "Assets/Data/Teams/TeamPalette_Default.asset";
+        const string DataPath = ScriptableObjectPaths.CarData;
+        const string PalettePath = ScriptableObjectPaths.TeamPalette;
         const string PrefabFolder = "Assets/Prefabs/Cars";
         const string ArtFolder = "Assets/Art/Generated";
         const string MaterialFolder = "Assets/Art/Materials";
@@ -248,7 +248,11 @@ namespace DriftPaint.EditorTools
                 DriftPaintPalette.OffWhite, smoothness: 0.3f);
             Material fxMat = LoadOrCreateUnlitMaterial(MaterialFolder + "/M_CombatFx.mat");
 
-            GameObject barrelPrefab = BuildBarrelPrefab(barrelMat, bandMat);
+            // Los valores ya editados en los assets se conservan al regenerar la escena.
+            ProjectileSettingsSO projectileSettings = CombatSettingsBuilder.LoadOrCreateProjectileSettings();
+            BarrelSettingsSO barrelSettings = CombatSettingsBuilder.LoadOrCreateBarrelSettings();
+
+            GameObject barrelPrefab = BuildBarrelPrefab(barrelMat, bandMat, barrelSettings);
 
             var fxRoot = new GameObject("Combat FX").transform;
 
@@ -273,6 +277,7 @@ namespace DriftPaint.EditorTools
             MenuSceneBuilder.SetRef(so, "_paint", paint);
             MenuSceneBuilder.SetRef(so, "_barrelPrefab", barrelPrefab);
             MenuSceneBuilder.SetRef(so, "_palette", palette);
+            MenuSceneBuilder.SetRef(so, "_settings", barrelSettings);
             SerializedProperty pickupsProp = so.FindProperty("_pickups");
             pickupsProp.arraySize = pickups.Count;
             for (int i = 0; i < pickups.Count; i++)
@@ -280,11 +285,13 @@ namespace DriftPaint.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
 
             MenuSceneBuilder.Bind(weapons, ("_match", match), ("_paint", paint), ("_barrels", barrels), ("_hud", hud),
-                ("_palette", palette), ("_projectileTemplate", projectileView), ("_burstTemplate", burstView));
+                ("_palette", palette), ("_settings", projectileSettings), ("_projectileTemplate", projectileView),
+                ("_burstTemplate", burstView));
+            AssetDatabase.SaveAssets();
         }
 
         /// <summary>Barril soltado: tambor dorado con una banda que toma el color del equipo. Sin colisionador.</summary>
-        static GameObject BuildBarrelPrefab(Material barrelMat, Material bandMat)
+        static GameObject BuildBarrelPrefab(Material barrelMat, Material bandMat, BarrelSettingsSO settings)
         {
             var root = new GameObject(BarrelSystem.PrefabId);
             CreateVisual(root.transform, "Body", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f), new Vector3(0.9f, 0.55f, 0.9f), barrelMat);
@@ -292,6 +299,7 @@ namespace DriftPaint.EditorTools
                 new Vector3(0.96f, 0.12f, 0.96f), bandMat);
             BarrelView view = root.AddComponent<BarrelView>();
             BindRenderers(view, "_tinted", band.GetComponent<Renderer>());
+            MenuSceneBuilder.Bind(view, ("_settings", settings));
 
             EditorAssetUtility.EnsureFolder(CombatPrefabFolder);
             string path = CombatPrefabFolder + "/" + BarrelSystem.PrefabId + ".prefab";

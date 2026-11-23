@@ -9,33 +9,41 @@ namespace DriftPaint.Tests
 {
     public class CombatRulesTests
     {
+        const float ForwardSpeed = 32f;
+        const float LiftSpeed = 7f;
+        const float Gravity = 22f;
+        const float Cooldown = 5f;
+        const float CooldownTolerance = 0.25f;
+        const float DropSpeed = 5f / 3.6f;
+        const float SlideTime = 0.6f;
+
         [Test]
         public void Projectile_StartsAtOrigin()
         {
             var origin = new Vector3(3f, 1.2f, -7f);
-            Vector3 velocity = CombatRules.ProjectileVelocity(Vector3.forward, Vector3.zero);
-            Assert.That(Vector3.Distance(origin, CombatRules.ProjectilePosition(origin, velocity, 0f)), Is.LessThan(0.0001f));
+            Vector3 velocity = CombatRules.ProjectileVelocity(Vector3.forward, Vector3.zero, ForwardSpeed, LiftSpeed);
+            Assert.That(Vector3.Distance(origin, CombatRules.ProjectilePosition(origin, velocity, Gravity, 0f)), Is.LessThan(0.0001f));
         }
 
         [Test]
         public void Projectile_ReachesItsApexWhenVerticalSpeedIsZero()
         {
-            Vector3 velocity = CombatRules.ProjectileVelocity(Vector3.forward, Vector3.zero);
-            float apexTime = CombatRules.ProjectileLiftSpeed / CombatRules.ProjectileGravity;
-            float expected = CombatRules.ProjectileLiftSpeed * CombatRules.ProjectileLiftSpeed / (2f * CombatRules.ProjectileGravity);
+            Vector3 velocity = CombatRules.ProjectileVelocity(Vector3.forward, Vector3.zero, ForwardSpeed, LiftSpeed);
+            float apexTime = LiftSpeed / Gravity;
+            float expected = LiftSpeed * LiftSpeed / (2f * Gravity);
 
-            Vector3 apex = CombatRules.ProjectilePosition(Vector3.zero, velocity, apexTime);
+            Vector3 apex = CombatRules.ProjectilePosition(Vector3.zero, velocity, Gravity, apexTime);
             Assert.AreEqual(expected, apex.y, 0.001f);
-            Assert.AreEqual(CombatRules.ProjectileForwardSpeed * apexTime, apex.z, 0.001f);
+            Assert.AreEqual(ForwardSpeed * apexTime, apex.z, 0.001f);
         }
 
         [Test]
         public void ProjectileVelocity_AddsCarSpeedOnThePlaneOnly()
         {
-            Vector3 velocity = CombatRules.ProjectileVelocity(new Vector3(0f, 0.5f, 2f), new Vector3(1f, -4f, 10f));
+            Vector3 velocity = CombatRules.ProjectileVelocity(new Vector3(0f, 0.5f, 2f), new Vector3(1f, -4f, 10f), ForwardSpeed, LiftSpeed);
             Assert.AreEqual(1f, velocity.x, 0.0001f);
-            Assert.AreEqual(CombatRules.ProjectileLiftSpeed, velocity.y, 0.0001f);
-            Assert.AreEqual(10f + CombatRules.ProjectileForwardSpeed, velocity.z, 0.0001f);
+            Assert.AreEqual(LiftSpeed, velocity.y, 0.0001f);
+            Assert.AreEqual(10f + ForwardSpeed, velocity.z, 0.0001f);
         }
 
         [TestCase(double.NegativeInfinity, 0.0, true)]
@@ -45,34 +53,45 @@ namespace DriftPaint.Tests
         [TestCase(10.0, 15.0, true)]
         public void FireCooldown_IsValidatedWithASmallTolerance(double last, double fire, bool allowed)
         {
-            Assert.AreEqual(allowed, CombatRules.IsFireAllowed(last, fire));
+            Assert.AreEqual(allowed, CombatRules.IsFireAllowed(last, fire, Cooldown, CooldownTolerance));
         }
 
-        [TestCase(-1, 1)]
-        [TestCase(0, 1)]
-        [TestCase(3, 4)]
-        [TestCase(4, 4)]
-        public void AddBarrel_NeverPassesTheMaximum(int current, int expected)
+        [TestCase(-1, 4, 1)]
+        [TestCase(0, 4, 1)]
+        [TestCase(3, 4, 4)]
+        [TestCase(4, 4, 4)]
+        [TestCase(5, 6, 6)]
+        public void AddBarrel_NeverPassesTheMaximum(int current, int max, int expected)
         {
-            Assert.AreEqual(expected, CombatRules.AddBarrel(current));
+            Assert.AreEqual(expected, CombatRules.AddBarrel(current, max));
         }
 
         [Test]
         public void BarrelSlide_StopsAfterTheSlideTime()
         {
-            float full = CombatRules.BarrelDropSpeed * CombatRules.BarrelSlideTime * 0.5f;
-            Assert.AreEqual(0f, CombatRules.BarrelSlideDistance(0f), 0.0001f);
-            Assert.AreEqual(full, CombatRules.BarrelSlideDistance(CombatRules.BarrelSlideTime), 0.0001f);
-            Assert.AreEqual(full, CombatRules.BarrelSlideDistance(5f), 0.0001f);
-            Assert.Less(CombatRules.BarrelSlideDistance(CombatRules.BarrelSlideTime * 0.5f), full);
+            float full = DropSpeed * SlideTime * 0.5f;
+            Assert.AreEqual(0f, CombatRules.BarrelSlideDistance(0f, DropSpeed, SlideTime), 0.0001f);
+            Assert.AreEqual(full, CombatRules.BarrelSlideDistance(SlideTime, DropSpeed, SlideTime), 0.0001f);
+            Assert.AreEqual(full, CombatRules.BarrelSlideDistance(5f, DropSpeed, SlideTime), 0.0001f);
+            Assert.Less(CombatRules.BarrelSlideDistance(SlideTime * 0.5f, DropSpeed, SlideTime), full);
+        }
+
+        [TestCase(2.5f, 5)]
+        [TestCase(4f, 8)]
+        [TestCase(3.2f, 6)]
+        [TestCase(0.1f, 1)]
+        public void BlastSize_IsTwiceTheRadius(float radius, int expected)
+        {
+            Assert.AreEqual(expected, CombatRules.BlastSize(radius));
         }
 
         [Test]
         public void InsideSquare_IncludesTheCarMargin()
         {
-            float edge = CombatRules.BarrelBlastSize * 0.5f + CombatRules.CarHalfWidth;
-            Assert.IsTrue(CombatRules.IsInsideSquare(Vector3.zero, CombatRules.BarrelBlastSize, new Vector3(edge, 0f, -edge)));
-            Assert.IsFalse(CombatRules.IsInsideSquare(Vector3.zero, CombatRules.BarrelBlastSize, new Vector3(edge + 0.1f, 0f, 0f)));
+            const int size = 8;
+            float edge = size * 0.5f + CombatRules.CarHalfWidth;
+            Assert.IsTrue(CombatRules.IsInsideSquare(Vector3.zero, size, new Vector3(edge, 0f, -edge)));
+            Assert.IsFalse(CombatRules.IsInsideSquare(Vector3.zero, size, new Vector3(edge + 0.1f, 0f, 0f)));
         }
 
         static List<int> Square(Vector3 center, int size)
@@ -86,7 +105,7 @@ namespace DriftPaint.Tests
         public void ProjectileSquare_Is5x5AroundTheImpactCell()
         {
             var center = new Vector3(0.5f, 0f, 0.5f);
-            List<int> cells = Square(center, CombatRules.ProjectileChunkSize);
+            List<int> cells = Square(center, CombatRules.BlastSize(2.5f));
 
             Assert.AreEqual(25, cells.Count);
             Assert.AreEqual(25, cells.Distinct().Count());
@@ -101,14 +120,14 @@ namespace DriftPaint.Tests
         [Test]
         public void BarrelSquare_Is8x8()
         {
-            Assert.AreEqual(64, Square(new Vector3(10.2f, 0f, -4.7f), CombatRules.BarrelBlastSize).Count);
+            Assert.AreEqual(64, Square(new Vector3(10.2f, 0f, -4.7f), CombatRules.BlastSize(4f)).Count);
         }
 
         [Test]
         public void Square_IsClippedAtTheGridEdge()
         {
             Vector3 corner = new Vector3(PaintGrid.Origin + 0.5f, 0f, PaintGrid.Origin + 0.5f);
-            Assert.AreEqual(9, Square(corner, CombatRules.ProjectileChunkSize).Count);
+            Assert.AreEqual(9, Square(corner, 5).Count);
         }
     }
 }

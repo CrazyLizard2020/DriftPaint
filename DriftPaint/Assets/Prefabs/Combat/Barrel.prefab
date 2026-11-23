@@ -231,3 +231,4 @@ MonoBehaviour:
   _groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  _settings: {fileID: 11400000, guid: 3ae11d43599e4a589121a6be26581371, type: 2}

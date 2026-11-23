@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d108efb78a9853e41a900f3f7560a2cb, type: 3}
+  m_Name: ProjectileSettings
+  m_EditorClassIdentifier: 
+  _cooldown: 5
+  _cooldownTolerance: 0.25
+  _forwardSpeed: 32
+  _liftSpeed: 7
+  _gravity: 22
+  _lifetime: 3
+  _directHitRadius: 2
+  _impact:
+    _explosionRadius: 4
+    _paintPrioritySeconds: 1.5
+    _stunDuration: 2
+    _stunSpeedFactor: 0.2
+    _slowDuration: 2
+    _slowDeceleration: 8

@@ -24,7 +24,7 @@ namespace DriftPaint.EditorTools
         const string ScenePath = "Assets/Scenes/Menu.unity";
         const string ArtFolder = "Assets/Art/Generated";
         const string LogoPath = "Assets/Sprites/driftpaint_logo.png";
-        const string PalettePath = "Assets/Data/Teams/TeamPalette_Default.asset";
+        const string PalettePath = ScriptableObjectPaths.TeamPalette;
 
         internal static readonly Color PanelColor = DriftPaintPalette.HudNavy.WithAlpha(0.9f);
         internal static readonly Color RowColor = DriftPaintPalette.Hex(0x2A2F4A);

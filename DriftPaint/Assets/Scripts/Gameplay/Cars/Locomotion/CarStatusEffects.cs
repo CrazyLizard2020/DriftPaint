@@ -22,6 +22,7 @@ namespace DriftPaint.Cars
         float _stunTimer;
         float _stunSpeedCap;
         float _slowTimer;
+        float _slowDeceleration;
         float _driftStraightTimer;
         float _turboTimer;
 
@@ -161,7 +162,7 @@ namespace DriftPaint.Cars
                 targetSpeed = _stunSpeedCap;
 
             if (IsSlowed && targetSpeed > 0f)
-                targetSpeed = Mathf.Max(0f, targetSpeed - _stats.SlowDeceleration * dt);
+                targetSpeed = Mathf.Max(0f, targetSpeed - _slowDeceleration * dt);
 
             if (IsDrifting && targetSpeed > 0f)
                 targetSpeed = Mathf.Max(0f, targetSpeed - _stats.DriftSpeedLoss * dt);
@@ -169,14 +170,17 @@ namespace DriftPaint.Cars
             return targetSpeed;
         }
 
-        /// <summary>Impacto directo: la velocidad baja al 20 % y no acelera ni pinta durante 2 s.</summary>
-        public void ApplyStun()
+        /// <summary>
+        /// Impacto directo: la velocidad máxima baja a speedFactor de la actual y no acelera ni pinta
+        /// durante duration segundos.
+        /// </summary>
+        public void ApplyStun(float duration, float speedFactor)
         {
-            if (_stats == null) return;
+            if (_stats == null || duration <= 0f) return;
 
             bool wasStunned = IsStunned;
-            _stunSpeedCap = Mathf.Max(0f, ForwardSpeed) * _stats.StunSpeedFactor;
-            _stunTimer = _stats.StatusDuration;
+            _stunSpeedCap = Mathf.Max(0f, ForwardSpeed) * Mathf.Clamp01(speedFactor);
+            _stunTimer = Mathf.Max(_stunTimer, duration);
 
             // Un stun corta el drift y borra la carga.
             if (IsDrifting) EndDrift(grantTurbo: false);
@@ -185,11 +189,15 @@ namespace DriftPaint.Cars
             if (!wasStunned) StunChanged?.Invoke();
         }
 
-        /// <summary>Splash: aceleración negativa durante 2 s. Sigue pintando.</summary>
-        public void ApplySlow()
+        /// <summary>
+        /// Splash: pierde deceleration m/s por segundo durante duration segundos. Sigue pintando. Si ya
+        /// estaba lento, queda el slow más fuerte y el que más dura.
+        /// </summary>
+        public void ApplySlow(float duration, float deceleration)
         {
-            if (_stats == null) return;
-            _slowTimer = _stats.StatusDuration;
+            if (_stats == null || duration <= 0f) return;
+            _slowDeceleration = IsSlowed ? Mathf.Max(_slowDeceleration, deceleration) : deceleration;
+            _slowTimer = Mathf.Max(_slowTimer, duration);
         }
 
         public void ClearAll()

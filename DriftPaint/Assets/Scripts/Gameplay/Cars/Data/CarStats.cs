@@ -48,9 +48,6 @@ namespace DriftPaint.Cars
         public float FlipDetectTime => _data.FlipDetectTime;
         public float FlipBlinkTime => _data.FlipBlinkTime;
         public float PaintBoostMultiplier => _data.PaintBoostMultiplier;
-        public float StunSpeedFactor => _data.StunSpeedFactor;
-        public float StatusDuration => _data.StatusDuration;
-        public float SlowDeceleration => _data.SlowDeceleration;
         public float DriftMinSpeed => _data.DriftMinSpeed;
         public float DriftGripFactor => _data.DriftGripFactor;
         public float DriftYawMultiplier => _data.DriftYawMultiplier;

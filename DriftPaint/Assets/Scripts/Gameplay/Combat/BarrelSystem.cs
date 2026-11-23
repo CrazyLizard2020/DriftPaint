@@ -21,6 +21,8 @@ namespace DriftPaint.Combat
         [SerializeField] PaintSystem _paint;
         [SerializeField] GameObject _barrelPrefab;
         [SerializeField] TeamPaletteSO _palette;
+        [Tooltip("Inventario, explosión y pickups. Sin asset se usan los valores por defecto.")]
+        [SerializeField] BarrelSettingsSO _settings;
         [Tooltip("Pickups de la escena. Cada uno necesita un id distinto.")]
         [SerializeField] BarrelPickup[] _pickups;
 
@@ -54,6 +56,8 @@ namespace DriftPaint.Combat
         double Clock => _mediator.ServerTime;
         bool IsAuthority => !_online || _mediator.IsMaster;
 
+        public BarrelSettingsSO Settings => _settings;
+
         /// <summary>Barriles en el baúl del jugador local.</summary>
         public int LocalBarrels
         {
@@ -62,9 +66,14 @@ namespace DriftPaint.Combat
                 if (_mediator == null) return 0;
                 if (!_online) return CountOf(_mediator.LocalActorId);
                 foreach (PlayerSummary player in _mediator.Players)
-                    if (player.IsLocal) return player.Barrels >= 0 ? player.Barrels : CombatRules.StartBarrels;
+                    if (player.IsLocal) return player.Barrels >= 0 ? player.Barrels : _settings.StartBarrels;
                 return 0;
             }
+        }
+
+        void Awake()
+        {
+            if (_settings == null) _settings = ScriptableObject.CreateInstance<BarrelSettingsSO>();
         }
 
         void OnEnable()
@@ -129,6 +138,7 @@ namespace DriftPaint.Combat
         void OnObjectSpawned(NetworkObjectInfo info)
         {
             if (info.PrefabId != PrefabId || info.Instance == null || !info.Instance.TryGetComponent(out BarrelView view)) return;
+            view.UseSettings(_settings);
 
             MatchCars.Collect(_mediator, _cars);
             Vector3 position = info.Instance.transform.position;
@@ -157,7 +167,7 @@ namespace DriftPaint.Combat
             if (_online)
                 foreach (PlayerSummary player in _mediator.Players)
                     if (player.ActorId == actorId && player.Barrels >= 0) return player.Barrels;
-            return CombatRules.StartBarrels;
+            return _settings.StartBarrels;
         }
 
         void SetCount(int actorId, int count)
@@ -177,7 +187,7 @@ namespace DriftPaint.Combat
             {
                 if (_inventory.ContainsKey(player.ActorId)) continue;
                 if (player.Barrels >= 0) _inventory[player.ActorId] = player.Barrels;
-                else SetCount(player.ActorId, CombatRules.StartBarrels);
+                else SetCount(player.ActorId, _settings.StartBarrels);
             }
         }
 
@@ -242,13 +252,13 @@ namespace DriftPaint.Combat
                 }
 
                 double age = now - barrel.SpawnTime;
-                if (age > CombatRules.BarrelLifetime)
+                if (age > _settings.Lifetime)
                 {
                     _mediator.Despawn(barrel.Instance);
                     _live.RemoveAt(i);
                     continue;
                 }
-                if (!armed || age < CombatRules.BarrelArmDelay) continue;
+                if (!armed || age < _settings.ArmDelay) continue;
 
                 int victim = FindVictim(barrel);
                 if (victim < 0) continue;
@@ -261,7 +271,7 @@ namespace DriftPaint.Combat
         int FindVictim(LiveBarrel barrel)
         {
             Vector3 position = barrel.Instance.transform.position;
-            float radiusSq = CombatRules.BarrelTriggerRadius * CombatRules.BarrelTriggerRadius;
+            float radiusSq = _settings.TriggerRadius * _settings.TriggerRadius;
             foreach (MatchCar car in _cars)
             {
                 if (car.Car == null || car.Team == TeamId.None || car.Team == barrel.Team) continue;
@@ -276,10 +286,11 @@ namespace DriftPaint.Combat
         void Explode(LiveBarrel barrel, int victim)
         {
             Vector3 position = barrel.Instance.transform.position;
-            int size = CombatRules.BarrelBlastSize;
+            ImpactEffectSettings effects = _settings.Impact;
+            int size = effects.BlastSize;
             int[] slowed = MatchCars.EnemiesInSquare(_cars, barrel.Team, position, size, victim);
 
-            if (_paint != null) _paint.PaintArea(position, size, barrel.Team, barrel.Owner);
+            if (_paint != null) _paint.PaintArea(position, size, barrel.Team, barrel.Owner, effects.PaintPrioritySeconds);
             _mediator.SendImpact(new ImpactInfo(position, ImpactKind.Barrel, barrel.Owner, -1, victim, slowed));
             _mediator.Despawn(barrel.Instance);
         }
@@ -301,9 +312,9 @@ namespace DriftPaint.Combat
             // Si la respuesta no llega, se puede volver a pedir.
             if (_pendingPickup >= 0 && Time.time - _pendingSince < 1f) return;
             _pendingPickup = -1;
-            if (LocalBarrels >= CombatRules.MaxBarrels) return;
+            if (LocalBarrels >= _settings.MaxBarrels) return;
 
-            float radiusSq = CombatRules.PickupRadius * CombatRules.PickupRadius;
+            float radiusSq = _settings.PickupRadius * _settings.PickupRadius;
             foreach (BarrelPickup pickup in _pickups)
             {
                 if (pickup == null || !pickup.IsAvailable(now)) continue;
@@ -329,7 +340,7 @@ namespace DriftPaint.Combat
             double now = Clock;
             int count = CountOf(actorId);
             bool accepted = _match != null && _match.AllowsDriving && pickup.IsAvailable(now)
-                && count < CombatRules.MaxBarrels && IsCarNear(actorId, pickup.transform.position);
+                && count < _settings.MaxBarrels && IsCarNear(actorId, pickup.transform.position);
 
             if (!accepted)
             {
@@ -337,16 +348,16 @@ namespace DriftPaint.Combat
                 return;
             }
 
-            double respawn = now + CombatRules.PickupRespawnSeconds;
+            double respawn = now + _settings.PickupRespawnSeconds;
             pickup.SetRespawnTime(respawn);
-            SetCount(actorId, CombatRules.AddBarrel(count));
+            SetCount(actorId, _settings.AddBarrel(count));
             _mediator.SendPickupResult(actorId, new PickupResult(pickupId, actorId, respawn));
         }
 
         bool IsCarNear(int actorId, Vector3 position)
         {
             // Margen extra: el Master ve a los autos ajenos con un poco de atraso.
-            float limit = CombatRules.PickupRadius + 3f;
+            float limit = _settings.PickupRadius + 3f;
             foreach (MatchCar car in _cars)
             {
                 if (car.OwnerActorId != actorId) continue;

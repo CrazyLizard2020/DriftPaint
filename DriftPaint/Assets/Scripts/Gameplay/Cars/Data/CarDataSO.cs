@@ -84,15 +84,6 @@ namespace DriftPaint.Cars
         [Tooltip("Multiplica la aceleración sobre pintura propia. MaxSpeed no cambia.")]
         [SerializeField, Min(1f)] float _paintBoostMultiplier = 1.5f;
 
-        [Tooltip("Stun: la velocidad objetivo baja a este factor de la velocidad del impacto.")]
-        [SerializeField, Range(0f, 1f)] float _stunSpeedFactor = 0.2f;
-
-        [Tooltip("Duración de stun y slow (s).")]
-        [SerializeField, Min(0f)] float _statusDuration = 2f;
-
-        [Tooltip("Slow: aceleración negativa que se resta a la rampa (m/s²).")]
-        [SerializeField, Min(0f)] float _slowDeceleration = 8f;
-
         [Header("Drift")]
         [SerializeField, Min(0f)] float _driftMinSpeed = 11.11f;
         [SerializeField, Range(0f, 1f)] float _driftGripFactor = 0.3f;
@@ -138,9 +129,6 @@ namespace DriftPaint.Cars
         public float FlipDetectTime => _flipDetectTime;
         public float FlipBlinkTime => _flipBlinkTime;
         public float PaintBoostMultiplier => _paintBoostMultiplier;
-        public float StunSpeedFactor => _stunSpeedFactor;
-        public float StatusDuration => _statusDuration;
-        public float SlowDeceleration => _slowDeceleration;
         public float DriftMinSpeed => _driftMinSpeed;
         public float DriftGripFactor => _driftGripFactor;
         public float DriftYawMultiplier => _driftYawMultiplier;

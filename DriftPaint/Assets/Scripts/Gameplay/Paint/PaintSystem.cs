@@ -54,6 +54,8 @@ namespace DriftPaint.Paint
         readonly RaycastHit[] _groundHits = new RaycastHit[8];
         // Hasta cuándo está aturdido cada auto ajeno, según los impactos que publica el Master.
         readonly Dictionary<int, float> _stunnedUntil = new Dictionary<int, float>();
+        // Hasta cuándo cada celda ignora los rastros de los autos porque la pintó una explosión.
+        readonly float[] _protectedUntil = new float[PaintGrid.CellCount];
 
         INetworkMediator _mediator;
         bool _online;
@@ -86,7 +88,6 @@ namespace DriftPaint.Paint
             _mediator.PaintDeltaReceived += OnPaintDelta;
             _mediator.PaintSnapshotRequested += OnSnapshotRequested;
             _mediator.PaintSnapshotReceived += OnSnapshotReceived;
-            _mediator.ImpactReceived += OnImpact;
         }
 
         void OnDisable()
@@ -99,18 +100,6 @@ namespace DriftPaint.Paint
             _mediator.PaintDeltaReceived -= OnPaintDelta;
             _mediator.PaintSnapshotRequested -= OnSnapshotRequested;
             _mediator.PaintSnapshotReceived -= OnSnapshotReceived;
-            _mediator.ImpactReceived -= OnImpact;
-        }
-
-        void OnImpact(ImpactInfo impact)
-        {
-            if (impact.StunnedActorId < 0) return;
-
-            float duration = 2f;
-            foreach (TrackedCar car in _cars)
-                if (car.Owner == impact.StunnedActorId && car.Car != null && car.Car.Stats != null)
-                    duration = car.Car.Stats.StatusDuration;
-            _stunnedUntil[impact.StunnedActorId] = Time.time + duration;
         }
 
         bool IsStunned(TrackedCar car)
@@ -121,17 +110,51 @@ namespace DriftPaint.Paint
 
         /// <summary>
         /// Solo la autoridad: pinta un cuadrado de la grilla oficial, como la explosión de un proyectil o
-        /// de un barril. Los demás clientes lo reciben con el próximo envío de cambios.
+        /// de un barril, y lo protege de los rastros de los autos durante protectSeconds. Pisa cualquier
+        /// pintura, también la de otra explosión. Los demás clientes lo reciben con el próximo envío.
         /// </summary>
-        public void PaintArea(Vector3 center, int size, byte team, int ownerActorId)
+        public void PaintArea(Vector3 center, int size, byte team, int ownerActorId, float protectSeconds)
         {
             if (!IsAuthority || team == TeamId.None) return;
 
             _cells.Clear();
             PaintRasterizer.RasterizeSquare(center, size, _cells);
+            float until = Time.time + protectSeconds;
             foreach (int cell in _cells)
+            {
                 PaintConfirmed(cell, team, ownerActorId);
+                if (_protectedUntil[cell] < until) _protectedUntil[cell] = until;
+            }
         }
+
+        /// <summary>
+        /// En todos los clientes, al anunciarse un impacto: protege la zona de la explosión de los rastros
+        /// (así la predicción local tampoco la tapa) y anota el stun del auto alcanzado, que deja de pintar.
+        /// </summary>
+        public void RegisterImpact(Vector3 center, int size, float protectSeconds, int stunnedActorId, float stunSeconds)
+        {
+            if (protectSeconds > 0f)
+            {
+                _cells.Clear();
+                PaintRasterizer.RasterizeSquare(center, size, _cells);
+                float until = Time.time + protectSeconds;
+                foreach (int cell in _cells)
+                {
+                    if (_protectedUntil[cell] < until) _protectedUntil[cell] = until;
+                    // Lo predicho dentro de la zona se descarta: se ve lo que confirmó el Master.
+                    if (_predicted.Remove(cell)) SetDisplay(cell, _confirmed.GetTeam(cell));
+                }
+            }
+
+            if (stunnedActorId >= 0 && stunSeconds > 0f)
+            {
+                float until = Time.time + stunSeconds;
+                if (!_stunnedUntil.TryGetValue(stunnedActorId, out float current) || current < until)
+                    _stunnedUntil[stunnedActorId] = until;
+            }
+        }
+
+        bool IsProtected(int cell) => Time.time < _protectedUntil[cell];
 
         void Start()
         {
@@ -254,6 +277,8 @@ namespace DriftPaint.Paint
 
             foreach (int cell in _cells)
             {
+                // Lo que acaba de pintar una explosión tiene prioridad sobre los rastros por un rato.
+                if (IsProtected(cell)) continue;
                 if (IsAuthority) PaintConfirmed(cell, team, tracked.Owner);
                 else Predict(cell, team);
             }
