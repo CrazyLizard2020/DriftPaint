@@ -52,6 +52,7 @@ namespace DriftPaint.Combat
 
         readonly Dictionary<long, Shot> _shots = new Dictionary<long, Shot>();
         readonly List<long> _finished = new List<long>();
+        readonly List<long> _keys = new List<long>();
         readonly Dictionary<int, double> _lastFireByActor = new Dictionary<int, double>();
         readonly List<MatchCar> _cars = new List<MatchCar>();
         readonly RaycastHit[] _hits = new RaycastHit[8];
@@ -170,14 +171,18 @@ namespace DriftPaint.Combat
         void SimulateShots()
         {
             _finished.Clear();
-            foreach (KeyValuePair<long, Shot> pair in _shots)
+            // Se recorre una copia de las claves: el anuncio de un impacto puede llegar en el mismo frame
+            // (en el Master o jugando solo) y sacar el proyectil del diccionario mientras se simula.
+            _keys.Clear();
+            _keys.AddRange(_shots.Keys);
+            foreach (long key in _keys)
             {
-                Shot shot = pair.Value;
+                if (!_shots.TryGetValue(key, out Shot shot)) continue;
                 // Quien recibe el disparo tarde lo adelanta: el proyectil está donde estaría desde FireTime.
                 float t = Mathf.Max(0f, (float)(Clock - shot.Info.FireTime));
                 if (t > _settings.Lifetime)
                 {
-                    _finished.Add(pair.Key);
+                    _finished.Add(key);
                     continue;
                 }
 
@@ -186,7 +191,11 @@ namespace DriftPaint.Combat
                 {
                     if (_match.IsAuthority && !shot.Rejected)
                     {
-                        if (TryResolveHit(shot, shot.Last, position)) _finished.Add(pair.Key);
+                        if (TryResolveHit(shot, shot.Last, position))
+                        {
+                            _finished.Add(key);
+                            continue;
+                        }
                     }
                     else if (TryHitScenery(shot.Last, position, out _))
                     {
