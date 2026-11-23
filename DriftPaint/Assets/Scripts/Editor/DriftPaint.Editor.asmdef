@@ -3,7 +3,9 @@
     "rootNamespace": "DriftPaint.EditorTools",
     "references": [
         "DriftPaint.Gameplay",
-        "Unity.TextMeshPro"
+        "Unity.TextMeshPro",
+        "Unity.InputSystem",
+        "UnityEngine.UI"
     ],
     "includePlatforms": [
         "Editor"

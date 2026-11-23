@@ -1,0 +1,220 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace DriftPaint.Net
+{
+    /// <summary>En qué punto de la conexión está el jugador.</summary>
+    public enum ConnectionState
+    {
+        Disconnected,
+        Connecting,
+        InLobby,
+        JoiningRoom,
+        InRoom,
+        LeavingRoom
+    }
+
+    /// <summary>Estado de la partida guardado en la sala. El valor numérico es el que viaja por red.</summary>
+    public enum MatchPhase : byte
+    {
+        Lobby = 0,
+        Countdown = 1,
+        Playing = 2,
+        Tiebreak = 3,
+        Results = 4
+    }
+
+    /// <summary>Configuración que elige el creador de la sala.</summary>
+    [Serializable]
+    public struct RoomSettings
+    {
+        public string Title;
+        public int MaxPlayers;
+        public int DurationSeconds;
+        public string MapId;
+    }
+
+    /// <summary>Datos de una sala tal como los ve el juego.</summary>
+    public readonly struct RoomSummary
+    {
+        public readonly string Id;
+        public readonly string Title;
+        public readonly int PlayerCount;
+        public readonly int MaxPlayers;
+        public readonly bool IsOpen;
+        public readonly string MapId;
+        public readonly int DurationSeconds;
+        public readonly MatchPhase Phase;
+
+        public RoomSummary(string id, string title, int playerCount, int maxPlayers, bool isOpen,
+            string mapId, int durationSeconds, MatchPhase phase)
+        {
+            Id = id;
+            Title = title;
+            PlayerCount = playerCount;
+            MaxPlayers = maxPlayers;
+            IsOpen = isOpen;
+            MapId = mapId;
+            DurationSeconds = durationSeconds;
+            Phase = phase;
+        }
+
+        public bool IsValid => !string.IsNullOrEmpty(Id);
+        public bool IsFull => MaxPlayers > 0 && PlayerCount >= MaxPlayers;
+    }
+
+    /// <summary>Datos de un jugador de la sala actual.</summary>
+    public readonly struct PlayerSummary
+    {
+        /// <summary>Identificador del jugador en la sala. Más bajo es quien entró antes.</summary>
+        public readonly int ActorId;
+        public readonly string Nickname;
+        public readonly byte Team;
+        public readonly bool IsMaster;
+        public readonly bool IsLocal;
+        /// <summary>Desconectado, pero con el lugar reservado hasta que venza el tiempo de reconexión.</summary>
+        public readonly bool IsInactive;
+
+        public PlayerSummary(int actorId, string nickname, byte team, bool isMaster, bool isLocal, bool isInactive)
+        {
+            ActorId = actorId;
+            Nickname = nickname;
+            Team = team;
+            IsMaster = isMaster;
+            IsLocal = isLocal;
+            IsInactive = isInactive;
+        }
+    }
+
+    /// <summary>Mensaje del chat de sala. Los mensajes de sistema no tienen jugador.</summary>
+    public readonly struct ChatMessage
+    {
+        public readonly bool IsSystem;
+        public readonly string SenderName;
+        public readonly byte SenderTeam;
+        public readonly string Text;
+
+        public ChatMessage(bool isSystem, string senderName, byte senderTeam, string text)
+        {
+            IsSystem = isSystem;
+            SenderName = senderName;
+            SenderTeam = senderTeam;
+            Text = text;
+        }
+
+        public static ChatMessage System(string text) => new ChatMessage(true, "", 0, text);
+    }
+
+    /// <summary>Disparo recibido: todos los clientes simulan el proyectil desde FireTime.</summary>
+    public readonly struct FireInfo
+    {
+        public readonly int ShooterActorId;
+        public readonly Vector3 Origin;
+        public readonly Vector3 Direction;
+        /// <summary>Tiempo del servidor en el que se disparó.</summary>
+        public readonly double FireTime;
+
+        public FireInfo(int shooterActorId, Vector3 origin, Vector3 direction, double fireTime)
+        {
+            ShooterActorId = shooterActorId;
+            Origin = origin;
+            Direction = direction;
+            FireTime = fireTime;
+        }
+    }
+
+    public enum ImpactKind : byte
+    {
+        /// <summary>Impacto directo de un proyectil: stun.</summary>
+        Direct = 0,
+        /// <summary>Splash de un proyectil: slow.</summary>
+        Splash = 1,
+        /// <summary>Explosión de un barril: mismos efectos que el disparo.</summary>
+        Barrel = 2
+    }
+
+    /// <summary>Impacto decidido por el Master.</summary>
+    public readonly struct ImpactInfo
+    {
+        public readonly Vector3 Position;
+        /// <summary>Jugador alcanzado, o -1 si no le pegó a nadie.</summary>
+        public readonly int VictimActorId;
+        public readonly ImpactKind Kind;
+        public readonly int SourceActorId;
+
+        public ImpactInfo(Vector3 position, int victimActorId, ImpactKind kind, int sourceActorId)
+        {
+            Position = position;
+            VictimActorId = victimActorId;
+            Kind = kind;
+            SourceActorId = sourceActorId;
+        }
+    }
+
+    /// <summary>
+    /// Contrato de red en el lenguaje del juego. Lo define Gameplay y lo implementa la capa de Red,
+    /// así ningún sistema de juego conoce Photon, códigos de evento ni serialización.
+    /// </summary>
+    public interface INetworkMediator
+    {
+        // Conexión
+        ConnectionState State { get; }
+        string LocalNickname { get; }
+        int LocalActorId { get; }
+        bool IsMaster { get; }
+        /// <summary>Reloj del servidor en segundos, igual en todos los clientes.</summary>
+        double ServerTime { get; }
+        /// <summary>Latencia al servidor en milisegundos.</summary>
+        int Ping { get; }
+        event Action StateChanged;
+        /// <summary>Error para mostrar al jugador (conexión perdida, sala llena, etc.).</summary>
+        event Action<string> ErrorRaised;
+
+        void Connect(string nickname);
+        void Disconnect();
+        void SetNickname(string nickname);
+
+        // Salas
+        IReadOnlyList<RoomSummary> Rooms { get; }
+        event Action RoomListChanged;
+        bool CreateRoom(RoomSettings settings);
+        bool JoinRoom(string roomId);
+        void LeaveRoom();
+
+        // Sala actual
+        RoomSummary CurrentRoom { get; }
+        /// <summary>Jugadores ordenados por orden de entrada.</summary>
+        IReadOnlyList<PlayerSummary> Players { get; }
+        MatchPhase Phase { get; }
+        /// <summary>Tiempo del servidor en el que arranca la partida (fin de la cuenta regresiva).</summary>
+        double MatchStartTime { get; }
+        event Action RoomChanged;
+        event Action PlayersChanged;
+        event Action<MatchPhase> PhaseChanged;
+        event Action<ChatMessage> ChatReceived;
+
+        /// <summary>Solo el Master y en el lobby: cambia la duración de la partida.</summary>
+        void SetRoomDuration(int seconds);
+        void SendChat(string text);
+        /// <summary>Solo el Master: pasa la sala a la cuenta regresiva.</summary>
+        bool RequestStartMatch();
+
+        // Partida
+        void RequestFire(Vector3 origin, Vector3 direction);
+        void RequestDropBarrel(Vector3 position, Vector3 direction);
+        void RequestPickup(int pickupId);
+        event Action<FireInfo> FireReceived;
+        event Action<ImpactInfo> ImpactReceived;
+    }
+
+    /// <summary>
+    /// Punto de acceso al mediator para los sistemas de juego. Lo registra el arranque de la aplicación.
+    /// </summary>
+    public static class NetworkServices
+    {
+        public static INetworkMediator Mediator { get; private set; }
+
+        public static void Register(INetworkMediator mediator) => Mediator = mediator;
+    }
+}
