@@ -3,9 +3,12 @@ using UnityEngine;
 namespace DriftPaint.Cars
 {
     /// <summary>
-    /// Un raycast por rueda hacia abajo del auto. Guarda el contacto de cada rueda (altura del
-    /// centro de la rueda sobre el piso, punto y normal), indica si el auto está apoyado y
-    /// consulta la grilla local de pintura para saber si está sobre pintura propia (boost).
+    /// Un spherecast por rueda hacia abajo del auto, con el radio de la rueda. Al ser una esfera,
+    /// la rueda detecta el comienzo de una rampa o un escalón con su borde delantero y la suspensión
+    /// la levanta de a poco, en vez de detectarlo recién cuando el centro pasa por encima.
+    /// Guarda el contacto de cada rueda (altura del centro de la rueda sobre el piso, punto y normal),
+    /// indica si el auto está apoyado y consulta la grilla local de pintura para saber si está
+    /// sobre pintura propia (boost).
     /// </summary>
     [DefaultExecutionOrder(-40)]
     public class CarGroundSensor : MonoBehaviour
@@ -32,9 +35,16 @@ namespace DriftPaint.Cars
         [Tooltip("Mínimo de ruedas apoyadas para considerar al auto en el piso.")]
         [SerializeField, Range(1, 4)] int _minGroundedWheels = 2;
 
+        [Tooltip("Radio de la esfera de cada rueda como fracción del radio de la rueda.")]
+        [SerializeField, Range(0.1f, 1f)] float _castRadiusFactor = 0.9f;
+
+        [Tooltip("Inclinación máxima (grados) de una superficie para tomarla como piso. Las más empinadas, como paredes, se ignoran.")]
+        [SerializeField, Range(30f, 89f)] float _maxGroundAngle = 75f;
+
         [SerializeField] LayerMask _groundMask = ~0;
 
-        const float CastStart = 0.4f;
+        /// <summary>Distancia libre entre el punto de partida de la esfera y el centro de la rueda.</summary>
+        const float CastClearance = 0.25f;
 
         readonly RaycastHit[] _hits = new RaycastHit[8];
         WheelContact[] _contacts = new WheelContact[0];
@@ -92,18 +102,24 @@ namespace DriftPaint.Cars
             int grounded = 0;
             Vector3 normalSum = Vector3.zero;
             Vector3 up = transform.up;
-            float maxDistance = CastStart + _wheelRadius + _suspensionTravel;
+            float castRadius = _wheelRadius * _castRadiusFactor;
+            float castStart = castRadius + CastClearance;
+            // La esfera arranca arriba del centro de la rueda y baja hasta el fondo del recorrido.
+            float maxDistance = castStart + _wheelRadius + _suspensionTravel - castRadius;
             float groundedHeight = _wheelRadius + _contactTolerance;
+            float minNormalDot = Mathf.Cos(_maxGroundAngle * Mathf.Deg2Rad);
 
             for (int i = 0; i < _probes.Length; i++)
             {
                 Transform probe = _probes[i];
                 WheelContact contact = default;
 
-                if (probe != null && TryCast(probe.position + up * CastStart, -up, maxDistance, out RaycastHit hit))
+                if (probe != null && TryCast(probe.position + up * castStart, castRadius, up, minNormalDot, maxDistance, out RaycastHit hit))
                 {
+                    // Con la esfera apoyada, su centro queda a castRadius del piso; de ahí sale
+                    // la altura equivalente del centro de la rueda.
                     contact.HasHit = true;
-                    contact.Height = hit.distance - CastStart;
+                    contact.Height = hit.distance - castStart + castRadius;
                     contact.Point = hit.point;
                     contact.Normal = hit.normal;
 
@@ -125,10 +141,15 @@ namespace DriftPaint.Cars
                          (IsGrounded && _paintQuery != null && _team != 0 && _paintQuery.GetTeamAt(transform.position) == _team);
         }
 
-        bool TryCast(Vector3 origin, Vector3 direction, float distance, out RaycastHit closest)
+        /// <summary>
+        /// Busca el contacto más cercano que sirva como piso. Descarta el propio auto, las superficies
+        /// demasiado empinadas y los colliders en los que la esfera ya arrancó metida (distancia 0,
+        /// sin punto de contacto válido).
+        /// </summary>
+        bool TryCast(Vector3 origin, float radius, Vector3 up, float minNormalDot, float distance, out RaycastHit closest)
         {
             closest = default;
-            int count = Physics.RaycastNonAlloc(origin, direction, _hits, distance, _groundMask, QueryTriggerInteraction.Ignore);
+            int count = Physics.SphereCastNonAlloc(origin, radius, -up, _hits, distance, _groundMask, QueryTriggerInteraction.Ignore);
             float best = float.MaxValue;
             bool found = false;
 
@@ -136,6 +157,8 @@ namespace DriftPaint.Cars
             {
                 RaycastHit hit = _hits[i];
                 if (_ownBody != null && hit.rigidbody == _ownBody) continue;
+                if (hit.distance <= 0f) continue;
+                if (Vector3.Dot(hit.normal, up) < minNormalDot) continue;
                 if (hit.distance < best)
                 {
                     best = hit.distance;
@@ -150,11 +173,13 @@ namespace DriftPaint.Cars
         {
             if (_probes == null) return;
             Vector3 up = transform.up;
+            float castRadius = _wheelRadius * _castRadiusFactor;
             foreach (Transform probe in _probes)
             {
                 if (probe == null) continue;
                 Gizmos.color = Color.yellow;
-                Gizmos.DrawLine(probe.position + up * CastStart, probe.position - up * (_wheelRadius + _suspensionTravel));
+                Gizmos.DrawLine(probe.position + up * (castRadius + CastClearance), probe.position - up * (_wheelRadius + _suspensionTravel));
+                Gizmos.DrawWireSphere(probe.position, castRadius);
                 Gizmos.color = Color.green;
                 Gizmos.DrawWireSphere(probe.position - up * _wheelRadius, 0.04f);
             }

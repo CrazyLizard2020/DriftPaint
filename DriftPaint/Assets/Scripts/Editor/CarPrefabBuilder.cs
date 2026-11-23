@@ -131,16 +131,22 @@ namespace DriftPaint.EditorTools
                 CreateMarker(root.transform, "Exhaust_L", new Vector3(-width * 0.22f, 0.3f, bodyBounds.min.z));
                 CreateMarker(root.transform, "Exhaust_R", new Vector3(width * 0.22f, 0.3f, bodyBounds.min.z));
 
-                // Física: el auto lo sostiene la suspensión de las ruedas. La caja de la carrocería
-                // arranca por encima del piso para que su canto no choque al entrar a una rampa.
+                // Física: el auto lo sostiene la suspensión de las ruedas. La carrocería es un casco
+                // convexo que arranca por encima del piso y tiene la nariz, la cola y los costados
+                // inferiores biselados, para que al tocar una rampa o un borde se deslice hacia arriba
+                // en lugar de frenar de golpe contra una cara vertical.
                 var rb = root.AddComponent<Rigidbody>();
                 rb.mass = 1200f;
 
-                var box = root.AddComponent<BoxCollider>();
-                float boxBottom = wheelRadius * 0.85f;
-                float boxTop = Mathf.Max(boxBottom + 0.3f, bodyBounds.max.y * 0.85f);
-                box.size = new Vector3(width * 0.95f, boxTop - boxBottom, length * 0.92f);
-                box.center = new Vector3(0f, (boxTop + boxBottom) * 0.5f, 0f);
+                float hullBottom = wheelRadius * 0.85f;
+                float hullTop = Mathf.Max(hullBottom + 0.3f, bodyBounds.max.y * 0.85f);
+                Mesh hullMesh = BuildBodyHull(width * 0.95f, length * 0.92f, hullBottom, hullTop);
+                hullMesh.name = $"Car_{spec.Name}_Hull";
+                hullMesh = SaveMeshAsset(hullMesh, $"{PrefabFolder}/Car_{spec.Name}_Hull.asset");
+
+                var hull = root.AddComponent<MeshCollider>();
+                hull.sharedMesh = hullMesh;
+                hull.convex = true;
 
                 root.AddComponent<CarMovementInput>();
                 root.AddComponent<CarAbilityInput>();
@@ -288,6 +294,90 @@ namespace DriftPaint.EditorTools
             Vector3 center = space.InverseTransformPoint(world.center);
             Vector3 size = space.InverseTransformVector(world.size);
             return new Bounds(center, new Vector3(Mathf.Abs(size.x), Mathf.Abs(size.y), Mathf.Abs(size.z)));
+        }
+
+        /// <summary>
+        /// Casco de colisión de la carrocería: tres anillos de cuatro vértices (fondo, cintura y techo).
+        /// El fondo es más corto y angosto que la cintura, lo que deja la nariz, la cola y los costados
+        /// inferiores en pendiente; el techo es un poco más chico para redondear los cantos de arriba.
+        /// </summary>
+        static Mesh BuildBodyHull(float width, float length, float bottom, float top)
+        {
+            float halfWidth = width * 0.5f;
+            float halfLength = length * 0.5f;
+            float height = top - bottom;
+
+            // Bisel de nariz y cola: avanza hasta 0.6 m en el largo y sube el 60% de la altura,
+            // así la cara inferior delantera queda bastante más tendida que una rampa común.
+            float noseRun = Mathf.Min(0.6f, halfLength * 0.35f);
+            float bevelRise = height * 0.6f;
+            float sideRun = Mathf.Min(0.15f, halfWidth * 0.25f);
+
+            float beltY = bottom + bevelRise;
+            float bottomHalfLength = halfLength - noseRun;
+            float bottomHalfWidth = halfWidth - sideRun;
+            float topHalfLength = halfLength * 0.88f;
+            float topHalfWidth = halfWidth * 0.88f;
+
+            var vertices = new Vector3[12];
+            SetRing(vertices, 0, bottomHalfWidth, bottom, bottomHalfLength);
+            SetRing(vertices, 4, halfWidth, beltY, halfLength);
+            SetRing(vertices, 8, topHalfWidth, top, topHalfLength);
+
+            var triangles = new List<int>
+            {
+                0, 2, 1, 0, 3, 2,   // fondo
+                8, 9, 10, 8, 10, 11 // techo
+            };
+            for (int i = 0; i < 4; i++)
+            {
+                int next = (i + 1) % 4;
+                AddQuad(triangles, i, next, 4 + next, 4 + i);
+                AddQuad(triangles, 4 + i, 4 + next, 8 + next, 8 + i);
+            }
+
+            var mesh = new Mesh { vertices = vertices, triangles = triangles.ToArray() };
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            return mesh;
+        }
+
+        /// <summary>Anillo horizontal en orden: atrás izquierda, atrás derecha, adelante derecha, adelante izquierda.</summary>
+        static void SetRing(Vector3[] vertices, int start, float halfWidth, float y, float halfLength)
+        {
+            vertices[start] = new Vector3(-halfWidth, y, -halfLength);
+            vertices[start + 1] = new Vector3(halfWidth, y, -halfLength);
+            vertices[start + 2] = new Vector3(halfWidth, y, halfLength);
+            vertices[start + 3] = new Vector3(-halfWidth, y, halfLength);
+        }
+
+        static void AddQuad(List<int> triangles, int a, int b, int c, int d)
+        {
+            triangles.Add(a); triangles.Add(b); triangles.Add(c);
+            triangles.Add(a); triangles.Add(c); triangles.Add(d);
+        }
+
+        /// <summary>
+        /// Guarda la malla como asset. Si ya existe, reemplaza su contenido para conservar
+        /// la referencia de los prefabs que la usan.
+        /// </summary>
+        static Mesh SaveMeshAsset(Mesh mesh, string path)
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+            if (existing == null)
+            {
+                AssetDatabase.CreateAsset(mesh, path);
+                return mesh;
+            }
+
+            existing.Clear();
+            existing.vertices = mesh.vertices;
+            existing.triangles = mesh.triangles;
+            existing.RecalculateNormals();
+            existing.RecalculateBounds();
+            EditorUtility.SetDirty(existing);
+            Object.DestroyImmediate(mesh);
+            return existing;
         }
 
         static void PlaceSpoiler(Transform model, GameObject spoilerAsset, Bounds bodyBounds)
