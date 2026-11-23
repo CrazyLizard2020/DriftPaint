@@ -58,9 +58,6 @@ namespace DriftPaint.Cars
         public Vector3 GroundNormal { get; private set; } = Vector3.up;
         public bool OnOwnPaint { get; private set; }
 
-        /// <summary>Fuerza el estado "sobre pintura propia" sin consultar la grilla. Para pruebas.</summary>
-        public bool ForceOwnPaint { get; set; }
-
         public Transform[] Probes => _probes;
         public WheelContact[] Contacts => _contacts;
         public float WheelRadius => _wheelRadius;
@@ -137,8 +134,7 @@ namespace DriftPaint.Cars
             IsGrounded = grounded >= Mathf.Min(_minGroundedWheels, Mathf.Max(1, _probes.Length));
             GroundNormal = grounded > 0 ? normalSum.normalized : Vector3.up;
 
-            OnOwnPaint = ForceOwnPaint ||
-                         (IsGrounded && _paintQuery != null && _team != 0 && _paintQuery.GetTeamAt(transform.position) == _team);
+            OnOwnPaint = IsGrounded && _paintQuery != null && _team != 0 && _paintQuery.GetTeamAt(transform.position) == _team;
         }
 
         /// <summary>

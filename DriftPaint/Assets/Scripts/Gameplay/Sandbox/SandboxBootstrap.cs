@@ -74,7 +74,6 @@ namespace DriftPaint.Sandbox
 
             if (keyboard.f1Key.wasPressedThisFrame) _car.StatusEffects.ApplyStun();
             if (keyboard.f2Key.wasPressedThisFrame) _car.StatusEffects.ApplySlow();
-            if (keyboard.f3Key.wasPressedThisFrame) _car.GroundSensor.ForceOwnPaint = !_car.GroundSensor.ForceOwnPaint;
 
             if (keyboard.f4Key.wasPressedThisFrame && _carPrefabs.Length > 1)
             {

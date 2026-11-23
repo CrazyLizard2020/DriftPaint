@@ -156,8 +156,11 @@ namespace DriftPaint.Cars
                     }
                 }
 
+                // Al estirarse (velocidad hacia arriba) amortigua más: el resorte devuelve la energía
+                // del aterrizaje de a poco en lugar de lanzar el auto hacia arriba.
                 float verticalSpeed = Vector3.Dot(pointVelocity, up);
-                float accel = stiffness * compression - _stats.SuspensionDamping * verticalSpeed;
+                float damping = _stats.SuspensionDamping * (verticalSpeed > 0f ? _stats.SuspensionReboundRatio : 1f);
+                float accel = stiffness * compression - damping * verticalSpeed;
                 if (accel <= 0f) continue;
 
                 _rb.AddForceAtPosition(up * accel, wheelPosition, ForceMode.Acceleration);

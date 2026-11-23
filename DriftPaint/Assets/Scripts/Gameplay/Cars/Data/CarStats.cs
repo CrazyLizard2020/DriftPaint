@@ -42,6 +42,7 @@ namespace DriftPaint.Cars
         public float ExtraGravity => _data.ExtraGravity;
         public float SuspensionStiffness => _data.SuspensionStiffness;
         public float SuspensionDamping => _data.SuspensionDamping;
+        public float SuspensionReboundRatio => _data.SuspensionReboundRatio;
         public float SuspensionTravel => _data.SuspensionTravel;
         public float FlippedAngle => _data.FlippedAngle;
         public float FlipDetectTime => _data.FlipDetectTime;

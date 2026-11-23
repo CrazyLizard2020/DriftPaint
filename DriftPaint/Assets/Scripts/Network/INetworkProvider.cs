@@ -95,6 +95,10 @@ namespace DriftPaint.Networking
         bool LeaveRoom();
 
         bool SendEvent(byte code, object payload, NetTarget target, bool reliable);
+        /// <summary>Evento para un solo jugador.</summary>
+        bool SendEventTo(byte code, object payload, int actorNumber, bool reliable);
+        /// <summary>Registra un tipo propio con su serialización, para mandarlo como contenido de eventos.</summary>
+        void RegisterCustomType(Type type, byte typeCode, Func<object, byte[]> serialize, Func<byte[], object> deserialize);
         void SetMessageQueuePaused(bool paused);
 
         void RegisterPrefab(string prefabId, UnityEngine.GameObject prefab);

@@ -3,6 +3,7 @@ using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Level;
 using DriftPaint.Match;
+using DriftPaint.Paint;
 using DriftPaint.Teams;
 using DriftPaint.UI;
 using TMPro;
@@ -56,6 +57,9 @@ namespace DriftPaint.EditorTools
 
             var matchGo = new GameObject("Match");
             var match = matchGo.AddComponent<MatchController>();
+            PaintSystem paint = matchGo.AddComponent<PaintSystem>();
+            MenuSceneBuilder.Bind(paint, ("_match", match));
+            BuildPaintSurface(paint, palette);
             MatchHUD hud = BuildHud(match, palette);
             CarNameplate nameplate = BuildNameplateTemplate();
 
@@ -180,6 +184,40 @@ namespace DriftPaint.EditorTools
                 spawns.Add(CreateSpawn(spawnRoot, TeamId.B, i, new Vector3(-offsets[i], 0.3f, 56f), 180f));
             }
             return spawns;
+        }
+
+        /// <summary>
+        /// Plano apenas arriba del piso que muestra la textura de pintura. Usa recorte por alfa: las celdas
+        /// vacías son transparentes y las pintadas opacas, sin costo de transparencia.
+        /// </summary>
+        static void BuildPaintSurface(PaintSystem paint, TeamPaletteSO palette)
+        {
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(MaterialFolder + "/M_PaintSurface.mat");
+            if (material == null)
+            {
+                material = new Material(Shader.Find("Universal Render Pipeline/Unlit")) { name = "M_PaintSurface" };
+                material.SetColor("_BaseColor", Color.white);
+                material.SetFloat("_AlphaClip", 1f);
+                material.SetFloat("_Cutoff", 0.5f);
+                material.EnableKeyword("_ALPHATEST_ON");
+                material.renderQueue = (int)UnityEngine.Rendering.RenderQueue.AlphaTest;
+                EditorAssetUtility.EnsureFolder(MaterialFolder);
+                AssetDatabase.CreateAsset(material, MaterialFolder + "/M_PaintSurface.mat");
+            }
+
+            GameObject surface = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            surface.name = "Paint Surface";
+            Object.DestroyImmediate(surface.GetComponent<Collider>());
+            surface.transform.SetPositionAndRotation(new Vector3(0f, 0.02f, 0f), Quaternion.Euler(90f, 0f, 0f));
+            surface.transform.localScale = new Vector3(ArenaSize, ArenaSize, 1f);
+
+            var meshRenderer = surface.GetComponent<MeshRenderer>();
+            meshRenderer.sharedMaterial = material;
+            meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            meshRenderer.receiveShadows = false;
+
+            var view = surface.AddComponent<PaintSurfaceView>();
+            MenuSceneBuilder.Bind(view, ("_paint", paint), ("_palette", palette));
         }
 
         static TeamSpawnPoint CreateSpawn(Transform parent, byte team, int order, Vector3 position, float yaw)

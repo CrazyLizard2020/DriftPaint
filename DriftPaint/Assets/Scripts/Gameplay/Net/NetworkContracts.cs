@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DriftPaint.Paint;
 using UnityEngine;
 
 namespace DriftPaint.Net
@@ -240,6 +241,18 @@ namespace DriftPaint.Net
         IReadOnlyList<NetworkObjectInfo> Objects { get; }
         event Action<NetworkObjectInfo> ObjectSpawned;
         event Action<GameObject> ObjectDespawned;
+
+        // Pintura
+        /// <summary>Solo el Master: cambios de la grilla oficial para los demás clientes.</summary>
+        void SendPaintDelta(PaintDelta delta);
+        /// <summary>Pide al Master la grilla completa (al entrar a una partida empezada).</summary>
+        void RequestPaintSnapshot();
+        /// <summary>Solo el Master: grilla completa para un jugador.</summary>
+        void SendPaintSnapshot(int actorId, PaintSnapshot snapshot);
+        event Action<PaintDelta> PaintDeltaReceived;
+        /// <summary>Un jugador pidió la grilla completa. Solo le llega al Master.</summary>
+        event Action<int> PaintSnapshotRequested;
+        event Action<PaintSnapshot> PaintSnapshotReceived;
 
         // Partida
         void RequestFire(Vector3 origin, Vector3 direction);

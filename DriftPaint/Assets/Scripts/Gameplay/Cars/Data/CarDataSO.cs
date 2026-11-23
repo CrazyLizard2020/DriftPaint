@@ -63,6 +63,10 @@ namespace DriftPaint.Cars
         [Tooltip("Amortiguación de cada rueda: aceleración (m/s²) por m/s de velocidad vertical. Evita que rebote.")]
         [SerializeField, Min(0f)] float _suspensionDamping = 7f;
 
+        [Tooltip("Multiplicador de la amortiguación cuando la rueda se estira después de comprimirse. " +
+                 "Mayor que 1 frena el rebote al aterrizar sin endurecer la entrada a los pozos.")]
+        [SerializeField, Min(1f)] float _suspensionReboundRatio = 2.5f;
+
         [Tooltip("Recorrido de la rueda por debajo de su altura normal antes de perder contacto (m).")]
         [SerializeField, Min(0.01f)] float _suspensionTravel = 0.3f;
 
@@ -128,6 +132,7 @@ namespace DriftPaint.Cars
         public float ExtraGravity => _extraGravity;
         public float SuspensionStiffness => _suspensionStiffness;
         public float SuspensionDamping => _suspensionDamping;
+        public float SuspensionReboundRatio => _suspensionReboundRatio;
         public float SuspensionTravel => _suspensionTravel;
         public float FlippedAngle => _flippedAngle;
         public float FlipDetectTime => _flipDetectTime;

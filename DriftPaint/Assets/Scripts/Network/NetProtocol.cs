@@ -11,7 +11,15 @@ namespace DriftPaint.Networking
         public const byte PickupResult = 6;
         public const byte PaintDelta = 7;
         public const byte PaintSnapshot = 8;
+        public const byte PaintSnapshotRequest = 9;
         public const byte Chat = 20;
+    }
+
+    /// <summary>Códigos de los tipos serializados a mano. No pueden chocar con los que registra Photon (W, V, Q, P).</summary>
+    public static class NetTypeCodes
+    {
+        public const byte PaintDelta = (byte)'d';
+        public const byte PaintSnapshot = (byte)'s';
     }
 
     /// <summary>Claves de las propiedades de la sala.</summary>

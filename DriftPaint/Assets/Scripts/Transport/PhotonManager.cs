@@ -127,6 +127,19 @@ namespace DriftPaint.Transport
             return PhotonNetwork.RaiseEvent(code, payload, options, reliable ? SendOptions.SendReliable : SendOptions.SendUnreliable);
         }
 
+        public bool SendEventTo(byte code, object payload, int actorNumber, bool reliable)
+        {
+            if (!PhotonNetwork.InRoom || code >= FirstReservedEventCode) return false;
+
+            var options = new RaiseEventOptions { TargetActors = new[] { actorNumber } };
+            return PhotonNetwork.RaiseEvent(code, payload, options, reliable ? SendOptions.SendReliable : SendOptions.SendUnreliable);
+        }
+
+        public void RegisterCustomType(Type type, byte typeCode, Func<object, byte[]> serialize, Func<byte[], object> deserialize)
+        {
+            PhotonPeer.RegisterType(type, typeCode, value => serialize(value), data => deserialize(data));
+        }
+
         public void SetMessageQueuePaused(bool paused) => PhotonNetwork.IsMessageQueueRunning = !paused;
 
         public void RegisterPrefab(string prefabId, GameObject prefab) => _pool.Register(prefabId, prefab);

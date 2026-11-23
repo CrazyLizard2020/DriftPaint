@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using DriftPaint.Net;
+using DriftPaint.Paint;
 using DriftPaint.Profile;
 using DriftPaint.Teams;
 using UnityEngine;
@@ -56,6 +57,11 @@ namespace DriftPaint.Networking
             _provider.EventReceived += OnEventReceived;
             _provider.ObjectInstantiated += OnObjectInstantiated;
             _provider.ObjectDestroyed += OnObjectDestroyed;
+
+            _provider.RegisterCustomType(typeof(PaintDelta), NetTypeCodes.PaintDelta,
+                value => PaintCodec.EncodeDelta((PaintDelta)value), data => PaintCodec.DecodeDelta(data));
+            _provider.RegisterCustomType(typeof(PaintSnapshot), NetTypeCodes.PaintSnapshot,
+                value => PaintCodec.EncodeSnapshot((PaintSnapshot)value), data => PaintCodec.DecodeSnapshot(data));
         }
 
         #region INetworkMediator: estado
@@ -93,6 +99,31 @@ namespace DriftPaint.Networking
         public event Action<ImpactInfo> ImpactReceived;
         public event Action<NetworkObjectInfo> ObjectSpawned;
         public event Action<GameObject> ObjectDespawned;
+        public event Action<PaintDelta> PaintDeltaReceived;
+        public event Action<int> PaintSnapshotRequested;
+        public event Action<PaintSnapshot> PaintSnapshotReceived;
+
+        #endregion
+
+        #region INetworkMediator: pintura
+
+        public void SendPaintDelta(PaintDelta delta)
+        {
+            if (!IsMaster || delta == null || delta.IsEmpty) return;
+            _provider.SendEvent(NetEventCodes.PaintDelta, delta, NetTarget.Others, true);
+        }
+
+        public void RequestPaintSnapshot()
+        {
+            if (!_provider.InRoom || IsMaster) return;
+            _provider.SendEvent(NetEventCodes.PaintSnapshotRequest, null, NetTarget.Master, true);
+        }
+
+        public void SendPaintSnapshot(int actorId, PaintSnapshot snapshot)
+        {
+            if (!IsMaster || snapshot == null) return;
+            _provider.SendEventTo(NetEventCodes.PaintSnapshot, snapshot, actorId, true);
+        }
 
         #endregion
 
@@ -434,6 +465,21 @@ namespace DriftPaint.Networking
                         FireReceived?.Invoke(new FireInfo(senderActorId, origin, direction, ToDouble(fire[2], ServerTime)));
                     break;
 
+                // La grilla oficial solo la escribe el Master: se ignora lo que mande cualquier otro.
+                case NetEventCodes.PaintDelta:
+                    if (payload is PaintDelta delta && IsFromMaster(senderActorId))
+                        PaintDeltaReceived?.Invoke(delta);
+                    break;
+
+                case NetEventCodes.PaintSnapshot:
+                    if (payload is PaintSnapshot snapshot && IsFromMaster(senderActorId))
+                        PaintSnapshotReceived?.Invoke(snapshot);
+                    break;
+
+                case NetEventCodes.PaintSnapshotRequest:
+                    if (IsMaster) PaintSnapshotRequested?.Invoke(senderActorId);
+                    break;
+
                 case NetEventCodes.ProjectileImpact:
                 case NetEventCodes.BarrelExplode:
                     if (payload is object[] impact && impact.Length >= 4 && impact[0] is Vector3 position)
@@ -543,6 +589,8 @@ namespace DriftPaint.Networking
             player = default;
             return false;
         }
+
+        bool IsFromMaster(int actorId) => TryGetPlayer(actorId, out PlayerSummary player) && player.IsMaster;
 
         string NameOf(int actorId)
         {
