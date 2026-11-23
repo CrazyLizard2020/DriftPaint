@@ -12,6 +12,16 @@ namespace DriftPaint.App
 
         void Update() => _manager?.Tick();
 
+#if UNITY_EDITOR
+        void OnEnable() => UnityEditor.EditorApplication.playModeStateChanged += OnPlayModeChanged;
+
+        void OnDisable() => UnityEditor.EditorApplication.playModeStateChanged -= OnPlayModeChanged;
+
+        void OnPlayModeChanged(UnityEditor.PlayModeStateChange state)
+        {
+            if (state == UnityEditor.PlayModeStateChange.ExitingPlayMode) _manager?.OnApplicationClosing();
+        }
+#endif
         void OnApplicationQuit() => _manager?.OnApplicationClosing();
     }
 }

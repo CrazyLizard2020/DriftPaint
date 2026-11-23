@@ -211,7 +211,13 @@ namespace DriftPaint.Transport
             PhotonPeer.RegisterType(type, typeCode, value => serialize(value), data => deserialize(data));
         }
 
-        public void SetMessageQueuePaused(bool paused) => PhotonNetwork.IsMessageQueueRunning = !paused;
+        /// <summary>Envía los pedidos pendientes antes de suspender el despacho, incluido el de salir de la sala.</summary>
+        public void SetMessageQueuePaused(bool paused)
+        {
+            if (paused && PhotonNetwork.IsMessageQueueRunning && PhotonNetwork.IsConnected)
+                PhotonNetwork.SendAllOutgoingCommands();
+            PhotonNetwork.IsMessageQueueRunning = !paused;
+        }
 
         public void RegisterPrefab(string prefabId, GameObject prefab) => _pool.Register(prefabId, prefab);
 

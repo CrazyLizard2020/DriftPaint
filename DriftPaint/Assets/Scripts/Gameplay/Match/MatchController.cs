@@ -44,6 +44,7 @@ namespace DriftPaint.Match
         MatchPhase _phase = MatchPhase.Countdown;
         double _resultsSince = -1;
         bool _closing;
+        bool _waitingForDisconnect;
 
         MatchPhase? _requestedPhase;
         double _requestedAt;
@@ -60,7 +61,7 @@ namespace DriftPaint.Match
         public bool TimeUp => _phase.IsRound() && StartTime > 0 && Now >= StartTime + DurationSeconds;
         /// <summary>Hubo empate y se espera el arranque del desempate, con los autos quietos.</summary>
         public bool TiebreakPending => _phase == MatchPhase.Tiebreak && Now < StartTime;
-        public bool AllowsDriving => _phase.IsRound() && Now >= StartTime && !TimeUp;
+        public bool AllowsDriving => !_closing && _phase.IsRound() && Now >= StartTime && !TimeUp;
         public bool IsOnline => _online;
         /// <summary>Se cortó la conexión y se intenta volver a la sala; la partida sigue en pantalla.</summary>
         public bool IsReconnecting => _online && _mediator.State == ConnectionState.Reconnecting;
@@ -98,6 +99,11 @@ namespace DriftPaint.Match
 
         void Update()
         {
+            if (_waitingForDisconnect && _mediator.State == ConnectionState.Disconnected)
+            {
+                _waitingForDisconnect = false;
+                LoadMenu();
+            }
             if (_closing) return;
 
             if (_online && _mediator.State != ConnectionState.InRoom)
@@ -258,18 +264,32 @@ namespace DriftPaint.Match
             if (_closing) return;
 
             bool inRoom = _online && (_mediator.State == ConnectionState.InRoom || _mediator.State == ConnectionState.Reconnecting);
-            bool reserve = inRoom && !_mediator.Phase.IsBetweenMatches();
+            if (!inRoom)
+            {
+                Close();
+                return;
+            }
+
+            bool reserve = !_mediator.Phase.IsBetweenMatches();
             // El siguiente Master necesita el último tramo de pintura si quien sale era la autoridad.
             if (reserve && _mediator.IsMaster && _score != null) _score.CompleteRound();
-            Close(preserveRoomObjects: reserve);
-            if (inRoom) _mediator.LeaveRoomAndDisconnect();
+            _closing = true;
+            if (!reserve) Closing?.Invoke();
+            // La pista conserva los objetos remotos mientras todavía pueden llegar sus eventos de destrucción.
+            _waitingForDisconnect = true;
+            _mediator.LeaveRoomAndDisconnect();
         }
 
-        void Close(bool preserveRoomObjects = false)
+        void Close()
         {
             if (_closing) return;
             _closing = true;
-            if (!preserveRoomObjects) Closing?.Invoke();
+            Closing?.Invoke();
+            LoadMenu();
+        }
+
+        static void LoadMenu()
+        {
             if (!SceneLoader.Load(MapCatalog.MenuScene))
                 Debug.LogError($"No se pudo volver a la escena \"{MapCatalog.MenuScene}\". Revisá la lista de escenas del build.");
         }

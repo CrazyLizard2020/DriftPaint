@@ -45,6 +45,7 @@ namespace DriftPaint.Networking
         double _matchStartTime;
         string _currentMatchId;
         bool _disconnectRequested;
+        bool _shuttingDown;
         bool _disconnectAfterLeave;
         float _nextChatTime;
         // Reconexión: hasta cuándo se reserva el lugar en la sala y cuándo toca el próximo intento (0 = esperando uno en curso).
@@ -207,7 +208,7 @@ namespace DriftPaint.Networking
         /// <summary>Lo llama cada frame el host de la red: reintenta volver a la sala mientras dure la reserva.</summary>
         public void Tick()
         {
-            if (_state != ConnectionState.Reconnecting) return;
+            if (_shuttingDown || _state != ConnectionState.Reconnecting) return;
 
             float now = Time.realtimeSinceStartup;
             if (now >= _reconnectDeadline)
@@ -335,8 +336,11 @@ namespace DriftPaint.Networking
         /// <summary>Conserva el lugar al cerrar el juego o detener Play, antes de que Photon desarme la sala local.</summary>
         public void OnApplicationClosing()
         {
+            if (_shuttingDown) return;
+            _shuttingDown = true;
             if (_state == ConnectionState.InRoom && !_disconnectRequested) RememberMatch();
             _disconnectRequested = true;
+            SetIncomingPaused(true);
         }
 
         void RestoreReservation()
@@ -504,7 +508,8 @@ namespace DriftPaint.Networking
             return _provider.SetRoomProperties(properties);
         }
 
-        public void SetIncomingPaused(bool paused) => _provider.SetMessageQueuePaused(paused);
+        // Una carga asíncrona puede terminar cuando Unity ya empezó a desmontar la escena de Play.
+        public void SetIncomingPaused(bool paused) => _provider.SetMessageQueuePaused(paused || _shuttingDown);
 
         #endregion
 
