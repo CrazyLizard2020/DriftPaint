@@ -258,16 +258,18 @@ namespace DriftPaint.Match
             if (_closing) return;
 
             bool inRoom = _online && (_mediator.State == ConnectionState.InRoom || _mediator.State == ConnectionState.Reconnecting);
-            // Primero se limpian los objetos propios, que necesitan la sala para borrarse en todos.
-            Close();
+            bool reserve = inRoom && !_mediator.Phase.IsBetweenMatches();
+            // El siguiente Master necesita el último tramo de pintura si quien sale era la autoridad.
+            if (reserve && _mediator.IsMaster && _score != null) _score.CompleteRound();
+            Close(preserveRoomObjects: reserve);
             if (inRoom) _mediator.LeaveRoomAndDisconnect();
         }
 
-        void Close()
+        void Close(bool preserveRoomObjects = false)
         {
             if (_closing) return;
             _closing = true;
-            Closing?.Invoke();
+            if (!preserveRoomObjects) Closing?.Invoke();
             if (!SceneLoader.Load(MapCatalog.MenuScene))
                 Debug.LogError($"No se pudo volver a la escena \"{MapCatalog.MenuScene}\". Revisá la lista de escenas del build.");
         }

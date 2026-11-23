@@ -98,7 +98,10 @@ namespace DriftPaint.Networking
         bool JoinLobby();
         bool CreateRoom(string name, NetRoomOptions options);
         bool JoinRoom(string name);
-        bool LeaveRoom();
+        /// <summary>Recupera el actor reservado por este usuario en la sala.</summary>
+        bool RejoinRoom(string name);
+        /// <summary>Permite conservar el actor y sus propiedades hasta que venza la reserva.</summary>
+        bool LeaveRoom(bool reserveSeat = false);
 
         bool SendEvent(byte code, object payload, NetTarget target, bool reliable);
         /// <summary>Evento para un solo jugador.</summary>

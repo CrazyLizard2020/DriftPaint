@@ -254,6 +254,14 @@ namespace DriftPaint.Net
         event Action Rejoined;
         /// <summary>Segundos que quedan para volver a la sala mientras se reconecta.</summary>
         float ReconnectTimeRemaining { get; }
+        /// <summary>Hay una reserva vigente que se puede solicitar desde el menú principal.</summary>
+        bool CanRejoinLastMatch { get; }
+        /// <summary>La escena de partida debe recuperar los objetos del actor que volvió desde el menú.</summary>
+        bool ReturningFromMenu { get; }
+        /// <summary>Pose anterior del auto cuando se recupera desde otra escena.</summary>
+        Pose? ReturningCarPose { get; }
+        /// <summary>Vuelve a conectar con la sala y solicita el mismo actor.</summary>
+        void RejoinLastMatch();
 
         void Connect(string nickname);
         void Disconnect();

@@ -407,6 +407,18 @@ namespace DriftPaint.EditorTools
 
         #region HUD
 
+        /// <summary>Conecta la salida disponible cuando el jugador libera el cursor durante la partida.</summary>
+        internal static void ConnectLeaveButton(MatchHUD hud)
+        {
+            Button button = hud.transform.Find("Leave Match Button")?.GetComponent<Button>();
+            if (button == null)
+                button = MenuSceneBuilder.CreateButton(hud.transform, "Leave Match Button", "SALIR AL MENÚ",
+                    MenuSceneBuilder.ButtonStyle.Outline, 32f, new Vector2(1f, 1f), new Vector2(-154f, -54f),
+                    new Vector2(244f, 60f));
+            MenuSceneBuilder.Bind(hud, ("_leaveMatchButton", button));
+            button.gameObject.SetActive(false);
+        }
+
         static MatchHUD BuildHud(MatchController match, MatchScore score, TeamPaletteSO palette)
         {
             Canvas canvas = UiFactory.CreateOverlayCanvas(null, "Match HUD");
@@ -513,6 +525,7 @@ namespace DriftPaint.EditorTools
             barrels.text = "x0";
 
             var hud = canvas.gameObject.AddComponent<MatchHUD>();
+            ConnectLeaveButton(hud);
             MenuSceneBuilder.Bind(hud,
                 ("_match", match), ("_score", score),
                 ("_leftPercentText", leftText), ("_rightPercentText", rightText), ("_clockText", clock),

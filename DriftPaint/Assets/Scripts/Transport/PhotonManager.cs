@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using DriftPaint.Networking;
+using DriftPaint.Profile;
 using ExitGames.Client.Photon;
 using Photon.Pun;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -124,6 +125,7 @@ namespace DriftPaint.Transport
             AppSettings settings = PhotonNetwork.PhotonServerSettings.AppSettings;
             if (string.IsNullOrEmpty(settings.FixedRegion)) settings.FixedRegion = FallbackRegion;
 
+            PhotonNetwork.AuthValues = new AuthenticationValues(PlayerProfile.LoadNetworkId());
             return PhotonNetwork.ConnectUsingSettings();
         }
 
@@ -178,8 +180,15 @@ namespace DriftPaint.Transport
 
         public bool JoinRoom(string name) => PhotonNetwork.JoinRoom(name);
 
-        /// <summary>Sale de la sala sin reservar el lugar: el jugador eligió irse.</summary>
-        public bool LeaveRoom() => PhotonNetwork.InRoom && PhotonNetwork.LeaveRoom(false);
+        /// <summary>Solicita el actor original a Photon antes de recibir los objetos de la sala.</summary>
+        public bool RejoinRoom(string name)
+        {
+            DestroyLocalNetworkObjects();
+            return PhotonNetwork.RejoinRoom(name);
+        }
+
+        /// <summary>En partida la sala puede retener el actor inactivo hasta el vencimiento.</summary>
+        public bool LeaveRoom(bool reserveSeat = false) => PhotonNetwork.InRoom && PhotonNetwork.LeaveRoom(reserveSeat);
 
         public bool SendEvent(byte code, object payload, NetTarget target, bool reliable)
         {
@@ -281,7 +290,12 @@ namespace DriftPaint.Transport
 
         #region Callbacks de Photon
 
-        public override void OnConnectedToMaster() => ConnectedToServer?.Invoke();
+        public override void OnConnectedToMaster()
+        {
+            // Una sala con caché persistente puede haber reproducido objetos antes de rechazar una revancha.
+            DestroyLocalNetworkObjects();
+            ConnectedToServer?.Invoke();
+        }
 
         public override void OnDisconnected(DisconnectCause cause)
         {

@@ -47,6 +47,7 @@ namespace DriftPaint.Match
             _mediator = NetworkServices.Mediator;
             if (_mediator != null)
             {
+                _poseBeforeDisconnect = _mediator.ReturningCarPose;
                 foreach (GameObject prefab in _carPrefabs)
                     if (prefab != null) _mediator.RegisterPrefab(prefab.name, prefab);
 
@@ -83,7 +84,11 @@ namespace DriftPaint.Match
             foreach (NetworkObjectInfo info in _mediator.Objects)
                 OnObjectSpawned(info);
 
-            if (_localCar == null) SpawnLocalCar();
+            if (_localCar == null)
+            {
+                if (_mediator.ReturningFromMenu) OnRejoined();
+                else SpawnLocalCar();
+            }
         }
 
         void SpawnLocalCar()

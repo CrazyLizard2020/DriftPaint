@@ -17,6 +17,7 @@ namespace DriftPaint.Match
     {
         [SerializeField] MatchController _match;
         [SerializeField] MatchScore _score;
+        [SerializeField] Button _leaveMatchButton;
 
         [Header("Marcador")]
         [Tooltip("Equipo que se muestra a la izquierda del reloj.")]
@@ -77,11 +78,18 @@ namespace DriftPaint.Match
             if (_barrelsText != null) _barrelsText.text = $"x{barrels}";
         }
 
-        void Start() => SetAbilities(0f, 1f, 0);
+        void Start()
+        {
+            SetAbilities(0f, 1f, 0);
+            if (_leaveMatchButton != null && _match != null) _leaveMatchButton.onClick.AddListener(_match.Leave);
+        }
 
         void Update()
         {
             if (_match == null) return;
+            bool showLeave = _match.IsOnline && _match.Phase != MatchPhase.Results && Cursor.lockState != CursorLockMode.Locked;
+            if (_leaveMatchButton != null && _leaveMatchButton.gameObject.activeSelf != showLeave)
+                _leaveMatchButton.gameObject.SetActive(showLeave);
 
             UpdateScore();
             UpdateClock();

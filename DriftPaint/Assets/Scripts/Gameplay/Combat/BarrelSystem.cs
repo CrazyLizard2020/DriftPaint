@@ -111,6 +111,12 @@ namespace DriftPaint.Combat
             }
         }
 
+        void Start()
+        {
+            if (_mediator == null || !_mediator.ReturningFromMenu) return;
+            foreach (NetworkObjectInfo info in _mediator.Objects) OnObjectSpawned(info);
+        }
+
         void Update()
         {
             if (_mediator == null || _match == null) return;

@@ -43,12 +43,20 @@ namespace DriftPaint.Networking
         RoomSummary _currentRoom;
         MatchPhase _phase = MatchPhase.Lobby;
         double _matchStartTime;
+        string _currentMatchId;
         bool _disconnectRequested;
         bool _disconnectAfterLeave;
         float _nextChatTime;
         // Reconexión: hasta cuándo se reserva el lugar en la sala y cuándo toca el próximo intento (0 = esperando uno en curso).
         float _reconnectDeadline;
         float _nextRejoinTime;
+        string _reservedRoom;
+        string _reservedMatch;
+        double _reservedStartTime;
+        int _reservedRound;
+        Pose? _reservedCarPose;
+        float _reservationDeadline;
+        bool _manualRejoin;
 
         public NetworkManager(INetworkProvider provider)
         {
@@ -94,6 +102,13 @@ namespace DriftPaint.Networking
         public int ScoreB => _scoreB;
         public int Round => _round;
         public byte Winner => _winner;
+        /// <summary>La sala decide al recibir el pedido si todavía conserva al actor.</summary>
+        public bool CanRejoinLastMatch => _state == ConnectionState.Disconnected && HasReservation;
+        bool HasReservation => _reservedRoom != null && Time.realtimeSinceStartup < _reservationDeadline;
+        /// <summary>La escena que se abre debe esperar el auto que repone la caché de la sala.</summary>
+        public bool ReturningFromMenu { get; private set; }
+        /// <summary>Ubicación del auto que la caché de instanciación solo recuerda en su punto de salida.</summary>
+        public Pose? ReturningCarPose => ReturningFromMenu ? _reservedCarPose : null;
         public float ReconnectTimeRemaining =>
             _state == ConnectionState.Reconnecting ? Mathf.Max(0f, _reconnectDeadline - Time.realtimeSinceStartup) : 0f;
         public IReadOnlyList<NetworkObjectInfo> Objects
@@ -160,6 +175,7 @@ namespace DriftPaint.Networking
 
             if (!_provider.Connect())
             {
+                _manualRejoin = false;
                 SetState(ConnectionState.Disconnected);
                 RaiseError("No se pudo iniciar la conexión con el servidor.");
             }
@@ -258,9 +274,38 @@ namespace DriftPaint.Networking
                 return;
             }
 
-            // Salir primero libera el lugar en la sala; desconectarse directo lo dejaría reservado.
+            bool reserve = !_phase.IsBetweenMatches();
+            if (reserve) RememberMatch();
             _disconnectAfterLeave = true;
-            LeaveRoom();
+            if (_provider.LeaveRoom(reserve)) SetState(ConnectionState.LeavingRoom);
+            else Disconnect();
+        }
+
+        /// <summary>Recupera el mismo actor después de una conexión nueva desde el menú.</summary>
+        public void RejoinLastMatch()
+        {
+            if (!CanRejoinLastMatch) return;
+            _manualRejoin = true;
+            Connect(_nickname);
+        }
+
+        void RememberMatch()
+        {
+            // La sala se cierra al quedar vacía. Hace falta otro jugador activo para que siga la partida.
+            _reservedRoom = null;
+            if (_phase.IsBetweenMatches() || !_players.Exists(player => !player.IsLocal && !player.IsInactive)) return;
+            _reservedRoom = _currentRoom.Id;
+            _reservedCarPose = null;
+            foreach (NetworkObjectInfo info in _objects)
+            {
+                if (!info.IsLocal || info.Instance == null || !info.Instance.TryGetComponent<DriftPaint.Cars.CarController>(out var car)) continue;
+                _reservedCarPose = new Pose(car.Position, car.Rotation);
+                break;
+            }
+            _reservedMatch = _currentMatchId;
+            _reservedStartTime = _matchStartTime;
+            _reservedRound = _round;
+            _reservationDeadline = Time.realtimeSinceStartup + RoomRules.PlayerTtlMs / 1000f;
         }
 
         #endregion
@@ -324,6 +369,7 @@ namespace DriftPaint.Networking
             return _provider.SetRoomProperties(new Dictionary<string, object>
             {
                 { RoomKeys.State, (byte)MatchPhase.Countdown },
+                { RoomKeys.MatchId, Guid.NewGuid().ToString("N") },
                 { RoomKeys.StartTime, ServerTime + RoomRules.CountdownSeconds },
                 { RoomKeys.Round, 1 },
                 { RoomKeys.ScoreA, 0 },
@@ -537,8 +583,8 @@ namespace DriftPaint.Networking
             // Llegar al servidor principal en medio de una reconexión significa que no se pudo volver a la sala.
             if (_state == ConnectionState.Reconnecting)
             {
-                StopReconnecting(ConnectionState.Connecting);
-                RaiseError("No se pudo volver a la partida.");
+                EndAutomaticRejoin();
+                return;
             }
             if (_disconnectAfterLeave)
             {
@@ -547,7 +593,22 @@ namespace DriftPaint.Networking
                 return;
             }
 
-            if (!_provider.JoinLobby())
+            if (_manualRejoin)
+            {
+                if (HasReservation && _provider.RejoinRoom(_reservedRoom))
+                {
+                    SetState(ConnectionState.JoiningRoom);
+                    return;
+                }
+                RejectManualRejoin();
+            }
+            EnterLobby();
+        }
+
+        void EnterLobby()
+        {
+            if (_provider.InLobby) OnJoinedLobby();
+            else if (!_provider.JoinLobby())
             {
                 RaiseError("No se pudo entrar a la lista de salas.");
                 _provider.Disconnect();
@@ -574,6 +635,7 @@ namespace DriftPaint.Networking
 
             _disconnectRequested = false;
             _disconnectAfterLeave = false;
+            _manualRejoin = false;
 
             ClearRoom();
             _rooms.Clear();
@@ -595,6 +657,7 @@ namespace DriftPaint.Networking
         void BeginReconnecting(string cause)
         {
             Debug.LogWarning($"[Red] Se cortó la conexión en la sala ({cause ?? "sin causa"}). Intentando volver.");
+            RememberMatch();
             _reconnectDeadline = Time.realtimeSinceStartup + RoomRules.PlayerTtlMs / 1000f;
             _nextRejoinTime = 0f;
             ResetSentScores();
@@ -639,12 +702,29 @@ namespace DriftPaint.Networking
 
         void OnJoinedRoom()
         {
-            bool rejoined = _state == ConnectionState.Reconnecting;
+            if (_disconnectRequested)
+            {
+                _provider.Disconnect();
+                return;
+            }
+            bool manual = _manualRejoin;
+            bool rejoined = manual || _state == ConnectionState.Reconnecting;
             _nextRejoinTime = 0f;
             _reconnectDeadline = 0f;
 
             // Al volver, la fase pudo haber cambiado mientras no había conexión: se avisa como cualquier cambio.
-            RefreshRoom(rejoined);
+            RefreshRoom(rejoined && !manual);
+            if (manual && !IsReservedMatch())
+            {
+                // El mismo lobby puede haber iniciado una revancha mientras el jugador estaba afuera.
+                RejectManualRejoin();
+                SetState(ConnectionState.LeavingRoom);
+                if (!_provider.LeaveRoom()) Disconnect();
+                return;
+            }
+            ReturningFromMenu = manual;
+            _manualRejoin = false;
+            _reservedRoom = null;
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
@@ -684,15 +764,42 @@ namespace DriftPaint.Networking
 
         void OnJoinRoomFailed(string message)
         {
+            if (_manualRejoin)
+            {
+                RejectManualRejoin();
+                SetState(ConnectionState.Connecting);
+                EnterLobby();
+                return;
+            }
             if (_state == ConnectionState.Reconnecting)
             {
-                // La sala ya no reserva el lugar (o terminó): el cliente sigue hacia el servidor principal.
-                StopReconnecting(ConnectionState.Connecting);
-                RaiseError($"No se pudo volver a la partida. {message}");
+                EndAutomaticRejoin();
                 return;
             }
             SetState(_provider.InLobby ? ConnectionState.InLobby : ConnectionState.Connecting);
             RaiseError($"No se pudo entrar a la sala. {message}");
+        }
+
+        bool IsReservedMatch()
+        {
+            if (_phase.IsBetweenMatches() || _currentRoom.Id != _reservedRoom) return false;
+            if (_reservedMatch != null || _currentMatchId != null) return _reservedMatch == _currentMatchId;
+            // Salas creadas por versiones que solo publicaban la ronda y su hora de inicio.
+            return _round > _reservedRound || (_round == _reservedRound && _matchStartTime == _reservedStartTime);
+        }
+
+        void RejectManualRejoin()
+        {
+            _manualRejoin = false;
+            _reservedRoom = null;
+            RaiseError("Ya no se puede volver a esa partida.");
+        }
+
+        void EndAutomaticRejoin()
+        {
+            _disconnectRequested = true;
+            StopReconnecting(ConnectionState.LeavingRoom);
+            _provider.Disconnect();
         }
 
         void OnPlayerEntered(int actorId)
@@ -839,6 +946,8 @@ namespace DriftPaint.Networking
 
         void ClearRoom()
         {
+            ReturningFromMenu = false;
+            _currentMatchId = null;
             _currentRoom = default;
             _players.Clear();
             _phase = MatchPhase.Lobby;
@@ -864,6 +973,7 @@ namespace DriftPaint.Networking
 
             NetRoomInfo room = _provider.CurrentRoom;
             _currentRoom = ToRoomSummary(room);
+            _currentMatchId = Get(room.Properties, RoomKeys.MatchId) as string;
             _matchStartTime = ToDouble(Get(room.Properties, RoomKeys.StartTime), 0);
             _scoreA = ToInt(Get(room.Properties, RoomKeys.ScoreA), 0);
             _scoreB = ToInt(Get(room.Properties, RoomKeys.ScoreB), 0);
@@ -872,6 +982,7 @@ namespace DriftPaint.Networking
 
             MatchPhase previous = _phase;
             _phase = _currentRoom.Phase;
+            if (_phase.IsBetweenMatches()) ReturningFromMenu = false;
             if (notifyPhase && previous != _phase) PhaseChanged?.Invoke(_phase);
         }
 

@@ -220,7 +220,41 @@ namespace DriftPaint.EditorTools
 
             var view = screen.gameObject.AddComponent<MainMenuScreen>();
             Bind(view, ("_roomsButton", rooms), ("_quitButton", quit));
+            ConnectRejoinButton(view);
             return screen.gameObject;
+        }
+
+        static void ConnectRejoinButton(MainMenuScreen view)
+        {
+            Transform screen = view.transform;
+            Button button = screen.Find("Rejoin Button")?.GetComponent<Button>();
+            if (button == null)
+                button = CreateButton(screen, "Rejoin Button", "VOLVER A LA PARTIDA", ButtonStyle.Outline, 42f,
+                    new Vector2(0.5f, 0.5f), new Vector2(0f, -326f), new Vector2(540f, 78f));
+            Bind(view, ("_rejoinButton", button));
+            button.gameObject.SetActive(false);
+            if (screen.Find("Quit Button") is RectTransform quit)
+                quit.anchoredPosition = new Vector2(0f, -432f);
+        }
+
+        [MenuItem("DriftPaint/Conectar botón de volver a la partida")]
+        static void ConnectRejoinInOpenScene()
+        {
+            LoadAssets();
+            Scene scene = SceneManager.GetActiveScene();
+            foreach (GameObject root in scene.GetRootGameObjects())
+            {
+                foreach (MainMenuScreen menu in root.GetComponentsInChildren<MainMenuScreen>(true))
+                {
+                    ConnectRejoinButton(menu);
+                    EditorSceneManager.MarkSceneDirty(scene);
+                }
+                foreach (DriftPaint.Match.MatchHUD hud in root.GetComponentsInChildren<DriftPaint.Match.MatchHUD>(true))
+                {
+                    MatchSceneBuilder.ConnectLeaveButton(hud);
+                    EditorSceneManager.MarkSceneDirty(scene);
+                }
+            }
         }
 
         #endregion

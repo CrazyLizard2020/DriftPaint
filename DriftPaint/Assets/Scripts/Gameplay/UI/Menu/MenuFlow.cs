@@ -99,7 +99,7 @@ namespace DriftPaint.UI.Menu
 
         void TryLoadMatch(MatchPhase phase)
         {
-            if (_loadingMatch || phase == MatchPhase.Lobby || phase == MatchPhase.Results) return;
+            if (_loadingMatch || _mediator.State != ConnectionState.InRoom || phase.IsBetweenMatches()) return;
 
             string scene = MapCatalog.SceneFor(_mediator.CurrentRoom.MapId);
             if (!SceneLoader.CanLoad(scene))
@@ -110,7 +110,7 @@ namespace DriftPaint.UI.Menu
 
             _loadingMatch = true;
             SetBusy("CARGANDO PARTIDA...");
-            SceneLoader.Load(scene);
+            SceneLoader.Load(scene, _mediator.ReturningFromMenu);
         }
 
         void ShowOnly(GameObject screen)

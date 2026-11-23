@@ -4,12 +4,25 @@ using UnityEngine;
 namespace DriftPaint.Profile
 {
     /// <summary>
-    /// Datos locales del jugador. Por ahora solo el nickname, guardado en PlayerPrefs.
+    /// Identidad y nickname locales del jugador.
     /// </summary>
     public static class PlayerProfile
     {
         public const int MaxNicknameLength = 16;
         const string NicknameKey = "driftpaint.nickname";
+
+        /// <summary>Identidad de red estable aunque cambie el nickname. Cada copia del juego tiene su propio perfil.</summary>
+        public static string LoadNetworkId()
+        {
+            string key = "driftpaint.networkId." + Hash128.Compute(Application.dataPath);
+            string id = PlayerPrefs.GetString(key, "");
+            if (!string.IsNullOrEmpty(id)) return id;
+
+            id = System.Guid.NewGuid().ToString("N");
+            PlayerPrefs.SetString(key, id);
+            PlayerPrefs.Save();
+            return id;
+        }
 
         public static string LoadNickname()
         {
