@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
+using DriftPaint.Level;
 using DriftPaint.Sandbox;
 using DriftPaint.Teams;
 using DriftPaint.UI;
@@ -140,6 +141,15 @@ namespace DriftPaint.EditorTools
             CreateBlock(obstacles, "Pillar_3", new Vector3(0f, 1.5f, 5f), new Vector3(3f, 3f, 3f), new Vector3(0f, 45f, 0f), wallMat);
             CreateBlock(obstacles, "Barrier_Cyan", new Vector3(-40f, 0.5f, -35f), new Vector3(16f, 1f, 1f), new Vector3(0f, 30f, 0f), cyanMat);
             CreateBlock(obstacles, "Barrier_Orange", new Vector3(40f, 0.5f, -35f), new Vector3(16f, 1f, 1f), new Vector3(0f, -30f, 0f), orangeMat);
+
+            // Volumen de caída debajo de todo el mapa: los autos que se caen reaparecen en la arena.
+            var killVolume = new GameObject("KillVolume");
+            killVolume.transform.SetParent(arena);
+            killVolume.transform.position = new Vector3(0f, -20f, 0f);
+            var killBox = killVolume.AddComponent<BoxCollider>();
+            killBox.isTrigger = true;
+            killBox.size = new Vector3(ArenaSize * 4f, 10f, ArenaSize * 4f);
+            killVolume.AddComponent<KillVolume>();
 
             spawnPoint = new GameObject("SpawnPoint").transform;
             spawnPoint.position = new Vector3(0f, 0.3f, -45f);

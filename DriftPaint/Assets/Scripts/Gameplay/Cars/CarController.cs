@@ -24,6 +24,22 @@ namespace DriftPaint.Cars
         [Tooltip("Altura extra al reubicar el auto.")]
         [SerializeField, Min(0f)] float _respawnLift = 0.6f;
 
+        [Tooltip("Cada cuántos segundos se guarda una posición segura para reaparecer después de caerse del mapa.")]
+        [SerializeField, Min(0.1f)] float _safePoseInterval = 0.5f;
+
+        /// <summary>Cantidad de posiciones seguras guardadas. Al caerse se usa la más vieja, lejos del borde.</summary>
+        const int SafePoseHistory = 4;
+        /// <summary>Inclinación máxima del auto (grados) para guardar una posición segura.</summary>
+        const float SafeMaxTilt = 20f;
+        /// <summary>Pendiente máxima del piso (grados) para guardar una posición segura.</summary>
+        const float SafeMaxSlope = 8f;
+
+        readonly Pose[] _safePoses = new Pose[SafePoseHistory];
+        int _safePoseCount;
+        int _safePoseNext;
+        float _safePoseTimer;
+        Pose _initialPose;
+
         Rigidbody _rb;
         CarMovementInput _movementInput;
         CarAbilityInput _abilityInput;
@@ -48,8 +64,17 @@ namespace DriftPaint.Cars
         /// </summary>
         public Func<CarController, Pose> RespawnPoseProvider { get; set; }
 
+        /// <summary>
+        /// Devuelve la pose donde reaparecer después de caerse del mapa. Si es null, se usa la
+        /// última posición segura guardada o, si no hay ninguna, la posición inicial.
+        /// </summary>
+        public Func<CarController, Pose> FallRespawnPoseProvider { get; set; }
+
         /// <summary>Se dispara después de un teletransporte (reubicar auto o spawn).</summary>
         public event Action<Vector3, Quaternion> Teleported;
+
+        /// <summary>Se dispara cuando el auto reaparece después de caerse del mapa.</summary>
+        public event Action FellOutOfMap;
 
         // ICarState
         public Vector3 Position => _rb != null ? _rb.position : transform.position;
@@ -94,9 +119,74 @@ namespace DriftPaint.Cars
             _movementInput.RespawnRequested += Respawn;
         }
 
+        void Start()
+        {
+            _initialPose = GetUprightPoseInPlace();
+        }
+
         void OnDestroy()
         {
             if (_movementInput != null) _movementInput.RespawnRequested -= Respawn;
+        }
+
+        void FixedUpdate()
+        {
+            if (Mode == CarSimulationMode.Local && Stats != null)
+                TrackSafePose(Time.fixedDeltaTime);
+        }
+
+        /// <summary>
+        /// Guarda periódicamente dónde estuvo el auto bien apoyado: todas las ruedas en el piso,
+        /// derecho y sobre una superficie casi plana. Las rampas no cuentan, porque reaparecer
+        /// derecho sobre una pendiente dejaría el auto metido en ella.
+        /// </summary>
+        void TrackSafePose(float dt)
+        {
+            _safePoseTimer += dt;
+            if (_safePoseTimer < _safePoseInterval) return;
+
+            int wheelCount = _groundSensor.Probes != null ? _groundSensor.Probes.Length : 0;
+            bool allWheelsDown = wheelCount > 0 && _groundSensor.GroundedWheels >= wheelCount;
+            bool upright = Vector3.Angle(transform.up, Vector3.up) < SafeMaxTilt;
+            bool flatGround = Vector3.Angle(_groundSensor.GroundNormal, Vector3.up) < SafeMaxSlope;
+            if (!allWheelsDown || !upright || !flatGround) return;
+
+            _safePoseTimer = 0f;
+            PushSafePose(GetUprightPoseInPlace());
+        }
+
+        void PushSafePose(Pose pose)
+        {
+            _safePoses[_safePoseNext] = pose;
+            _safePoseNext = (_safePoseNext + 1) % SafePoseHistory;
+            _safePoseCount = Mathf.Min(_safePoseCount + 1, SafePoseHistory);
+        }
+
+        /// <summary>Pose para reaparecer después de una caída.</summary>
+        public Pose GetFallRespawnPose()
+        {
+            if (FallRespawnPoseProvider != null) return FallRespawnPoseProvider(this);
+            if (_safePoseCount == 0) return _initialPose;
+
+            // La más vieja del historial: unos segundos antes de la caída, lejos del borde.
+            int oldest = _safePoseCount < SafePoseHistory ? 0 : _safePoseNext;
+            return _safePoses[oldest];
+        }
+
+        /// <summary>
+        /// Reaparece en el mapa jugable después de caerse. El historial queda solo con la pose usada,
+        /// así una nueva caída inmediata vuelve al mismo lugar seguro.
+        /// </summary>
+        public void RespawnAfterFall()
+        {
+            Pose pose = GetFallRespawnPose();
+            _safePoseCount = 0;
+            _safePoseNext = 0;
+            _safePoseTimer = 0f;
+            PushSafePose(pose);
+
+            Teleport(pose.position, pose.rotation);
+            FellOutOfMap?.Invoke();
         }
 
         /// <summary>

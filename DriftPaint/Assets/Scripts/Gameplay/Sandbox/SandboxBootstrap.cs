@@ -52,6 +52,7 @@ namespace DriftPaint.Sandbox
             GameObject instance = Instantiate(prefab, pose.position, pose.rotation);
             instance.name = prefab.name;
             _car = instance.GetComponent<CarController>();
+            _car.FellOutOfMap += OnCarFell;
 
             if (_cameraRig != null)
                 _cameraRig.SetTarget(_car, _car.transform, _car.MovementInput.CameraControls);
@@ -59,6 +60,11 @@ namespace DriftPaint.Sandbox
                 _telemetry.SetTarget(_car);
             if (_hud != null)
                 _hud.SetTarget(_car, _telemetry, prefab.name.Replace("Car_", ""));
+        }
+
+        void OnCarFell()
+        {
+            if (_cameraRig != null) _cameraRig.SnapToTarget();
         }
 
         void Update()
