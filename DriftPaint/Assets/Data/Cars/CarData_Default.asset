@@ -1,0 +1,138 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e97dd6ffd37020c4db61cf7659f047d7, type: 3}
+  m_Name: CarData_Default
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarDataSO
+  _maxSpeed: 33.333
+  _timeToMaxSpeed: 6
+  _accelerationBySpeed:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: -0.3
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.35
+      value: 0.85
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.7
+      value: 0.55
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.32
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _brakeDeceleration: 19
+  _maxReverseSpeed: 11.11
+  _reverseAcceleration: 3.7
+  _coastDeceleration: 5
+  _setpointLead: 3
+  _maxYawRate: 2.4
+  _turnBySpeed:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 12
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.12
+      value: 0.85
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.3
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.8
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _maxGrip: 30
+  _extraGravity: 10
+  _paintBoostMultiplier: 1.5
+  _stunSpeedFactor: 0.2
+  _statusDuration: 2
+  _slowDeceleration: 8
+  _driftMinSpeed: 11.11
+  _driftGripFactor: 0.3
+  _driftYawMultiplier: 1.5
+  _driftSpeedLoss: 3
+  _driftChargeTiers: {x: 0.5, y: 1.5}
+  _driftTurboMultiplier: 2
+  _driftTurboDuration: {x: 0.5, y: 1}
+  _respawnHoldTime: 1
+  _speedPid:
+    _proportional: 8
+    _integral: 2
+    _derivative: 0
+    _integralLimit: 4
+    _outputLimit: 40
+  _yawRatePid:
+    _proportional: 14
+    _integral: 0
+    _derivative: 0.4
+    _integralLimit: 1
+    _outputLimit: 45
+  _gripPid:
+    _proportional: 12
+    _integral: 0
+    _derivative: 0
+    _integralLimit: 1
+    _outputLimit: 200
