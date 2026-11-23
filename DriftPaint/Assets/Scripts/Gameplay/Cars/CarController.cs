@@ -81,6 +81,7 @@ namespace DriftPaint.Cars
 
             ConfigureRigidbody();
             ApplyFrictionlessMaterial();
+            WarnIfIncomplete();
 
             if (_carData == null)
             {
@@ -96,6 +97,20 @@ namespace DriftPaint.Cars
         void OnDestroy()
         {
             if (_movementInput != null) _movementInput.RespawnRequested -= Respawn;
+        }
+
+        /// <summary>
+        /// Avisa si al auto le faltan piezas que arma el generador de prefabs (recuperación de vuelco,
+        /// color de equipo o casco de colisión). Pasa cuando el prefab se generó con una versión
+        /// anterior del generador y hay que regenerarlo.
+        /// </summary>
+        void WarnIfIncomplete()
+        {
+            bool hasHull = TryGetComponent(out MeshCollider hull) && hull.convex;
+            if (TryGetComponent(out CarFlipRecovery _) && TryGetComponent(out CarTeamColor _) && hasHull) return;
+
+            Debug.LogWarning($"{name}: el prefab está desactualizado (le falta recuperación de vuelco, color de equipo o casco de colisión). " +
+                             "Regeneralo con DriftPaint > Regenerar prefabs de autos.", this);
         }
 
         /// <summary>

@@ -307,10 +307,10 @@ namespace DriftPaint.EditorTools
             float halfLength = length * 0.5f;
             float height = top - bottom;
 
-            // Bisel de nariz y cola: avanza hasta 0.6 m en el largo y sube el 60% de la altura,
-            // así la cara inferior delantera queda bastante más tendida que una rampa común.
+            // Bisel de nariz y cola: avanza hasta 0.6 m en el largo con una pendiente de 25°
+            // (sin pasar el 60% de la altura), así un golpe de frente empuja el auto hacia arriba.
             float noseRun = Mathf.Min(0.6f, halfLength * 0.35f);
-            float bevelRise = height * 0.6f;
+            float bevelRise = Mathf.Min(height * 0.6f, noseRun * Mathf.Tan(25f * Mathf.Deg2Rad));
             float sideRun = Mathf.Min(0.15f, halfWidth * 0.25f);
 
             float beltY = bottom + bevelRise;

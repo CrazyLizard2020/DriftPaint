@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b29567d12514fa4d81a3966286da1cb, type: 3}
+  m_Name: TeamPalette_Default
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Teams.TeamPaletteSO
+  _teamA:
+    DisplayName: CYAN
+    Main: {r: 0.094, g: 0.874, b: 0.941, a: 1}
+    Glow: {r: 0.349, g: 0.953, b: 1, a: 1}
+    Detail: {r: 0.055, g: 0.663, b: 0.745, a: 1}
+  _teamB:
+    DisplayName: NARANJA
+    Main: {r: 1, g: 0.478, b: 0.102, a: 1}
+    Glow: {r: 1, g: 0.631, b: 0.227, a: 1}
+    Detail: {r: 0.847, g: 0.357, b: 0.027, a: 1}
+  _neutral:
+    DisplayName: SIN EQUIPO
+    Main: {r: 0.957, g: 0.969, b: 0.984, a: 1}
+    Glow: {r: 1, g: 1, b: 1, a: 1}
+    Detail: {r: 0.325, g: 0.314, b: 0.392, a: 1}

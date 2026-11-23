@@ -107,11 +107,18 @@ namespace DriftPaint.Cars
         }
 
         /// <summary>
-        /// Suspensión por raycast: cada rueda empuja hacia arriba del auto con un resorte amortiguado
+        /// Suspensión por rueda: cada rueda empuja hacia arriba del auto con un resorte amortiguado
         /// según qué tan comprimida está. La altura de reposo se calcula para que, con el peso
         /// repartido entre las ruedas, el centro de cada rueda quede a la altura de su radio.
         /// Así las rampas y los bordes los sube la rueda y no el canto del collider.
         /// </summary>
+        /// <remarks>
+        /// El resorte solo no alcanza a levantar el auto cuando entra rápido a una rampa: la rueda
+        /// se hunde hasta el tope y la carrocería termina chocando. Para eso hay un tope de
+        /// suspensión: si la rueda se hunde más que BumpStopRatio de su radio, se anula la parte
+        /// de la velocidad de esa rueda que va contra la superficie. La rueda se comporta como un
+        /// contacto rígido y la velocidad se redirige a lo largo de la rampa en lugar de perderse.
+        /// </remarks>
         void ApplySuspension()
         {
             if (_groundSensor == null) return;
@@ -124,6 +131,7 @@ namespace DriftPaint.Cars
             float stiffness = _stats.SuspensionStiffness;
             float totalGravity = -Physics.gravity.y + _stats.ExtraGravity;
             float restHeight = _groundSensor.WheelRadius + totalGravity / (wheelCount * stiffness);
+            float bumpStopHeight = _groundSensor.WheelRadius * BumpStopRatio;
             Vector3 up = transform.up;
 
             for (int i = 0; i < wheelCount; i++)
@@ -135,13 +143,32 @@ namespace DriftPaint.Cars
                 if (compression <= 0f) continue;
 
                 Vector3 wheelPosition = probes[i].position;
-                float verticalSpeed = Vector3.Dot(_rb.GetPointVelocity(wheelPosition), up);
+                Vector3 pointVelocity = _rb.GetPointVelocity(wheelPosition);
+
+                if (contact.Height < bumpStopHeight)
+                {
+                    float intoSurface = Vector3.Dot(pointVelocity, contact.Normal);
+                    if (intoSurface < 0f)
+                    {
+                        // Se reparte entre las ruedas: el impulso en un punto también hace girar
+                        // el auto, así que aplicarlo entero en cada rueda lo haría rebotar.
+                        _rb.AddForceAtPosition(contact.Normal * (-intoSurface * BumpStopShare), wheelPosition, ForceMode.VelocityChange);
+                    }
+                }
+
+                float verticalSpeed = Vector3.Dot(pointVelocity, up);
                 float accel = stiffness * compression - _stats.SuspensionDamping * verticalSpeed;
                 if (accel <= 0f) continue;
 
                 _rb.AddForceAtPosition(up * accel, wheelPosition, ForceMode.Acceleration);
             }
         }
+
+        /// <summary>Altura del centro de la rueda, como fracción del radio, a la que actúa el tope de suspensión.</summary>
+        const float BumpStopRatio = 0.6f;
+
+        /// <summary>Parte de la velocidad contra la superficie que anula cada rueda en el tope, por paso de física.</summary>
+        const float BumpStopShare = 0.5f;
 
         void UpdateSetpoints(float forwardSpeed, float dt)
         {
