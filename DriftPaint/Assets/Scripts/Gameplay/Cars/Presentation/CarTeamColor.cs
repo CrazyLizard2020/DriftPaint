@@ -33,24 +33,28 @@ namespace DriftPaint.Cars
 
         public byte Team => _team;
 
-        void Awake()
-        {
-            if (_visualRoot == null) _visualRoot = transform.Find("Visual");
-            if (_visualRoot == null) _visualRoot = transform;
-            _renderers = _visualRoot.GetComponentsInChildren<Renderer>(true);
-            _block = new MaterialPropertyBlock();
-            Apply();
-        }
+        void Awake() => Apply();
 
+        /// <summary>Cambia el equipo y repinta. También funciona fuera de Play, por ejemplo para generar imágenes.</summary>
         public void SetTeam(byte team)
         {
             _team = team;
             Apply();
         }
 
+        void CollectRenderers()
+        {
+            if (_renderers != null) return;
+            if (_visualRoot == null) _visualRoot = transform.Find("Visual");
+            if (_visualRoot == null) _visualRoot = transform;
+            _renderers = _visualRoot.GetComponentsInChildren<Renderer>(true);
+            _block = new MaterialPropertyBlock();
+        }
+
         void Apply()
         {
-            if (_palette == null || _renderers == null) return;
+            CollectRenderers();
+            if (_palette == null) return;
 
             TeamPaletteSO.TeamColors colors = _palette.Get(_team);
             foreach (Renderer r in _renderers)

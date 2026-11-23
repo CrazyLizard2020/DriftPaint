@@ -52,6 +52,8 @@ namespace DriftPaint.EditorTools
 
             var importer = (TextureImporter)AssetImporter.GetAtPath(path);
             importer.textureType = asSprite ? TextureImporterType.Sprite : TextureImporterType.Default;
+            // Explícito: con el modo Multiple (default de algunos proyectos) no se crea ningún sprite.
+            if (asSprite) importer.spriteImportMode = SpriteImportMode.Single;
             importer.wrapMode = wrap;
             importer.mipmapEnabled = !asSprite;
             importer.filterMode = FilterMode.Bilinear;

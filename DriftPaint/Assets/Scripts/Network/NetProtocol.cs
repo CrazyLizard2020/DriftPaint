@@ -12,6 +12,7 @@ namespace DriftPaint.Networking
         public const byte PaintDelta = 7;
         public const byte PaintSnapshot = 8;
         public const byte PaintSnapshotRequest = 9;
+        public const byte TeamChangeRequest = 10;
         public const byte Chat = 20;
     }
 
@@ -48,6 +49,9 @@ namespace DriftPaint.Networking
         public const string Barrels = "brl";
         public const string LastPosition = "lastPos";
         public const string Points = "pts";
+
+        /// <summary>Propiedades que valen solo para una sala. El auto elegido sí se conserva entre salas.</summary>
+        public static readonly string[] RoomScoped = { Team, Barrels, LastPosition, Points };
     }
 
     /// <summary>Valores fijos de las salas.</summary>

@@ -81,10 +81,26 @@ namespace DriftPaint.Match
                 return;
             }
 
-            int actor = Mathf.Max(1, _mediator.LocalActorId);
-            GameObject prefab = _carPrefabs[(actor - 1) % _carPrefabs.Length];
+            GameObject prefab = PickCarPrefab();
             Pose pose = PickSpawnPose();
             _mediator.SpawnOwned(prefab.name, pose.position, pose.rotation);
+        }
+
+        /// <summary>
+        /// El auto que eligió el jugador en el lobby. Si no eligió (o el auto ya no existe), uno según su
+        /// orden de entrada, con el mismo reparto que muestra la pantalla de selección.
+        /// </summary>
+        GameObject PickCarPrefab()
+        {
+            string carId = null;
+            foreach (PlayerSummary player in _mediator.Players)
+                if (player.IsLocal) carId = player.CarId;
+
+            if (!string.IsNullOrEmpty(carId))
+                foreach (GameObject prefab in _carPrefabs)
+                    if (prefab != null && prefab.name == carId) return prefab;
+
+            return _carPrefabs[CarCatalogSO.DefaultIndex(_mediator.LocalActorId, _carPrefabs.Length)];
         }
 
         /// <summary>

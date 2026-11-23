@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
+using DriftPaint.Combat;
 using DriftPaint.Level;
 using DriftPaint.Match;
 using DriftPaint.Paint;
@@ -69,6 +70,7 @@ namespace DriftPaint.EditorTools
             MatchHUD hud = BuildHud(match, score, palette);
             BuildResults(match, score, palette);
             CarNameplate nameplate = BuildNameplateTemplate();
+            BuildCombat(matchGo, match, paint, hud, palette);
             MenuSceneBuilder.BuildEventSystem();
 
             var spawner = matchGo.AddComponent<MatchSpawner>();
@@ -227,6 +229,157 @@ namespace DriftPaint.EditorTools
             var view = surface.AddComponent<PaintSurfaceView>();
             MenuSceneBuilder.Bind(view, ("_paint", paint), ("_palette", palette));
         }
+
+        #endregion
+
+        #region Combate
+
+        const string CombatPrefabFolder = "Assets/Prefabs/Combat";
+
+        /// <summary>
+        /// Disparos y barriles: los sistemas en el objeto Match, el prefab del barril, las plantillas
+        /// inactivas de proyectil y explosión, y los pickups del mapa (simétricos respecto del centro).
+        /// </summary>
+        static void BuildCombat(GameObject matchGo, MatchController match, PaintSystem paint, MatchHUD hud, TeamPaletteSO palette)
+        {
+            Material barrelMat = EditorAssetUtility.LoadOrCreateLitMaterial(MaterialFolder + "/M_Barrel.mat",
+                DriftPaintPalette.SunsetGold, smoothness: 0.5f);
+            Material bandMat = EditorAssetUtility.LoadOrCreateLitMaterial(MaterialFolder + "/M_BarrelBand.mat",
+                DriftPaintPalette.OffWhite, smoothness: 0.3f);
+            Material fxMat = LoadOrCreateUnlitMaterial(MaterialFolder + "/M_CombatFx.mat");
+
+            GameObject barrelPrefab = BuildBarrelPrefab(barrelMat, bandMat);
+
+            var fxRoot = new GameObject("Combat FX").transform;
+
+            GameObject projectile = CreateVisual(fxRoot, "Projectile Template", PrimitiveType.Sphere, Vector3.zero,
+                Vector3.one * 0.7f, fxMat);
+            ProjectileView projectileView = projectile.AddComponent<ProjectileView>();
+            BindRenderers(projectileView, "_tinted", projectile.GetComponent<Renderer>());
+            projectile.SetActive(false);
+
+            GameObject burst = CreateVisual(fxRoot, "Impact Template", PrimitiveType.Cylinder, Vector3.zero, Vector3.one, fxMat);
+            ImpactBurst burstView = burst.AddComponent<ImpactBurst>();
+            BindRenderers(burstView, "_tinted", burst.GetComponent<Renderer>());
+            burst.SetActive(false);
+
+            List<BarrelPickup> pickups = BuildPickups(barrelMat, bandMat);
+
+            BarrelSystem barrels = matchGo.AddComponent<BarrelSystem>();
+            WeaponSystem weapons = matchGo.AddComponent<WeaponSystem>();
+
+            var so = new SerializedObject(barrels);
+            MenuSceneBuilder.SetRef(so, "_match", match);
+            MenuSceneBuilder.SetRef(so, "_paint", paint);
+            MenuSceneBuilder.SetRef(so, "_barrelPrefab", barrelPrefab);
+            MenuSceneBuilder.SetRef(so, "_palette", palette);
+            SerializedProperty pickupsProp = so.FindProperty("_pickups");
+            pickupsProp.arraySize = pickups.Count;
+            for (int i = 0; i < pickups.Count; i++)
+                pickupsProp.GetArrayElementAtIndex(i).objectReferenceValue = pickups[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+
+            MenuSceneBuilder.Bind(weapons, ("_match", match), ("_paint", paint), ("_barrels", barrels), ("_hud", hud),
+                ("_palette", palette), ("_projectileTemplate", projectileView), ("_burstTemplate", burstView));
+        }
+
+        /// <summary>Barril soltado: tambor dorado con una banda que toma el color del equipo. Sin colisionador.</summary>
+        static GameObject BuildBarrelPrefab(Material barrelMat, Material bandMat)
+        {
+            var root = new GameObject(BarrelSystem.PrefabId);
+            CreateVisual(root.transform, "Body", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f), new Vector3(0.9f, 0.55f, 0.9f), barrelMat);
+            GameObject band = CreateVisual(root.transform, "Band", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f),
+                new Vector3(0.96f, 0.12f, 0.96f), bandMat);
+            BarrelView view = root.AddComponent<BarrelView>();
+            BindRenderers(view, "_tinted", band.GetComponent<Renderer>());
+
+            EditorAssetUtility.EnsureFolder(CombatPrefabFolder);
+            string path = CombatPrefabFolder + "/" + BarrelSystem.PrefabId + ".prefab";
+            GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+            Object.DestroyImmediate(root);
+            return prefab;
+        }
+
+        static List<BarrelPickup> BuildPickups(Material barrelMat, Material bandMat)
+        {
+            // Cada pickup tiene su espejo (-x, -z), igual que el resto del mapa.
+            Vector2[] half = { new Vector2(-24f, -40f), new Vector2(-48f, 20f), new Vector2(-20f, -12f) };
+            var root = new GameObject("Barrel Pickups").transform;
+            var pickups = new List<BarrelPickup>();
+            int id = 1;
+            foreach (Vector2 p in half)
+            {
+                pickups.Add(CreatePickup(root, id++, new Vector3(p.x, 0f, p.y), barrelMat, bandMat));
+                pickups.Add(CreatePickup(root, id++, new Vector3(-p.x, 0f, -p.y), barrelMat, bandMat));
+            }
+            return pickups;
+        }
+
+        static BarrelPickup CreatePickup(Transform parent, int id, Vector3 position, Material barrelMat, Material bandMat)
+        {
+            var go = new GameObject($"Pickup_{id}");
+            go.transform.SetParent(parent);
+            go.transform.position = position;
+
+            var visual = new GameObject("Visual").transform;
+            visual.SetParent(go.transform, false);
+            visual.localPosition = new Vector3(0f, 0.9f, 0f);
+            CreateVisual(visual, "Body", PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.8f, 0.5f, 0.8f), barrelMat);
+            CreateVisual(visual, "Band", PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.86f, 0.1f, 0.86f), bandMat);
+            visual.localRotation = Quaternion.Euler(0f, 0f, 20f);
+
+            BarrelPickup pickup = go.AddComponent<BarrelPickup>();
+            var so = new SerializedObject(pickup);
+            so.FindProperty("_id").intValue = id;
+            MenuSceneBuilder.SetRef(so, "_visual", visual.gameObject);
+            so.ApplyModifiedPropertiesWithoutUndo();
+            return pickup;
+        }
+
+        /// <summary>Primitiva solo visual: sin colisionador ni sombras, para que no afecte la física.</summary>
+        static GameObject CreateVisual(Transform parent, string name, PrimitiveType type, Vector3 localPosition, Vector3 scale, Material material)
+        {
+            GameObject go = GameObject.CreatePrimitive(type);
+            go.name = name;
+            Object.DestroyImmediate(go.GetComponent<Collider>());
+            go.transform.SetParent(parent, false);
+            go.transform.localPosition = localPosition;
+            go.transform.localScale = scale;
+            var renderer = go.GetComponent<MeshRenderer>();
+            renderer.sharedMaterial = material;
+            renderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            return go;
+        }
+
+        static void BindRenderers(Object target, string field, params Renderer[] renderers)
+        {
+            var so = new SerializedObject(target);
+            SerializedProperty prop = so.FindProperty(field);
+            prop.arraySize = renderers.Length;
+            for (int i = 0; i < renderers.Length; i++)
+                prop.GetArrayElementAtIndex(i).objectReferenceValue = renderers[i];
+            so.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Material sin iluminación para efectos: blanco, el color lo pone cada objeto.</summary>
+        static Material LoadOrCreateUnlitMaterial(string path)
+        {
+            Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+            if (material != null) return material;
+
+            material = new Material(Shader.Find("Universal Render Pipeline/Unlit"))
+            {
+                name = System.IO.Path.GetFileNameWithoutExtension(path)
+            };
+            material.SetColor("_BaseColor", Color.white);
+            EditorAssetUtility.EnsureFolder(System.IO.Path.GetDirectoryName(path).Replace('\\', '/'));
+            AssetDatabase.CreateAsset(material, path);
+            return material;
+        }
+
+        #endregion
+
+        #region Spawns
 
         static TeamSpawnPoint CreateSpawn(Transform parent, byte team, int order, Vector3 position, float yaw)
         {
@@ -396,11 +549,12 @@ namespace DriftPaint.EditorTools
             Image overlay = UiFactory.CreatePanel(canvas.transform, "Screen", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
                 Vector2.zero, Vector2.zero, DriftPaintPalette.HudNavy.WithAlpha(0.93f));
             overlay.raycastTarget = true;
-            Transform root = overlay.transform;
+            // El fondo cubre toda la pantalla; el contenido va en un área fija de 16:9 para que no se separe.
+            Transform root = UiFactory.CreateContentRoot(overlay.transform);
             Vector2 top = new Vector2(0.5f, 1f);
             Vector2 bottom = new Vector2(0.5f, 0f);
 
-            UiFactory.CreatePanel(root, "Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+            UiFactory.CreatePanel(overlay.transform, "Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
                 Vector2.zero, new Vector2(0f, 10f), DriftPaintPalette.SunsetGold);
 
             TextMeshProUGUI title = MenuSceneBuilder.CreateLabel(root, "Title", _titleFont, 150f, TextAlignmentOptions.Center,

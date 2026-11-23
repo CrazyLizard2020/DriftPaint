@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using DriftPaint.Cars;
 using DriftPaint.Teams;
 using DriftPaint.UI;
 using DriftPaint.UI.Menu;
@@ -55,9 +56,11 @@ namespace DriftPaint.EditorTools
             Transform root = canvas.transform;
             BuildBackground(root);
 
-            GameObject mainMenu = BuildMainMenu(root);
-            GameObject rooms = BuildRooms(root);
-            GameObject lobby = BuildLobby(root);
+            // Las pantallas van en un área fija de 16:9; el fondo y los avisos cubren toda la pantalla.
+            RectTransform content = UiFactory.CreateContentRoot(root);
+            GameObject mainMenu = BuildMainMenu(content);
+            GameObject rooms = BuildRooms(content);
+            GameObject lobby = BuildLobby(content);
             GameObject busy = BuildBusyOverlay(root, out TextMeshProUGUI busyText);
             GameObject error = BuildErrorOverlay(root, out TextMeshProUGUI errorText, out Button errorClose);
 
@@ -408,7 +411,7 @@ namespace DriftPaint.EditorTools
 
             // Jugadores
             Image playersPanel = UiFactory.CreatePanel(screen, "Players Panel", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(110f, -230f), new Vector2(820f, 610f), PanelColor);
+                new Vector2(110f, -230f), new Vector2(820f, 552f), PanelColor);
             TextMeshProUGUI playersHeader = CreateLabel(playersPanel.transform, "Header", _titleFont, 48f, TextAlignmentOptions.Left,
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 1f), new Vector2(0f, 1f),
                 new Vector2(30f, -14f), new Vector2(760f, 64f));
@@ -452,14 +455,14 @@ namespace DriftPaint.EditorTools
 
             // Chat
             Image chatPanel = UiFactory.CreatePanel(screen, "Chat Panel", Vector2.one, Vector2.one, Vector2.one,
-                new Vector2(-110f, -540f), new Vector2(860f, 300f), PanelColor);
+                new Vector2(-110f, -540f), new Vector2(860f, 242f), PanelColor);
             Transform ch = chatPanel.transform;
             TextMeshProUGUI chatHeader = CreateLabel(ch, "Header", _titleFont, 38f, TextAlignmentOptions.Left, DriftPaintPalette.OffWhite,
                 FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(30f, -12f), new Vector2(800f, 54f));
             chatHeader.text = "CHAT DE SALA";
 
             Image logBox = UiFactory.CreatePanel(ch, "Log", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
-                new Vector2(24f, -70f), new Vector2(812f, 136f), DriftPaintPalette.Hex(0x171A2B));
+                new Vector2(24f, -68f), new Vector2(812f, 92f), DriftPaintPalette.Hex(0x171A2B));
             logBox.gameObject.AddComponent<RectMask2D>();
             TextMeshProUGUI log = UiFactory.CreateText(logBox.transform, "Log Text", _bodyFont, 24f, TextAlignmentOptions.BottomLeft,
                 DriftPaintPalette.OffWhite);
@@ -469,11 +472,19 @@ namespace DriftPaint.EditorTools
             log.text = "";
 
             TMP_InputField chatInput = CreateInput(ch, "Chat Input", "Escribí un mensaje...", 26f,
-                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(24f, 20f), new Vector2(660f, 62f), InputColor,
+                new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(24f, 18f), new Vector2(660f, 58f), InputColor,
                 DriftPaintPalette.OffWhite);
             chatInput.characterLimit = 160;
             Button send = CreateButton(ch, "Send Button", "ENVIAR", ButtonStyle.Primary, 28f,
-                new Vector2(1f, 0f), new Vector2(-24f, 20f), new Vector2(136f, 62f), new Vector2(1f, 0f));
+                new Vector2(1f, 0f), new Vector2(-24f, 18f), new Vector2(136f, 58f), new Vector2(1f, 0f));
+
+            // Equipo y auto
+            Button switchTeam = CreateButton(screen, "Switch Team Button", "CAMBIAR EQUIPO", ButtonStyle.Outline, 38f,
+                new Vector2(0.5f, 0f), new Vector2(-270f, 196f), new Vector2(460f, 72f), new Vector2(0.5f, 0f));
+            AddAccent(switchTeam);
+            Button changeCar = CreateButton(screen, "Change Car Button", "CAMBIAR AUTO", ButtonStyle.Outline, 38f,
+                new Vector2(0.5f, 0f), new Vector2(270f, 196f), new Vector2(460f, 72f), new Vector2(0.5f, 0f));
+            AddAccent(changeCar);
 
             // Acciones
             Button back = CreateButton(screen, "Back Button", "VOLVER", ButtonStyle.Outline, 44f,
@@ -481,8 +492,14 @@ namespace DriftPaint.EditorTools
             Button start = CreateButton(screen, "Start Button", "INICIAR PARTIDA", ButtonStyle.Primary, 64f,
                 new Vector2(0.5f, 0f), new Vector2(150f, 44f), new Vector2(820f, 116f), new Vector2(0.5f, 0f));
 
+            // La ventana de autos va al final para quedar por encima del resto del lobby.
+            CarSelectPanel carPanel = BuildCarSelectPanel(screen);
+
             var view = screen.gameObject.AddComponent<LobbyScreen>();
             var so = new SerializedObject(view);
+            SetRef(so, "_switchTeamButton", switchTeam);
+            SetRef(so, "_changeCarButton", changeCar);
+            SetRef(so, "_carPanel", carPanel);
             SetRef(so, "_roomTitleText", roomTitle);
             SetRef(so, "_roomIdText", idText);
             SetRef(so, "_copyIdButton", copy);
@@ -511,10 +528,10 @@ namespace DriftPaint.EditorTools
 
         static PlayerSlotView BuildPlayerSlot(Transform panel, int index)
         {
-            const float height = 56f;
-            const float spacing = 7f;
+            const float height = 50f;
+            const float spacing = 6f;
             RectTransform slot = UiFactory.CreateRect(panel, $"Slot {index + 1}", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
-                new Vector2(0f, -90f - index * (height + spacing)), new Vector2(-50f, height));
+                new Vector2(0f, -86f - index * (height + spacing)), new Vector2(-50f, height));
 
             Image highlight = UiFactory.CreatePanel(slot, "Local Highlight", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
                 Vector2.zero, Vector2.zero, DriftPaintPalette.Cyan);
@@ -533,13 +550,13 @@ namespace DriftPaint.EditorTools
                 new Vector2(60f, 0f), new Vector2(50f, 22f), DriftPaintPalette.Cyan);
             Skew(car, 10f);
 
-            TextMeshProUGUI name = CreateLabel(slot, "Name", _titleFont, 36f, TextAlignmentOptions.Left, DriftPaintPalette.OffWhite,
-                FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(140f, 0f), new Vector2(480f, 56f));
+            TextMeshProUGUI name = CreateLabel(slot, "Name", _titleFont, 33f, TextAlignmentOptions.Left, DriftPaintPalette.OffWhite,
+                FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(140f, 0f), new Vector2(480f, 50f));
             name.text = "Esperando jugador...";
             name.overflowMode = TextOverflowModes.Ellipsis;
 
             Image host = UiFactory.CreatePanel(slot, "Host Badge", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
-                new Vector2(-20f, 0f), new Vector2(100f, 38f), DriftPaintPalette.SunsetGold);
+                new Vector2(-20f, 0f), new Vector2(100f, 34f), DriftPaintPalette.SunsetGold);
             Skew(host, 12f);
             TextMeshProUGUI hostLabel = UiFactory.CreateText(host.transform, "Label", _titleFont, 26f, TextAlignmentOptions.Center,
                 DriftPaintPalette.HudNavy, FontStyles.Bold);
@@ -551,6 +568,152 @@ namespace DriftPaint.EditorTools
 
             highlight.gameObject.SetActive(false);
             host.gameObject.SetActive(false);
+            return view;
+        }
+
+        /// <summary>Franjas de color en los bordes del botón: cian a la izquierda y naranja a la derecha.</summary>
+        static void AddAccent(Button button)
+        {
+            Transform t = button.transform;
+            Image left = UiFactory.CreatePanel(t, "Accent Left", new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f),
+                new Vector2(22f, 0f), new Vector2(10f, -14f), DriftPaintPalette.Cyan);
+            Skew(left, 14f);
+            Image right = UiFactory.CreatePanel(t, "Accent Right", new Vector2(1f, 0f), new Vector2(1f, 1f), new Vector2(1f, 0.5f),
+                new Vector2(-4f, 0f), new Vector2(10f, 0f), DriftPaintPalette.Orange);
+            Skew(right, 14f);
+        }
+
+        /// <summary>
+        /// Ventana de elección de auto: vista grande del auto marcado, una tarjeta plantilla que se clona por
+        /// cada auto del catálogo, y los botones de cerrar, cancelar y confirmar.
+        /// </summary>
+        static CarSelectPanel BuildCarSelectPanel(Transform screen)
+        {
+            CarCatalogSO catalog = CarCatalogBuilder.LoadOrBuild();
+
+            Image blocker = UiFactory.CreatePanel(screen, "Car Select", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, Color.black.WithAlpha(0.65f));
+            // El lobby vive en el área de 16:9: el oscurecido se extiende más allá para tapar toda la pantalla.
+            UiFactory.Stretch((RectTransform)blocker.transform, -1500f);
+            blocker.raycastTarget = true;
+
+            Image box = UiFactory.CreatePanel(blocker.transform, "Box", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                Vector2.zero, new Vector2(1240f, 780f), DriftPaintPalette.HudNavy);
+            box.raycastTarget = true;
+            var boxOutline = box.gameObject.AddComponent<Outline>();
+            boxOutline.effectColor = DriftPaintPalette.Cyan.WithAlpha(0.8f);
+            boxOutline.effectDistance = new Vector2(3f, -3f);
+            Transform b = box.transform;
+            UiFactory.CreatePanel(b, "Top Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                Vector2.zero, new Vector2(0f, 8f), DriftPaintPalette.Cyan);
+            Image corner = UiFactory.CreatePanel(b, "Corner Accent", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f),
+                new Vector2(-150f, 0f), new Vector2(26f, 90f), DriftPaintPalette.Orange);
+            Skew(corner, 20f);
+
+            Image titleStripe = UiFactory.CreatePanel(b, "Title Stripe", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(40f, -30f), new Vector2(12f, 60f), DriftPaintPalette.Cyan);
+            Skew(titleStripe, 16f);
+            TextMeshProUGUI title = CreateLabel(b, "Title", _titleFont, 60f, TextAlignmentOptions.Left, DriftPaintPalette.OffWhite,
+                FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(72f, -22f), new Vector2(700f, 76f));
+            title.text = "ELEGIR AUTO";
+
+            Button close = CreateButton(b, "Close Button", "X", ButtonStyle.Dark, 40f, new Vector2(1f, 1f),
+                new Vector2(-34f, -28f), new Vector2(76f, 64f), new Vector2(1f, 1f));
+
+            // Vista grande
+            Image hero = UiFactory.CreatePanel(b, "Preview", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -118f), new Vector2(1160f, 330f), RowColor);
+            hero.gameObject.AddComponent<RectMask2D>();
+            Image heroCar = UiFactory.CreatePanel(hero.transform, "Car Image", new Vector2(1f, 0.5f), new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
+                new Vector2(-10f, 0f), new Vector2(660f, 330f), Color.white);
+            heroCar.preserveAspect = true;
+            Image heroStripe = UiFactory.CreatePanel(hero.transform, "Name Stripe", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(46f, 30f), new Vector2(14f, 84f), DriftPaintPalette.Cyan);
+            Skew(heroStripe, 16f);
+            TextMeshProUGUI heroName = CreateLabel(hero.transform, "Car Name", _titleFont, 80f, TextAlignmentOptions.Left, DriftPaintPalette.OffWhite,
+                FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(80f, 30f), new Vector2(440f, 96f));
+            heroName.text = "Auto";
+            heroName.overflowMode = TextOverflowModes.Ellipsis;
+            Image currentBadge = UiFactory.CreatePanel(hero.transform, "Current Badge", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(80f, -52f), new Vector2(200f, 52f), DriftPaintPalette.Cyan);
+            Skew(currentBadge, 14f);
+            TextMeshProUGUI currentLabel = UiFactory.CreateText(currentBadge.transform, "Label", _titleFont, 34f, TextAlignmentOptions.Center,
+                DriftPaintPalette.HudNavy, FontStyles.Bold | FontStyles.Italic);
+            currentLabel.text = "ACTUAL";
+
+            // Tarjetas
+            RectTransform cards = UiFactory.CreateRect(b, "Cards", new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -472f), new Vector2(1160f, 200f));
+            var layout = cards.gameObject.AddComponent<HorizontalLayoutGroup>();
+            layout.spacing = 22f;
+            layout.childAlignment = TextAnchor.MiddleCenter;
+            layout.childControlWidth = false;
+            layout.childControlHeight = false;
+            layout.childForceExpandWidth = false;
+            layout.childForceExpandHeight = false;
+            CarCardView template = BuildCarCard(cards);
+
+            Button cancel = CreateButton(b, "Cancel Button", "CANCELAR", ButtonStyle.Outline, 38f, new Vector2(0.5f, 0f),
+                new Vector2(-290f, 36f), new Vector2(340f, 76f), new Vector2(0.5f, 0f));
+            Button confirm = CreateButton(b, "Confirm Button", "CONFIRMAR", ButtonStyle.Primary, 48f, new Vector2(0.5f, 0f),
+                new Vector2(190f, 32f), new Vector2(520f, 86f), new Vector2(0.5f, 0f));
+
+            var panel = blocker.gameObject.AddComponent<CarSelectPanel>();
+            Bind(panel, ("_catalog", catalog), ("_teamPalette", LoadOrCreatePalette()),
+                ("_previewImage", heroCar), ("_previewName", heroName), ("_currentBadge", currentBadge.gameObject),
+                ("_cardTemplate", template), ("_closeButton", close), ("_cancelButton", cancel), ("_confirmButton", confirm));
+
+            template.gameObject.SetActive(false);
+            blocker.gameObject.SetActive(false);
+            return panel;
+        }
+
+        static CarCardView BuildCarCard(Transform cards)
+        {
+            RectTransform card = UiFactory.CreateRect(cards, "Card Template", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(270f, 196f));
+
+            Image frame = UiFactory.CreatePanel(card, "Selected Frame", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, DriftPaintPalette.Cyan);
+            UiFactory.Stretch((RectTransform)frame.transform, -5f);
+
+            Image background = UiFactory.CreatePanel(card, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, RowColor);
+            background.sprite = _white;
+            background.raycastTarget = true;
+            var button = background.gameObject.AddComponent<Button>();
+            button.targetGraphic = background;
+            ColorBlock colors = button.colors;
+            colors.highlightedColor = new Color(0.85f, 0.95f, 1f);
+            colors.pressedColor = new Color(0.7f, 0.75f, 0.8f);
+            button.colors = colors;
+
+            Image preview = UiFactory.CreatePanel(card, "Car Image", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -6f), new Vector2(-12f, 132f), Color.white);
+            preview.preserveAspect = true;
+
+            Image nameBar = UiFactory.CreatePanel(card, "Name Bar", new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f),
+                Vector2.zero, new Vector2(0f, 54f), DriftPaintPalette.HudNavy.WithAlpha(0.85f));
+            Image stripe = UiFactory.CreatePanel(nameBar.transform, "Stripe", new Vector2(0f, 0f), new Vector2(0f, 1f), new Vector2(0f, 0.5f),
+                new Vector2(18f, 0f), new Vector2(9f, -14f), DriftPaintPalette.Cyan);
+            Skew(stripe, 16f);
+            TextMeshProUGUI name = CreateLabel(nameBar.transform, "Name", _titleFont, 38f, TextAlignmentOptions.Left, DriftPaintPalette.OffWhite,
+                FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(42f, 0f), new Vector2(220f, 52f));
+            name.text = "Auto";
+            name.overflowMode = TextOverflowModes.Ellipsis;
+
+            Image current = UiFactory.CreatePanel(card, "Current Mark", new Vector2(1f, 1f), new Vector2(1f, 1f), new Vector2(1f, 1f),
+                new Vector2(-8f, -8f), new Vector2(104f, 30f), DriftPaintPalette.Cyan);
+            TextMeshProUGUI currentLabel = UiFactory.CreateText(current.transform, "Label", _titleFont, 22f, TextAlignmentOptions.Center,
+                DriftPaintPalette.HudNavy, FontStyles.Bold);
+            currentLabel.text = "ACTUAL";
+
+            var view = card.gameObject.AddComponent<CarCardView>();
+            Bind(view, ("_button", button), ("_preview", preview), ("_nameText", name), ("_stripe", stripe),
+                ("_selectedFrame", frame.gameObject), ("_currentMark", current.gameObject));
+
+            frame.gameObject.SetActive(false);
+            current.gameObject.SetActive(false);
             return view;
         }
 

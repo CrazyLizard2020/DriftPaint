@@ -104,6 +104,8 @@ namespace DriftPaint.Networking
         void RegisterPrefab(string prefabId, UnityEngine.GameObject prefab);
         /// <summary>Crea en red un objeto del jugador local. Devuelve null si no se pudo.</summary>
         UnityEngine.GameObject Instantiate(string prefabId, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation);
+        /// <summary>Solo el Master: crea en red un objeto de la sala, sin dueño. Devuelve null si no se pudo.</summary>
+        UnityEngine.GameObject InstantiateRoomObject(string prefabId, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation);
         void Destroy(UnityEngine.GameObject instance);
 
         /// <summary>Objeto de red creado en este cliente: instancia, dueño, si es propio y prefab.</summary>
@@ -111,6 +113,11 @@ namespace DriftPaint.Networking
         event Action<UnityEngine.GameObject> ObjectDestroyed;
         bool SetRoomProperties(IDictionary<string, object> properties);
         bool SetPlayerProperties(int actorNumber, IDictionary<string, object> properties);
+        /// <summary>
+        /// Fuera de una sala: borra propiedades guardadas del jugador local, que si no viajarían a la
+        /// próxima sala al entrar.
+        /// </summary>
+        void ClearLocalPlayerProperties(IReadOnlyList<string> keys);
 
         /// <summary>Conectado al servidor y listo para entrar al lobby (también al salir de una sala).</summary>
         event Action ConnectedToServer;

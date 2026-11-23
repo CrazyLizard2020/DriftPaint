@@ -281,7 +281,6 @@ namespace DriftPaint.EditorTools
                 "C / R3  mirar atrás\n" +
                 "R / Y (1 s)  reubicar auto\n\n" +
                 "<b>PRUEBAS</b>\n" +
-                "F1 stun   F2 slow\n" +
                 "F4 cambiar modelo   F5 volver al spawn\n" +
                 "F6 cambiar equipo\n" +
                 "Esc liberar / bloquear cursor";

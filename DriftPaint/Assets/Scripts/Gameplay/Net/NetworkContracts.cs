@@ -89,10 +89,16 @@ namespace DriftPaint.Net
         public readonly int Points;
         /// <summary>Celdas en pie publicadas por el Master, para desempatar el orden de la tabla.</summary>
         public readonly int Standing;
+        /// <summary>Barriles en el baúl según el Master, o -1 si todavía no se asignaron en esta partida.</summary>
+        public readonly int Barrels;
+        /// <summary>Auto elegido (identificador del prefab), o null si todavía no eligió.</summary>
+        public readonly string CarId;
 
         public PlayerSummary(int actorId, string nickname, byte team, bool isMaster, bool isLocal, bool isInactive,
-            int points = 0, int standing = 0)
+            int points = 0, int standing = 0, int barrels = -1, string carId = null)
         {
+            Barrels = barrels;
+            CarId = carId;
             ActorId = actorId;
             Nickname = nickname;
             Team = team;
@@ -127,46 +133,77 @@ namespace DriftPaint.Net
     public readonly struct FireInfo
     {
         public readonly int ShooterActorId;
+        /// <summary>Número de disparo del tirador. Con el tirador identifica al proyectil.</summary>
+        public readonly int ShotId;
         public readonly Vector3 Origin;
-        public readonly Vector3 Direction;
+        /// <summary>Velocidad inicial del proyectil en m/s.</summary>
+        public readonly Vector3 Velocity;
         /// <summary>Tiempo del servidor en el que se disparó.</summary>
         public readonly double FireTime;
 
-        public FireInfo(int shooterActorId, Vector3 origin, Vector3 direction, double fireTime)
+        public FireInfo(int shooterActorId, int shotId, Vector3 origin, Vector3 velocity, double fireTime)
         {
             ShooterActorId = shooterActorId;
+            ShotId = shotId;
             Origin = origin;
-            Direction = direction;
+            Velocity = velocity;
             FireTime = fireTime;
         }
     }
 
+    /// <summary>Qué provocó un impacto.</summary>
     public enum ImpactKind : byte
     {
-        /// <summary>Impacto directo de un proyectil: stun.</summary>
-        Direct = 0,
-        /// <summary>Splash de un proyectil: slow.</summary>
-        Splash = 1,
-        /// <summary>Explosión de un barril: mismos efectos que el disparo.</summary>
-        Barrel = 2
+        Projectile = 0,
+        Barrel = 1
     }
 
-    /// <summary>Impacto decidido por el Master.</summary>
+    /// <summary>
+    /// Impacto decidido por el Master: dónde fue, quién lo causó, a quién aturde (impacto directo o
+    /// barril pisado) y a quiénes frena (alcanzados por la zona de la explosión).
+    /// </summary>
     public readonly struct ImpactInfo
     {
         public readonly Vector3 Position;
-        /// <summary>Jugador alcanzado, o -1 si no le pegó a nadie.</summary>
-        public readonly int VictimActorId;
         public readonly ImpactKind Kind;
         public readonly int SourceActorId;
+        /// <summary>Disparo que impactó (ShotId del tirador), o -1 si fue un barril.</summary>
+        public readonly int ShotId;
+        /// <summary>Jugador aturdido, o -1 si nadie recibió el golpe directo.</summary>
+        public readonly int StunnedActorId;
+        /// <summary>Jugadores frenados por la zona de la explosión.</summary>
+        public readonly int[] SlowedActorIds;
 
-        public ImpactInfo(Vector3 position, int victimActorId, ImpactKind kind, int sourceActorId)
+        public ImpactInfo(Vector3 position, ImpactKind kind, int sourceActorId, int shotId, int stunnedActorId, int[] slowedActorIds)
         {
             Position = position;
-            VictimActorId = victimActorId;
             Kind = kind;
             SourceActorId = sourceActorId;
+            ShotId = shotId;
+            StunnedActorId = stunnedActorId;
+            SlowedActorIds = slowedActorIds ?? Array.Empty<int>();
         }
+
+        public bool Slows(int actorId) => Array.IndexOf(SlowedActorIds, actorId) >= 0;
+    }
+
+    /// <summary>Respuesta del Master a un pedido de pickup.</summary>
+    public readonly struct PickupResult
+    {
+        public readonly int PickupId;
+        /// <summary>Jugador que se llevó el barril, o -1 si el pedido fue rechazado.</summary>
+        public readonly int ActorId;
+        /// <summary>Tiempo del servidor en el que el pickup vuelve a aparecer.</summary>
+        public readonly double RespawnTime;
+
+        public PickupResult(int pickupId, int actorId, double respawnTime)
+        {
+            PickupId = pickupId;
+            ActorId = actorId;
+            RespawnTime = respawnTime;
+        }
+
+        public bool Accepted => ActorId >= 0;
     }
 
     /// <summary>Objeto creado en red por un jugador, por ejemplo su auto.</summary>
@@ -233,6 +270,13 @@ namespace DriftPaint.Net
 
         /// <summary>Solo el Master y en el lobby: cambia la duración de la partida.</summary>
         void SetRoomDuration(int seconds);
+        /// <summary>
+        /// Pide pasar al jugador local al otro equipo. El Master lo acepta solo entre partidas y si los
+        /// equipos no quedan desparejos.
+        /// </summary>
+        void RequestTeamChange();
+        /// <summary>Guarda el auto elegido por el jugador local. Se conserva al cambiar de sala.</summary>
+        void SetLocalCar(string carId);
         void SendChat(string text);
         /// <summary>Solo el Master, en el lobby o en resultados: pasa la sala a la cuenta regresiva y limpia los puntajes.</summary>
         bool RequestStartMatch();
@@ -269,7 +313,12 @@ namespace DriftPaint.Net
         void RegisterPrefab(string prefabId, GameObject prefab);
         /// <summary>Crea un objeto del jugador local en todos los clientes. Sin sala, lo crea solo localmente.</summary>
         GameObject SpawnOwned(string prefabId, Vector3 position, Quaternion rotation);
-        /// <summary>Destruye un objeto propio en todos los clientes.</summary>
+        /// <summary>
+        /// Solo el Master: crea un objeto de la sala, que no pertenece a ningún jugador y sigue aunque
+        /// quien lo pidió se desconecte. Sin sala, lo crea solo localmente.
+        /// </summary>
+        GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation);
+        /// <summary>Destruye un objeto propio (o de la sala, si es el Master) en todos los clientes.</summary>
         void Despawn(GameObject instance);
         /// <summary>Objetos de red que existen ahora, propios y ajenos.</summary>
         IReadOnlyList<NetworkObjectInfo> Objects { get; }
@@ -288,12 +337,28 @@ namespace DriftPaint.Net
         event Action<int> PaintSnapshotRequested;
         event Action<PaintSnapshot> PaintSnapshotReceived;
 
-        // Partida
-        void RequestFire(Vector3 origin, Vector3 direction);
-        void RequestDropBarrel(Vector3 position, Vector3 direction);
-        void RequestPickup(int pickupId);
+        // Disparos y barriles
+        /// <summary>Dispara: el proyectil aparece al instante en este cliente y los demás lo adelantan según la latencia.</summary>
+        void RequestFire(int shotId, Vector3 origin, Vector3 velocity);
         event Action<FireInfo> FireReceived;
+        /// <summary>Solo el Master: anuncia un impacto a todos, incluido él mismo.</summary>
+        void SendImpact(ImpactInfo impact);
         event Action<ImpactInfo> ImpactReceived;
+
+        /// <summary>Pide al Master soltar un barril.</summary>
+        void RequestDropBarrel(Vector3 position, Vector3 direction);
+        /// <summary>Un jugador pidió soltar un barril: actor, posición y dirección. Solo le llega al Master.</summary>
+        event Action<int, Vector3, Vector3> BarrelDropRequested;
+        /// <summary>Solo el Master: barriles en el baúl de un jugador.</summary>
+        void SetBarrelCount(int actorId, int count);
+
+        /// <summary>Pide al Master el barril de un pickup.</summary>
+        void RequestPickup(int pickupId);
+        /// <summary>Un jugador pidió un pickup: actor y pickup. Solo le llega al Master.</summary>
+        event Action<int, int> PickupRequested;
+        /// <summary>Solo el Master: aceptado se anuncia a todos; rechazado, solo a quien lo pidió.</summary>
+        void SendPickupResult(int requesterActorId, PickupResult result);
+        event Action<PickupResult> PickupResultReceived;
     }
 
     /// <summary>

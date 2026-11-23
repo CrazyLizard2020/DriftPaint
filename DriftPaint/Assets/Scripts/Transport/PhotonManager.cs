@@ -150,6 +150,12 @@ namespace DriftPaint.Transport
             return PhotonNetwork.Instantiate(prefabId, position, rotation);
         }
 
+        public GameObject InstantiateRoomObject(string prefabId, Vector3 position, Quaternion rotation)
+        {
+            if (!PhotonNetwork.InRoom || !PhotonNetwork.IsMasterClient || !_pool.Contains(prefabId)) return null;
+            return PhotonNetwork.InstantiateRoomObject(prefabId, position, rotation);
+        }
+
         public void Destroy(GameObject instance)
         {
             if (instance == null) return;
@@ -176,6 +182,16 @@ namespace DriftPaint.Transport
             Room room = PhotonNetwork.CurrentRoom;
             Player player = room?.GetPlayer(actorNumber);
             return player != null && player.SetCustomProperties(ToHashtable(properties));
+        }
+
+        public void ClearLocalPlayerProperties(IReadOnlyList<string> keys)
+        {
+            // Photon manda las propiedades del jugador local al entrar a una sala: se limpian solo en la copia
+            // local, sin mensajes, y por eso únicamente fuera de una sala.
+            if (PhotonNetwork.InRoom || PhotonNetwork.LocalPlayer == null) return;
+            Hashtable properties = PhotonNetwork.LocalPlayer.CustomProperties;
+            foreach (string key in keys)
+                properties.Remove(key);
         }
 
         #endregion

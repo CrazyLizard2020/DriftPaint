@@ -112,6 +112,9 @@ namespace DriftPaint.Networking
         public event Action<PaintDelta> PaintDeltaReceived;
         public event Action<int> PaintSnapshotRequested;
         public event Action<PaintSnapshot> PaintSnapshotReceived;
+        public event Action<int, Vector3, Vector3> BarrelDropRequested;
+        public event Action<int, int> PickupRequested;
+        public event Action<PickupResult> PickupResultReceived;
 
         #endregion
 
@@ -195,6 +198,7 @@ namespace DriftPaint.Networking
             options.Properties[RoomKeys.ScoreA] = 0;
             options.Properties[RoomKeys.ScoreB] = 0;
 
+            _provider.ClearLocalPlayerProperties(PlayerKeys.RoomScoped);
             if (!_provider.CreateRoom(NewRoomId(), options)) return false;
 
             SetState(ConnectionState.JoiningRoom);
@@ -204,6 +208,8 @@ namespace DriftPaint.Networking
         public bool JoinRoom(string roomId)
         {
             if (_state != ConnectionState.InLobby || string.IsNullOrWhiteSpace(roomId)) return false;
+            // Sin esto, el equipo y el puntaje de la sala anterior llegan a la nueva y el Master no reparte.
+            _provider.ClearLocalPlayerProperties(PlayerKeys.RoomScoped);
             if (!_provider.JoinRoom(roomId.Trim().ToUpperInvariant())) return false;
 
             SetState(ConnectionState.JoiningRoom);
@@ -239,6 +245,27 @@ namespace DriftPaint.Networking
             _provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.Duration, ClampDuration(seconds) } });
         }
 
+        public void RequestTeamChange()
+        {
+            if (_state != ConnectionState.InRoom) return;
+            if (IsMaster) HandleTeamChange(LocalActorId);
+            else _provider.SendEvent(NetEventCodes.TeamChangeRequest, (byte)0, NetTarget.Master, true);
+        }
+
+        public void SetLocalCar(string carId)
+        {
+            if (_state != ConnectionState.InRoom || string.IsNullOrEmpty(carId)) return;
+            _provider.SetPlayerProperties(LocalActorId, new Dictionary<string, object> { { PlayerKeys.Car, carId } });
+        }
+
+        /// <summary>Solo el Master: pasa al jugador al otro equipo si se está entre partidas y quedan parejos.</summary>
+        void HandleTeamChange(int actorId)
+        {
+            if (!IsMaster || !_phase.IsBetweenMatches() || !TeamRules.CanSwitch(_players, actorId)) return;
+            if (!TryGetPlayer(actorId, out PlayerSummary player)) return;
+            AssignTeam(actorId, TeamId.Other(player.Team));
+        }
+
         public void SendChat(string text)
         {
             if (_state != ConnectionState.InRoom) return;
@@ -258,8 +285,13 @@ namespace DriftPaint.Networking
 
             // Los puntajes de la partida anterior se limpian antes del cambio de estado: llegan en ese orden.
             ResetSentScores();
+            // El inventario de barriles se borra: el Master lo vuelve a llenar al arrancar la partida.
             foreach (PlayerSummary player in _players)
-                _provider.SetPlayerProperties(player.ActorId, new Dictionary<string, object> { { PlayerKeys.Points, new[] { 0, 0 } } });
+                _provider.SetPlayerProperties(player.ActorId, new Dictionary<string, object>
+                {
+                    { PlayerKeys.Points, new[] { 0, 0 } },
+                    { PlayerKeys.Barrels, null }
+                });
 
             return _provider.SetRoomProperties(new Dictionary<string, object>
             {
@@ -353,8 +385,18 @@ namespace DriftPaint.Networking
         public GameObject SpawnOwned(string prefabId, Vector3 position, Quaternion rotation)
         {
             if (_provider.InRoom) return _provider.Instantiate(prefabId, position, rotation);
+            return SpawnLocal(prefabId, position, rotation);
+        }
 
-            // Sin sala se juega solo: el objeto se crea localmente y se anuncia igual.
+        public GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation)
+        {
+            if (_provider.InRoom) return IsMaster ? _provider.InstantiateRoomObject(prefabId, position, rotation) : null;
+            return SpawnLocal(prefabId, position, rotation);
+        }
+
+        /// <summary>Sin sala se juega solo: el objeto se crea localmente y se anuncia igual.</summary>
+        GameObject SpawnLocal(string prefabId, Vector3 position, Quaternion rotation)
+        {
             if (!_prefabs.TryGetValue(prefabId, out GameObject prefab))
             {
                 RaiseError($"No hay un prefab registrado como \"{prefabId}\".");
@@ -385,27 +427,76 @@ namespace DriftPaint.Networking
 
         #region INetworkMediator: partida
 
-        public void RequestFire(Vector3 origin, Vector3 direction)
-        {
-            if (!_provider.InRoom)
-            {
-                FireReceived?.Invoke(new FireInfo(LocalActorId, origin, direction, ServerTime));
-                return;
-            }
+        // Sin sala, este cliente es la autoridad: los pedidos se atienden localmente por el mismo camino.
 
-            _provider.SendEvent(NetEventCodes.FireRequest, new object[] { origin, direction, ServerTime }, NetTarget.All, true);
+        public void RequestFire(int shotId, Vector3 origin, Vector3 velocity)
+        {
+            double fireTime = ServerTime;
+            if (_provider.InRoom)
+                _provider.SendEvent(NetEventCodes.FireRequest, new object[] { shotId, origin, velocity, fireTime }, NetTarget.Others, true);
+            FireReceived?.Invoke(new FireInfo(LocalActorId, shotId, origin, velocity, fireTime));
+        }
+
+        public void SendImpact(ImpactInfo impact)
+        {
+            if (_provider.InRoom)
+            {
+                if (!IsMaster) return;
+                byte code = impact.Kind == ImpactKind.Barrel ? NetEventCodes.BarrelExplode : NetEventCodes.ProjectileImpact;
+                var payload = new object[]
+                {
+                    impact.Position, (byte)impact.Kind, impact.SourceActorId, impact.ShotId, impact.StunnedActorId, impact.SlowedActorIds
+                };
+                _provider.SendEvent(code, payload, NetTarget.Others, true);
+            }
+            ImpactReceived?.Invoke(impact);
         }
 
         public void RequestDropBarrel(Vector3 position, Vector3 direction)
         {
-            if (!_provider.InRoom) return;
-            _provider.SendEvent(NetEventCodes.DropBarrelRequest, new object[] { position, direction }, NetTarget.Master, true);
+            if (_provider.InRoom)
+                _provider.SendEvent(NetEventCodes.DropBarrelRequest, new object[] { position, direction }, NetTarget.Master, true);
+            else
+                BarrelDropRequested?.Invoke(LocalActorId, position, direction);
+        }
+
+        public void SetBarrelCount(int actorId, int count)
+        {
+            if (!IsMaster) return;
+            _provider.SetPlayerProperties(actorId, new Dictionary<string, object> { { PlayerKeys.Barrels, count } });
         }
 
         public void RequestPickup(int pickupId)
         {
-            if (!_provider.InRoom) return;
-            _provider.SendEvent(NetEventCodes.PickupRequest, pickupId, NetTarget.Master, true);
+            if (_provider.InRoom)
+                _provider.SendEvent(NetEventCodes.PickupRequest, pickupId, NetTarget.Master, true);
+            else
+                PickupRequested?.Invoke(LocalActorId, pickupId);
+        }
+
+        public void SendPickupResult(int requesterActorId, PickupResult result)
+        {
+            if (!_provider.InRoom)
+            {
+                PickupResultReceived?.Invoke(result);
+                return;
+            }
+            if (!IsMaster) return;
+
+            var payload = new object[] { result.PickupId, result.ActorId, result.RespawnTime };
+            if (result.Accepted)
+            {
+                _provider.SendEvent(NetEventCodes.PickupResult, payload, NetTarget.Others, true);
+                PickupResultReceived?.Invoke(result);
+            }
+            else if (requesterActorId == LocalActorId)
+            {
+                PickupResultReceived?.Invoke(result);
+            }
+            else
+            {
+                _provider.SendEventTo(NetEventCodes.PickupResult, payload, requesterActorId, true);
+            }
         }
 
         #endregion
@@ -509,6 +600,7 @@ namespace DriftPaint.Networking
             string name = NameOf(actorId);
             RefreshPlayers();
             bool stillReserved = TryGetPlayer(actorId, out PlayerSummary player) && player.IsInactive;
+            if (IsMaster) EnsureTeams();
 
             PlayersChanged?.Invoke();
             ChatReceived?.Invoke(ChatMessage.System(stillReserved ? $"{name} se desconectó." : $"{name} salió de la sala."));
@@ -527,7 +619,10 @@ namespace DriftPaint.Networking
 
         void OnRoomPropertiesChanged(IReadOnlyDictionary<string, object> changed)
         {
+            MatchPhase previous = _phase;
             RefreshRoom(true);
+            // Al volver al lobby se empareja lo que se desarmó durante la partida (gente que salió o entró).
+            if (IsMaster && _phase.IsBetweenMatches() && !previous.IsBetweenMatches()) EnsureTeams();
             RoomChanged?.Invoke();
         }
 
@@ -552,8 +647,26 @@ namespace DriftPaint.Networking
                     break;
 
                 case NetEventCodes.FireRequest:
-                    if (payload is object[] fire && fire.Length >= 3 && fire[0] is Vector3 origin && fire[1] is Vector3 direction)
-                        FireReceived?.Invoke(new FireInfo(senderActorId, origin, direction, ToDouble(fire[2], ServerTime)));
+                    if (payload is object[] fire && fire.Length >= 4 && fire[1] is Vector3 origin && fire[2] is Vector3 velocity)
+                        FireReceived?.Invoke(new FireInfo(senderActorId, ToInt(fire[0], 0), origin, velocity, ToDouble(fire[3], ServerTime)));
+                    break;
+
+                case NetEventCodes.DropBarrelRequest:
+                    if (IsMaster && payload is object[] drop && drop.Length >= 2 && drop[0] is Vector3 dropPosition && drop[1] is Vector3 dropDirection)
+                        BarrelDropRequested?.Invoke(senderActorId, dropPosition, dropDirection);
+                    break;
+
+                case NetEventCodes.TeamChangeRequest:
+                    if (IsMaster) HandleTeamChange(senderActorId);
+                    break;
+
+                case NetEventCodes.PickupRequest:
+                    if (IsMaster) PickupRequested?.Invoke(senderActorId, ToInt(payload, -1));
+                    break;
+
+                case NetEventCodes.PickupResult:
+                    if (IsFromMaster(senderActorId) && payload is object[] pickup && pickup.Length >= 3)
+                        PickupResultReceived?.Invoke(new PickupResult(ToInt(pickup[0], -1), ToInt(pickup[1], -1), ToDouble(pickup[2], 0)));
                     break;
 
                 // La grilla oficial solo la escribe el Master: se ignora lo que mande cualquier otro.
@@ -571,12 +684,14 @@ namespace DriftPaint.Networking
                     if (IsMaster) PaintSnapshotRequested?.Invoke(senderActorId);
                     break;
 
+                // Los impactos los decide el Master: se ignoran los de cualquier otro.
                 case NetEventCodes.ProjectileImpact:
                 case NetEventCodes.BarrelExplode:
-                    if (payload is object[] impact && impact.Length >= 4 && impact[0] is Vector3 position)
+                    if (IsFromMaster(senderActorId) && payload is object[] impact && impact.Length >= 6 && impact[0] is Vector3 position)
                     {
-                        var kind = code == NetEventCodes.BarrelExplode ? ImpactKind.Barrel : (ImpactKind)ToInt(impact[2], 0);
-                        ImpactReceived?.Invoke(new ImpactInfo(position, ToInt(impact[1], -1), kind, ToInt(impact[3], -1)));
+                        var kind = code == NetEventCodes.BarrelExplode ? ImpactKind.Barrel : ImpactKind.Projectile;
+                        ImpactReceived?.Invoke(new ImpactInfo(position, kind, ToInt(impact[2], -1), ToInt(impact[3], -1),
+                            ToInt(impact[4], -1), impact[5] as int[]));
                     }
                     break;
             }
@@ -665,28 +780,40 @@ namespace DriftPaint.Networking
                     points = pts[0];
                     standing = pts[1];
                 }
-                _players.Add(new PlayerSummary(player.ActorNumber, name, team, player.IsMaster, player.IsLocal, player.IsInactive, points, standing));
+                int barrels = ToInt(Get(player.Properties, PlayerKeys.Barrels), -1);
+                string car = Get(player.Properties, PlayerKeys.Car) as string;
+                _players.Add(new PlayerSummary(player.ActorNumber, name, team, player.IsMaster, player.IsLocal, player.IsInactive,
+                    points, standing, barrels, car));
             }
             _players.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
         }
 
         /// <summary>
-        /// El Master le da equipo a cada jugador que no tiene uno, en orden de entrada.
-        /// Las propiedades tardan un viaje al servidor, así que la lista local se actualiza a mano
-        /// para que el siguiente jugador ya cuente al anterior.
+        /// El Master mantiene los equipos parejos: da equipo a quien no tiene y, entre partidas, mueve
+        /// jugadores si un equipo quedó con dos o más de ventaja. Durante la partida nadie cambia de equipo.
         /// </summary>
         void EnsureTeams()
         {
+            foreach (TeamAssignment change in TeamRules.Balance(_players, _phase.IsBetweenMatches()))
+                AssignTeam(change.ActorId, change.Team);
+        }
+
+        /// <summary>
+        /// Las propiedades tardan un viaje al servidor, así que la lista local se actualiza a mano para
+        /// que la próxima decisión ya cuente este cambio.
+        /// </summary>
+        void AssignTeam(int actorId, byte team)
+        {
             for (int i = 0; i < _players.Count; i++)
             {
-                PlayerSummary player = _players[i];
-                if (player.Team == TeamId.A || player.Team == TeamId.B) continue;
-
-                byte team = TeamRules.PickTeam(_players, player.ActorId);
-                _players[i] = new PlayerSummary(player.ActorId, player.Nickname, team, player.IsMaster, player.IsLocal, player.IsInactive,
-                    player.Points, player.Standing);
-                _provider.SetPlayerProperties(player.ActorId, new Dictionary<string, object> { { PlayerKeys.Team, team } });
+                PlayerSummary p = _players[i];
+                if (p.ActorId != actorId) continue;
+                _players[i] = new PlayerSummary(p.ActorId, p.Nickname, team, p.IsMaster, p.IsLocal, p.IsInactive,
+                    p.Points, p.Standing, p.Barrels, p.CarId);
+                break;
             }
+            _provider.SetPlayerProperties(actorId, new Dictionary<string, object> { { PlayerKeys.Team, team } });
+            PlayersChanged?.Invoke();
         }
 
         bool TryGetPlayer(int actorId, out PlayerSummary player)

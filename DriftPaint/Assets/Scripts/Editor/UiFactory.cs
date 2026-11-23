@@ -19,11 +19,25 @@ namespace DriftPaint.EditorTools
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
             canvas.sortingOrder = sortingOrder;
 
+            // Expand: el área del canvas nunca es menor que 1920 x 1080 en ninguno de los dos ejes. En pantallas
+            // que no son 16:9 sobra espacio en un eje, pero lo diseñado para 16:9 entra entero y no se pisa.
             var scaler = go.GetComponent<CanvasScaler>();
             scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-            scaler.referenceResolution = new Vector2(1920f, 1080f);
-            scaler.matchWidthOrHeight = 0.5f;
+            scaler.referenceResolution = ReferenceResolution;
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.Expand;
             return canvas;
+        }
+
+        public static readonly Vector2 ReferenceResolution = new Vector2(1920f, 1080f);
+
+        /// <summary>
+        /// Contenedor centrado de 1920 x 1080 para las pantallas compuestas como una sola pieza (como el
+        /// lobby): en otros aspectos queda centrado y sin deformarse, mientras el fondo cubre toda la pantalla.
+        /// </summary>
+        public static RectTransform CreateContentRoot(Transform canvas, string name = "Content 16x9")
+        {
+            var half = new Vector2(0.5f, 0.5f);
+            return CreateRect(canvas, name, half, half, half, Vector2.zero, ReferenceResolution);
         }
 
         public static RectTransform CreateRect(Transform parent, string name, Vector2 anchorMin, Vector2 anchorMax,

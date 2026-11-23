@@ -80,5 +80,25 @@ namespace DriftPaint.Paint
                 }
             }
         }
+
+        /// <summary>
+        /// Cuadrado de size x size celdas alineado con la grilla, con la celda de center en el medio
+        /// (con lado par, el centro queda en la mitad de abajo a la izquierda). Se recorta en los bordes.
+        /// </summary>
+        public static void RasterizeSquare(Vector3 center, int size, List<int> cells)
+        {
+            if (size <= 0) return;
+
+            int startX = Mathf.FloorToInt(center.x - PaintGrid.Origin - size * 0.5f + 0.5f);
+            int startZ = Mathf.FloorToInt(center.z - PaintGrid.Origin - size * 0.5f + 0.5f);
+            int minX = Mathf.Max(0, startX);
+            int minZ = Mathf.Max(0, startZ);
+            int maxX = Mathf.Min(PaintGrid.Size - 1, startX + size - 1);
+            int maxZ = Mathf.Min(PaintGrid.Size - 1, startZ + size - 1);
+
+            for (int z = minZ; z <= maxZ; z++)
+                for (int x = minX; x <= maxX; x++)
+                    cells.Add(PaintGrid.IndexOf(x, z));
+        }
     }
 }

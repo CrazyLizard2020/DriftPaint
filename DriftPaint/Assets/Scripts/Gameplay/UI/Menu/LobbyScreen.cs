@@ -42,6 +42,12 @@ namespace DriftPaint.UI.Menu
         [SerializeField] Button _chatSendButton;
         [SerializeField] Color _systemColor = new Color(0.094f, 0.874f, 0.941f);
 
+        [Header("Equipo y auto")]
+        [Tooltip("Pasa al jugador local al otro equipo. Solo se habilita si los equipos quedan parejos.")]
+        [SerializeField] Button _switchTeamButton;
+        [SerializeField] Button _changeCarButton;
+        [SerializeField] CarSelectPanel _carPanel;
+
         [Header("Acciones")]
         [SerializeField] Button _backButton;
         [SerializeField] Button _startButton;
@@ -64,6 +70,8 @@ namespace DriftPaint.UI.Menu
             _chatInput?.onSubmit.AddListener(_ => SendChat());
             _backButton?.onClick.AddListener(() => _mediator?.LeaveRoom());
             _startButton?.onClick.AddListener(() => _mediator?.RequestStartMatch());
+            _switchTeamButton?.onClick.AddListener(() => _mediator?.RequestTeamChange());
+            _changeCarButton?.onClick.AddListener(() => _carPanel?.Open());
         }
 
         void OnEnable()
@@ -80,6 +88,7 @@ namespace DriftPaint.UI.Menu
 
         void OnDisable()
         {
+            _carPanel?.Close();
             if (_mediator == null) return;
             _mediator.RoomChanged -= RefreshRoom;
             _mediator.PlayersChanged -= RefreshPlayers;
@@ -113,6 +122,15 @@ namespace DriftPaint.UI.Menu
             if (_startLabel != null) _startLabel.text = _mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST";
 
             RefreshPlayersHeader();
+            RefreshTeamAndCarButtons();
+        }
+
+        void RefreshTeamAndCarButtons()
+        {
+            bool betweenMatches = _mediator.Phase.IsBetweenMatches();
+            if (_switchTeamButton != null)
+                _switchTeamButton.interactable = betweenMatches && TeamRules.CanSwitch(_mediator.Players, _mediator.LocalActorId);
+            if (_changeCarButton != null) _changeCarButton.interactable = betweenMatches;
         }
 
         void RefreshPlayers()
@@ -138,6 +156,7 @@ namespace DriftPaint.UI.Menu
             // El host puede cambiar de manos cuando alguien se va.
             if (_startLabel != null) _startLabel.text = _mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST";
             if (_startButton != null) _startButton.interactable = _mediator.IsMaster && _mediator.Phase.IsBetweenMatches();
+            RefreshTeamAndCarButtons();
         }
 
         void AddTeam(byte team)

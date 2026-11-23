@@ -38,6 +38,8 @@ namespace DriftPaint.Match
         [SerializeField] TMP_Text _bannerSubtitle;
         [SerializeField] string _timeUpTitle = "¡TIEMPO!";
         [SerializeField] string _timeUpSubtitle = "Contando celdas...";
+        [Tooltip("Segundos de espera del resultado antes de mostrar el cartel de fin de tiempo. Evita un destello ilegible cuando el Master responde enseguida.")]
+        [SerializeField, Min(0f)] float _timeUpDelay = 0.6f;
         [Tooltip("Cartel que se ve entre el empate y el arranque del desempate.")]
         [SerializeField] string _tieTitle = "¡EMPATE!";
         [SerializeField] string _tieSubtitle = "Preparando ronda de desempate...";
@@ -58,6 +60,7 @@ namespace DriftPaint.Match
         int _lastSpeed = -1;
         int _lastCellsA = -1;
         int _lastCellsB = -1;
+        float _timeUpSince = -1f;
 
         public void SetTarget(CarController car) => _car = car;
 
@@ -122,8 +125,11 @@ namespace DriftPaint.Match
 
         void UpdateBanner()
         {
-            bool timeUp = _match.TimeUp;
-            bool tie = !timeUp && _match.TiebreakPending;
+            if (!_match.TimeUp) _timeUpSince = -1f;
+            else if (_timeUpSince < 0f) _timeUpSince = Time.unscaledTime;
+
+            bool timeUp = _match.TimeUp && Time.unscaledTime - _timeUpSince >= _timeUpDelay;
+            bool tie = !_match.TimeUp && _match.TiebreakPending;
             bool show = timeUp || tie;
 
             if (_bannerRoot != null && _bannerRoot.activeSelf != show) _bannerRoot.SetActive(show);

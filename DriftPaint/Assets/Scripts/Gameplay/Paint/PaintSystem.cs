@@ -52,6 +52,8 @@ namespace DriftPaint.Paint
         readonly Dictionary<int, PaintStroke> _pending = new Dictionary<int, PaintStroke>();
         readonly Dictionary<int, int> _pendingOwner = new Dictionary<int, int>();
         readonly RaycastHit[] _groundHits = new RaycastHit[8];
+        // Hasta cuándo está aturdido cada auto ajeno, según los impactos que publica el Master.
+        readonly Dictionary<int, float> _stunnedUntil = new Dictionary<int, float>();
 
         INetworkMediator _mediator;
         bool _online;
@@ -84,6 +86,7 @@ namespace DriftPaint.Paint
             _mediator.PaintDeltaReceived += OnPaintDelta;
             _mediator.PaintSnapshotRequested += OnSnapshotRequested;
             _mediator.PaintSnapshotReceived += OnSnapshotReceived;
+            _mediator.ImpactReceived += OnImpact;
         }
 
         void OnDisable()
@@ -96,6 +99,38 @@ namespace DriftPaint.Paint
             _mediator.PaintDeltaReceived -= OnPaintDelta;
             _mediator.PaintSnapshotRequested -= OnSnapshotRequested;
             _mediator.PaintSnapshotReceived -= OnSnapshotReceived;
+            _mediator.ImpactReceived -= OnImpact;
+        }
+
+        void OnImpact(ImpactInfo impact)
+        {
+            if (impact.StunnedActorId < 0) return;
+
+            float duration = 2f;
+            foreach (TrackedCar car in _cars)
+                if (car.Owner == impact.StunnedActorId && car.Car != null && car.Car.Stats != null)
+                    duration = car.Car.Stats.StatusDuration;
+            _stunnedUntil[impact.StunnedActorId] = Time.time + duration;
+        }
+
+        bool IsStunned(TrackedCar car)
+        {
+            if (car.IsLocal) return car.Car.StatusEffects.IsStunned;
+            return _stunnedUntil.TryGetValue(car.Owner, out float until) && Time.time < until;
+        }
+
+        /// <summary>
+        /// Solo la autoridad: pinta un cuadrado de la grilla oficial, como la explosión de un proyectil o
+        /// de un barril. Los demás clientes lo reciben con el próximo envío de cambios.
+        /// </summary>
+        public void PaintArea(Vector3 center, int size, byte team, int ownerActorId)
+        {
+            if (!IsAuthority || team == TeamId.None) return;
+
+            _cells.Clear();
+            PaintRasterizer.RasterizeSquare(center, size, _cells);
+            foreach (int cell in _cells)
+                PaintConfirmed(cell, team, ownerActorId);
         }
 
         void Start()
@@ -199,7 +234,7 @@ namespace DriftPaint.Paint
                 bool drifting = tracked.IsLocal
                     ? car.StatusEffects.IsDrifting
                     : PaintRules.LooksLikeDrift(car.Velocity, car.transform.forward, car.Stats.DriftMinSpeed);
-                bool stunned = tracked.IsLocal && car.StatusEffects.IsStunned;
+                bool stunned = IsStunned(tracked);
                 width = PaintRules.WidthFor(car.Speed * 3.6f, drifting, stunned);
             }
 

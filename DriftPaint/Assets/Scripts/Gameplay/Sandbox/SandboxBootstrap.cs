@@ -72,9 +72,6 @@ namespace DriftPaint.Sandbox
             Keyboard keyboard = Keyboard.current;
             if (keyboard == null || _car == null) return;
 
-            if (keyboard.f1Key.wasPressedThisFrame) _car.StatusEffects.ApplyStun();
-            if (keyboard.f2Key.wasPressedThisFrame) _car.StatusEffects.ApplySlow();
-
             if (keyboard.f4Key.wasPressedThisFrame && _carPrefabs.Length > 1)
             {
                 Pose pose = new Pose(_car.transform.position + Vector3.up * 0.3f,
