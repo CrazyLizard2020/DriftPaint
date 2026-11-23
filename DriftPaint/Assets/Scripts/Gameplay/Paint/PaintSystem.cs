@@ -29,6 +29,8 @@ namespace DriftPaint.Paint
         [SerializeField, Min(0.2f)] float _predictionTimeout = 1.5f;
         [Tooltip("Distancia en un frame a partir de la cual se considera teletransporte y no se pinta el tramo.")]
         [SerializeField, Min(1f)] float _teleportDistance = 8f;
+        [Tooltip("Margen sobre la velocidad máxima del auto para aceptar un tramo: más largo que eso en un frame es imposible y no se pinta.")]
+        [SerializeField, Min(1f)] float _segmentSpeedMargin = 2f;
         [Tooltip("Capas que cuentan como piso para pintar.")]
         [SerializeField] LayerMask _groundMask = ~0;
 
@@ -41,6 +43,7 @@ namespace DriftPaint.Paint
             public Transform[] Exhausts;
             public Vector3[] Last;
             public bool HasLast;
+            public Action<Vector3, Quaternion> OnTeleported;
         }
 
         readonly PaintGrid _confirmed = new PaintGrid();
@@ -88,6 +91,7 @@ namespace DriftPaint.Paint
             _mediator.PaintDeltaReceived += OnPaintDelta;
             _mediator.PaintSnapshotRequested += OnSnapshotRequested;
             _mediator.PaintSnapshotReceived += OnSnapshotReceived;
+            _mediator.Rejoined += OnRejoined;
         }
 
         void OnDisable()
@@ -100,6 +104,16 @@ namespace DriftPaint.Paint
             _mediator.PaintDeltaReceived -= OnPaintDelta;
             _mediator.PaintSnapshotRequested -= OnSnapshotRequested;
             _mediator.PaintSnapshotReceived -= OnSnapshotReceived;
+            _mediator.Rejoined -= OnRejoined;
+        }
+
+        /// <summary>
+        /// Volvió a la sala después de un corte: los cambios de la grilla de ese rato se perdieron, así que
+        /// se pide la grilla completa. Si ahora es el Master, la suya es la oficial.
+        /// </summary>
+        void OnRejoined()
+        {
+            if (!_mediator.IsMaster) _mediator.RequestPaintSnapshot();
         }
 
         bool IsStunned(TrackedCar car)
@@ -172,11 +186,11 @@ namespace DriftPaint.Paint
         void Track(NetworkObjectInfo info)
         {
             if (info.Instance == null || !info.Instance.TryGetComponent(out CarController car)) return;
-            foreach (TrackedCar tracked in _cars)
-                if (tracked.Car == car) return;
+            foreach (TrackedCar existing in _cars)
+                if (existing.Car == car) return;
 
             Transform[] exhausts = FindExhausts(car.transform);
-            _cars.Add(new TrackedCar
+            var tracked = new TrackedCar
             {
                 Car = car,
                 TeamColor = car.GetComponent<CarTeamColor>(),
@@ -184,12 +198,22 @@ namespace DriftPaint.Paint
                 IsLocal = info.IsLocal,
                 Exhausts = exhausts,
                 Last = new Vector3[exhausts.Length]
-            });
+            };
+            // Tras un salto (reubicación, reaparición o corte de red) no se une la posición vieja con la nueva.
+            tracked.OnTeleported = (position, rotation) => tracked.HasLast = false;
+            car.Teleported += tracked.OnTeleported;
+            _cars.Add(tracked);
         }
 
         void Untrack(GameObject instance)
         {
-            _cars.RemoveAll(c => c.Car == null || c.Car.gameObject == instance);
+            for (int i = _cars.Count - 1; i >= 0; i--)
+            {
+                TrackedCar tracked = _cars[i];
+                if (tracked.Car != null && tracked.Car.gameObject != instance) continue;
+                if (tracked.Car != null) tracked.Car.Teleported -= tracked.OnTeleported;
+                _cars.RemoveAt(i);
+            }
         }
 
         static Transform[] FindExhausts(Transform root)
@@ -261,12 +285,13 @@ namespace DriftPaint.Paint
                 width = PaintRules.WidthFor(car.Speed * 3.6f, drifting, stunned);
             }
 
+            float maxStep = MaxSegmentLength(car);
             _cells.Clear();
             for (int i = 0; i < tracked.Exhausts.Length; i++)
             {
                 Vector3 position = tracked.Exhausts[i].position;
                 if (tracked.HasLast && width > 0f
-                    && (position - tracked.Last[i]).sqrMagnitude < _teleportDistance * _teleportDistance
+                    && (position - tracked.Last[i]).sqrMagnitude < maxStep * maxStep
                     && IsNearGround(position))
                 {
                     PaintRasterizer.Rasterize(tracked.Last[i], position, width, _cells);
@@ -282,6 +307,17 @@ namespace DriftPaint.Paint
                 if (IsAuthority) PaintConfirmed(cell, team, tracked.Owner);
                 else Predict(cell, team);
             }
+        }
+
+        /// <summary>
+        /// Largo máximo de un tramo en este frame: lo que puede recorrer el auto a su velocidad máxima, con
+        /// margen. Un tramo más largo viene de un salto o de datos falsos y se descarta sin pintar.
+        /// </summary>
+        float MaxSegmentLength(CarController car)
+        {
+            if (car.Stats == null) return _teleportDistance;
+            float bySpeed = car.Stats.MaxSpeed * _segmentSpeedMargin * Time.deltaTime + 0.5f;
+            return Mathf.Clamp(bySpeed, 1.5f, _teleportDistance);
         }
 
         /// <summary>

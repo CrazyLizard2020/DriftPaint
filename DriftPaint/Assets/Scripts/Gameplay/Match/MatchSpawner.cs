@@ -23,11 +23,22 @@ namespace DriftPaint.Match
         [Tooltip("Plantilla inactiva de la escena que se clona para cada auto ajeno.")]
         [SerializeField] CarNameplate _nameplateTemplate;
         [SerializeField] bool _lockCursor = true;
+        [Header("Jugadores desconectados")]
+        [Tooltip("Material transparente para los autos de jugadores desconectados que todavía pueden volver.")]
+        [SerializeField] Material _ghostMaterial;
+        [SerializeField, Range(0.05f, 1f)] float _ghostAlpha = 0.35f;
+        [Tooltip("Segundos de espera después de volver a la sala para que llegue el auto propio antes de crear otro.")]
+        [SerializeField, Min(0.5f)] float _rejoinCarTimeout = 3f;
 
         readonly Dictionary<CarController, int> _owners = new Dictionary<CarController, int>();
         readonly Dictionary<CarController, CarNameplate> _nameplates = new Dictionary<CarController, CarNameplate>();
+        readonly Dictionary<CarController, bool> _inactiveCars = new Dictionary<CarController, bool>();
+        readonly List<Collider> _colliders = new List<Collider>();
         INetworkMediator _mediator;
         CarController _localCar;
+        // Pose del auto propio cuando se cortó la conexión: al volver, el auto reaparece ahí.
+        Pose? _poseBeforeDisconnect;
+        float _rejoinCarDeadline = -1f;
 
         void OnEnable()
         {
@@ -42,6 +53,7 @@ namespace DriftPaint.Match
                 _mediator.ObjectSpawned += OnObjectSpawned;
                 _mediator.ObjectDespawned += OnObjectDespawned;
                 _mediator.PlayersChanged += RefreshTeams;
+                _mediator.Rejoined += OnRejoined;
             }
             if (_match != null) _match.Closing += DespawnLocalCar;
         }
@@ -53,6 +65,7 @@ namespace DriftPaint.Match
                 _mediator.ObjectSpawned -= OnObjectSpawned;
                 _mediator.ObjectDespawned -= OnObjectDespawned;
                 _mediator.PlayersChanged -= RefreshTeams;
+                _mediator.Rejoined -= OnRejoined;
             }
             if (_match != null) _match.Closing -= DespawnLocalCar;
         }
@@ -82,9 +95,16 @@ namespace DriftPaint.Match
             }
 
             GameObject prefab = PickCarPrefab();
-            Pose pose = PickSpawnPose();
+            Pose pose = _poseBeforeDisconnect ?? PickSpawnPose();
+            _poseBeforeDisconnect = null;
             _mediator.SpawnOwned(prefab.name, pose.position, pose.rotation);
         }
+
+        /// <summary>
+        /// Volvió a la sala: la sala vuelve a crear el auto propio, que se espera un rato. Si no llega
+        /// (por ejemplo, porque el Master lo borró), se crea uno nuevo.
+        /// </summary>
+        void OnRejoined() => _rejoinCarDeadline = Time.unscaledTime + _rejoinCarTimeout;
 
         /// <summary>
         /// El auto que eligió el jugador en el lobby. Si no eligió (o el auto ya no existe), uno según su
@@ -141,7 +161,15 @@ namespace DriftPaint.Match
             if (info.IsLocal)
             {
                 _localCar = car;
+                _rejoinCarDeadline = -1f;
                 car.SetDrivingGate(_match);
+                if (_poseBeforeDisconnect.HasValue)
+                {
+                    // La sala lo recrea donde nació: se lo devuelve a donde estaba antes del corte.
+                    Pose pose = _poseBeforeDisconnect.Value;
+                    _poseBeforeDisconnect = null;
+                    car.Teleport(pose.position, pose.rotation);
+                }
                 if (_cameraRig != null)
                 {
                     _cameraRig.SetTarget(car, car.transform, car.MovementInput.CameraControls);
@@ -160,6 +188,7 @@ namespace DriftPaint.Match
             }
 
             ApplyTeam(car, info.OwnerActorId);
+            ApplyPresence(car, info.OwnerActorId);
         }
 
         void OnObjectDespawned(GameObject instance)
@@ -167,18 +196,62 @@ namespace DriftPaint.Match
             if (instance == null || !instance.TryGetComponent(out CarController car)) return;
 
             _owners.Remove(car);
+            _inactiveCars.Remove(car);
             if (_nameplates.TryGetValue(car, out CarNameplate plate))
             {
                 if (plate != null) Destroy(plate.gameObject);
                 _nameplates.Remove(car);
             }
-            if (car == _localCar) _localCar = null;
+            if (car == _localCar)
+            {
+                // Un corte borra los objetos de red de este cliente hasta volver: se guarda dónde estaba.
+                if (_mediator != null && _mediator.State == ConnectionState.Reconnecting)
+                    _poseBeforeDisconnect = new Pose(car.Position, car.Rotation);
+                _localCar = null;
+            }
         }
 
         void RefreshTeams()
         {
             foreach (KeyValuePair<CarController, int> pair in _owners)
-                if (pair.Key != null) ApplyTeam(pair.Key, pair.Value);
+                if (pair.Key != null)
+                {
+                    ApplyTeam(pair.Key, pair.Value);
+                    ApplyPresence(pair.Key, pair.Value);
+                }
+        }
+
+        /// <summary>
+        /// El auto de un jugador desconectado que todavía puede volver queda en su lugar, transparente, sin
+        /// chocar con nadie y con el ícono de desconectado junto al nombre. Cuando vuelve, recupera todo.
+        /// </summary>
+        void ApplyPresence(CarController car, int ownerActorId)
+        {
+            bool inactive = IsInactive(ownerActorId);
+            if (_inactiveCars.TryGetValue(car, out bool current) && current == inactive) return;
+            _inactiveCars[car] = inactive;
+
+            car.GetComponentsInChildren(true, _colliders);
+            foreach (Collider collider in _colliders)
+                if (collider != null) collider.enabled = !inactive;
+            _colliders.Clear();
+
+            if (_nameplates.TryGetValue(car, out CarNameplate plate) && plate != null) plate.SetDisconnected(inactive);
+
+            if (_ghostMaterial != null)
+            {
+                CarGhostVisual ghost = car.GetComponent<CarGhostVisual>();
+                if (ghost == null && inactive) ghost = car.gameObject.AddComponent<CarGhostVisual>();
+                if (ghost != null) ghost.SetGhost(inactive, _ghostMaterial, _ghostAlpha);
+            }
+        }
+
+        bool IsInactive(int actorId)
+        {
+            if (_mediator == null) return false;
+            foreach (PlayerSummary player in _mediator.Players)
+                if (player.ActorId == actorId) return player.IsInactive;
+            return false;
         }
 
         void ApplyTeam(CarController car, int ownerActorId)
@@ -221,6 +294,12 @@ namespace DriftPaint.Match
 
         void Update()
         {
+            if (_rejoinCarDeadline > 0f && Time.unscaledTime >= _rejoinCarDeadline)
+            {
+                _rejoinCarDeadline = -1f;
+                if (_localCar == null && _mediator != null && _mediator.State == ConnectionState.InRoom) SpawnLocalCar();
+            }
+
             Keyboard keyboard = Keyboard.current;
             if (keyboard != null && keyboard.escapeKey.wasPressedThisFrame)
                 SetCursorLocked(Cursor.lockState != CursorLockMode.Locked);

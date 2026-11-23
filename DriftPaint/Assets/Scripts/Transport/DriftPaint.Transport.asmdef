@@ -5,7 +5,9 @@
         "DriftPaint.Network",
         "DriftPaint.Gameplay",
         "PhotonUnityNetworking",
-        "PhotonRealtime"
+        "PhotonRealtime",
+        "PhotonUnityNetworking.Utilities",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -89,6 +89,9 @@ namespace DriftPaint.UI.Menu
                 case ConnectionState.LeavingRoom:
                     SetBusy("SALIENDO DE LA SALA...");
                     break;
+                case ConnectionState.Reconnecting:
+                    SetBusy("RECONECTANDO...");
+                    break;
             }
         }
 

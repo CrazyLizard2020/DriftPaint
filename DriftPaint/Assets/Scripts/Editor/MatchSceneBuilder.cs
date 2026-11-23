@@ -89,6 +89,7 @@ namespace DriftPaint.EditorTools
             MenuSceneBuilder.SetRef(so, "_palette", palette);
             MenuSceneBuilder.SetRef(so, "_nameplateTemplate", nameplate);
             so.ApplyModifiedPropertiesWithoutUndo();
+            DisconnectIndicatorBuilder.Connect(spawner);
 
             nameplate.gameObject.SetActive(false);
 

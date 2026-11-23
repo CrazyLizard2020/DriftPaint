@@ -84,6 +84,7 @@ namespace DriftPaint.Combat
 
             if (_barrelPrefab != null) _mediator.RegisterPrefab(PrefabId, _barrelPrefab);
             _mediator.ObjectSpawned += OnObjectSpawned;
+            _mediator.ObjectDespawned += OnObjectDespawned;
             _mediator.BarrelDropRequested += OnDropRequested;
             _mediator.PickupRequested += OnPickupRequested;
             _mediator.PickupResultReceived += OnPickupResult;
@@ -99,6 +100,7 @@ namespace DriftPaint.Combat
             if (_mediator == null) return;
 
             _mediator.ObjectSpawned -= OnObjectSpawned;
+            _mediator.ObjectDespawned -= OnObjectDespawned;
             _mediator.BarrelDropRequested -= OnDropRequested;
             _mediator.PickupRequested -= OnPickupRequested;
             _mediator.PickupResultReceived -= OnPickupResult;
@@ -123,6 +125,12 @@ namespace DriftPaint.Combat
                 AssignStartingBarrels();
                 UpdateLiveBarrels(now);
             }
+            else
+            {
+                // Sin autoridad el inventario oficial es el publicado: si este cliente vuelve a ser Master,
+                // lo adopta de la sala en vez de usar una copia vieja.
+                _inventory.Clear();
+            }
 
             if (_match.AllowsDriving && MatchCars.TryGetLocal(_mediator, out MatchCar local))
             {
@@ -132,16 +140,52 @@ namespace DriftPaint.Combat
         }
 
         /// <summary>
-        /// El barril no lleva datos propios por red: toma el color del auto más cercano al aparecer, que es
-        /// el que lo acaba de soltar.
+        /// Cada barril llega con su dueño, equipo y hora de creación, y todos los clientes lo registran:
+        /// si el Master se va, el nuevo ya conoce los barriles vivos y sigue haciéndolos explotar y vencer.
         /// </summary>
         void OnObjectSpawned(NetworkObjectInfo info)
         {
             if (info.PrefabId != PrefabId || info.Instance == null || !info.Instance.TryGetComponent(out BarrelView view)) return;
             view.UseSettings(_settings);
 
+            if (!TryReadBarrelData(info.Data, out int owner, out byte team, out double spawnTime))
+            {
+                // Sin datos: se asume del auto más cercano, que es el que lo acaba de soltar.
+                owner = -1;
+                team = NearestCarTeam(info.Instance.transform.position);
+                spawnTime = Clock;
+            }
+
+            if (_palette != null && team != TeamId.None) view.SetColor(_palette.Get(team).Main);
+
+            foreach (LiveBarrel live in _live)
+                if (live.Instance == info.Instance) return;
+            _live.Add(new LiveBarrel { Instance = info.Instance, Owner = owner, Team = team, SpawnTime = spawnTime });
+        }
+
+        void OnObjectDespawned(GameObject instance)
+        {
+            for (int i = _live.Count - 1; i >= 0; i--)
+                if (_live[i].Instance == instance) _live.RemoveAt(i);
+        }
+
+        static object[] BarrelData(int owner, byte team, double spawnTime) => new object[] { owner, team, spawnTime };
+
+        static bool TryReadBarrelData(object[] data, out int owner, out byte team, out double spawnTime)
+        {
+            owner = -1;
+            team = TeamId.None;
+            spawnTime = 0;
+            if (data == null || data.Length < 3 || !(data[0] is int o) || !(data[1] is byte t) || !(data[2] is double s)) return false;
+            owner = o;
+            team = t;
+            spawnTime = s;
+            return true;
+        }
+
+        byte NearestCarTeam(Vector3 position)
+        {
             MatchCars.Collect(_mediator, _cars);
-            Vector3 position = info.Instance.transform.position;
             byte team = TeamId.None;
             float best = float.PositiveInfinity;
             foreach (MatchCar car in _cars)
@@ -151,7 +195,7 @@ namespace DriftPaint.Combat
                 best = distance;
                 team = car.Team;
             }
-            if (_palette != null && team != TeamId.None) view.SetColor(_palette.Get(team).Main);
+            return team;
         }
 
         void OnPhaseChanged(MatchPhase phase)
@@ -225,17 +269,12 @@ namespace DriftPaint.Combat
 
             direction.y = 0f;
             Quaternion rotation = direction.sqrMagnitude > 0.0001f ? Quaternion.LookRotation(direction) : Quaternion.identity;
-            GameObject instance = _mediator.SpawnShared(PrefabId, position, rotation);
+            // El barril se registra al anunciarse (OnObjectSpawned), igual en todos los clientes.
+            byte team = MatchCars.TeamOf(_mediator, _cars, actorId);
+            GameObject instance = _mediator.SpawnShared(PrefabId, position, rotation, BarrelData(actorId, team, Clock));
             if (instance == null) return;
 
             SetCount(actorId, count - 1);
-            _live.Add(new LiveBarrel
-            {
-                Instance = instance,
-                Owner = actorId,
-                Team = MatchCars.TeamOf(_mediator, _cars, actorId),
-                SpawnTime = Clock
-            });
         }
 
         /// <summary>Solo el Master: vence los barriles viejos y hace explotar los que pisó un rival.</summary>
@@ -251,11 +290,12 @@ namespace DriftPaint.Combat
                     continue;
                 }
 
+                // Se saca de la lista antes de borrarlo: el aviso de borrado llega en el acto.
                 double age = now - barrel.SpawnTime;
                 if (age > _settings.Lifetime)
                 {
-                    _mediator.Despawn(barrel.Instance);
                     _live.RemoveAt(i);
+                    _mediator.Despawn(barrel.Instance);
                     continue;
                 }
                 if (!armed || age < _settings.ArmDelay) continue;
@@ -263,8 +303,8 @@ namespace DriftPaint.Combat
                 int victim = FindVictim(barrel);
                 if (victim < 0) continue;
 
-                Explode(barrel, victim);
                 _live.RemoveAt(i);
+                Explode(barrel, victim);
             }
         }
 
@@ -298,9 +338,11 @@ namespace DriftPaint.Combat
         void DespawnAll()
         {
             if (_mediator == null || !IsAuthority) return;
-            foreach (LiveBarrel barrel in _live)
-                if (barrel.Instance != null) _mediator.Despawn(barrel.Instance);
+            // Copia: borrar un barril avisa enseguida y lo saca de la lista.
+            var barrels = new List<LiveBarrel>(_live);
             _live.Clear();
+            foreach (LiveBarrel barrel in barrels)
+                if (barrel.Instance != null) _mediator.Despawn(barrel.Instance);
         }
 
         #endregion

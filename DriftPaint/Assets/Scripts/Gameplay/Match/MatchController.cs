@@ -49,6 +49,10 @@ namespace DriftPaint.Match
         double _requestedAt;
         int _resolvedRound = -1;
         double _resolvedAt;
+        double _forfeitAt = -1;
+        // Equipos que tuvieron jugadores en esta partida: si uno se queda sin nadie, pierde por abandono.
+        bool _seenTeamA;
+        bool _seenTeamB;
 
         /// <summary>Estado efectivo: el publicado, adelantado si la cuenta regresiva ya terminó.</summary>
         public MatchPhase Phase => _phase;
@@ -58,6 +62,10 @@ namespace DriftPaint.Match
         public bool TiebreakPending => _phase == MatchPhase.Tiebreak && Now < StartTime;
         public bool AllowsDriving => _phase.IsRound() && Now >= StartTime && !TimeUp;
         public bool IsOnline => _online;
+        /// <summary>Se cortó la conexión y se intenta volver a la sala; la partida sigue en pantalla.</summary>
+        public bool IsReconnecting => _online && _mediator.State == ConnectionState.Reconnecting;
+        /// <summary>Segundos que quedan para volver a la sala.</summary>
+        public float ReconnectTimeRemaining => IsReconnecting ? _mediator.ReconnectTimeRemaining : 0f;
         /// <summary>El Master, o este cliente si se juega solo.</summary>
         public bool IsAuthority => !_online || _mediator.IsMaster;
 
@@ -94,7 +102,8 @@ namespace DriftPaint.Match
 
             if (_online && _mediator.State != ConnectionState.InRoom)
             {
-                Close();
+                // Mientras se intenta volver, la escena se queda: el reloj sigue con la hora del servidor.
+                if (_mediator.State != ConnectionState.Reconnecting) Close();
                 return;
             }
 
@@ -126,7 +135,42 @@ namespace DriftPaint.Match
             }
             SetPhase(effective);
 
+            if (_online && CheckForfeit()) return;
             if (TimeUp && IsAuthority) Resolve();
+        }
+
+        /// <summary>
+        /// Abandono: si un equipo que jugó se queda sin ningún jugador en la sala (ni siquiera uno
+        /// desconectado esperando volver) y el otro sigue, la autoridad le da la victoria al que quedó.
+        /// Los desconectados cuentan hasta que vence su reserva, así un corte breve no regala la partida.
+        /// </summary>
+        bool CheckForfeit()
+        {
+            if (!(_phase == MatchPhase.Countdown || _phase.IsRound())) return false;
+
+            int playersA = 0, playersB = 0;
+            foreach (PlayerSummary player in _mediator.Players)
+            {
+                if (player.Team == TeamId.A) playersA++;
+                else if (player.Team == TeamId.B) playersB++;
+            }
+            _seenTeamA |= playersA > 0;
+            _seenTeamB |= playersB > 0;
+
+            byte winner = TeamId.None;
+            if (_seenTeamA && playersA == 0 && playersB > 0) winner = TeamId.B;
+            else if (_seenTeamB && playersB == 0 && playersA > 0) winner = TeamId.A;
+            if (winner == TeamId.None || !IsAuthority) return false;
+
+            // El resultado tarda un viaje al servidor: no se repite el pedido en cada frame.
+            if (_forfeitAt >= 0 && Time.unscaledTimeAsDouble - _forfeitAt < ResolveRetrySeconds) return true;
+            _forfeitAt = Time.unscaledTimeAsDouble;
+
+            if (_score != null) _score.CompleteRound();
+            int cellsA = _score != null ? _score.AuthorityCellsA : 0;
+            int cellsB = _score != null ? _score.AuthorityCellsB : 0;
+            _mediator.FinishMatch(cellsA, cellsB, winner);
+            return true;
         }
 
         /// <summary>Solo el Master escribe el estado en la sala; los demás solo lo adelantan localmente.</summary>
@@ -213,7 +257,7 @@ namespace DriftPaint.Match
         {
             if (_closing) return;
 
-            bool inRoom = _online && _mediator.State == ConnectionState.InRoom;
+            bool inRoom = _online && (_mediator.State == ConnectionState.InRoom || _mediator.State == ConnectionState.Reconnecting);
             // Primero se limpian los objetos propios, que necesitan la sala para borrarse en todos.
             Close();
             if (inRoom) _mediator.LeaveRoomAndDisconnect();

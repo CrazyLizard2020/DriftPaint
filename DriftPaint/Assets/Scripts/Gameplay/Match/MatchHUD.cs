@@ -43,6 +43,9 @@ namespace DriftPaint.Match
         [Tooltip("Cartel que se ve entre el empate y el arranque del desempate.")]
         [SerializeField] string _tieTitle = "¡EMPATE!";
         [SerializeField] string _tieSubtitle = "Preparando ronda de desempate...";
+        [Tooltip("Cartel mientras se intenta volver a la sala después de un corte. {0} son los segundos que quedan.")]
+        [SerializeField] string _reconnectingTitle = "SIN CONEXIÓN";
+        [SerializeField] string _reconnectingSubtitle = "Volviendo a la partida... {0} s";
 
         [Header("Velocímetro")]
         [SerializeField] TMP_Text _speedText;
@@ -128,12 +131,21 @@ namespace DriftPaint.Match
             if (!_match.TimeUp) _timeUpSince = -1f;
             else if (_timeUpSince < 0f) _timeUpSince = Time.unscaledTime;
 
-            bool timeUp = _match.TimeUp && Time.unscaledTime - _timeUpSince >= _timeUpDelay;
-            bool tie = !_match.TimeUp && _match.TiebreakPending;
-            bool show = timeUp || tie;
+            bool reconnecting = _match.IsReconnecting;
+            bool timeUp = !reconnecting && _match.TimeUp && Time.unscaledTime - _timeUpSince >= _timeUpDelay;
+            bool tie = !reconnecting && !_match.TimeUp && _match.TiebreakPending;
+            bool show = reconnecting || timeUp || tie;
 
             if (_bannerRoot != null && _bannerRoot.activeSelf != show) _bannerRoot.SetActive(show);
             if (!show) return;
+
+            if (reconnecting)
+            {
+                int seconds = Mathf.CeilToInt(_match.ReconnectTimeRemaining);
+                if (_bannerTitle != null) _bannerTitle.text = _reconnectingTitle;
+                if (_bannerSubtitle != null) _bannerSubtitle.text = string.Format(_reconnectingSubtitle, seconds);
+                return;
+            }
 
             if (_bannerTitle != null) _bannerTitle.text = timeUp ? _timeUpTitle : _tieTitle;
             if (_bannerSubtitle != null) _bannerSubtitle.text = timeUp ? _timeUpSubtitle : _tieSubtitle;

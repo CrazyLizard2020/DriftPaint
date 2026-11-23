@@ -89,6 +89,12 @@ namespace DriftPaint.Networking
 
         bool Connect();
         void Disconnect();
+        /// <summary>
+        /// Después de un corte: vuelve a conectarse y a entrar a la última sala como el mismo jugador.
+        /// Los objetos de red que quedaron en este cliente se borran localmente, porque la sala los vuelve
+        /// a crear al entrar. Devuelve false si no se pudo empezar.
+        /// </summary>
+        bool ReconnectAndRejoin();
         bool JoinLobby();
         bool CreateRoom(string name, NetRoomOptions options);
         bool JoinRoom(string name);
@@ -104,12 +110,16 @@ namespace DriftPaint.Networking
         void RegisterPrefab(string prefabId, UnityEngine.GameObject prefab);
         /// <summary>Crea en red un objeto del jugador local. Devuelve null si no se pudo.</summary>
         UnityEngine.GameObject Instantiate(string prefabId, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation);
-        /// <summary>Solo el Master: crea en red un objeto de la sala, sin dueño. Devuelve null si no se pudo.</summary>
-        UnityEngine.GameObject InstantiateRoomObject(string prefabId, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation);
+        /// <summary>
+        /// Solo el Master: crea en red un objeto de la sala, sin dueño, con datos que llegan a todos los
+        /// clientes. Devuelve null si no se pudo.
+        /// </summary>
+        UnityEngine.GameObject InstantiateRoomObject(string prefabId, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation,
+            object[] data);
         void Destroy(UnityEngine.GameObject instance);
 
-        /// <summary>Objeto de red creado en este cliente: instancia, dueño, si es propio y prefab.</summary>
-        event Action<UnityEngine.GameObject, int, bool, string> ObjectInstantiated;
+        /// <summary>Objeto de red creado en este cliente: instancia, dueño, si es propio, prefab y datos de creación.</summary>
+        event Action<UnityEngine.GameObject, int, bool, string, object[]> ObjectInstantiated;
         event Action<UnityEngine.GameObject> ObjectDestroyed;
         bool SetRoomProperties(IDictionary<string, object> properties);
         bool SetPlayerProperties(int actorNumber, IDictionary<string, object> properties);

@@ -26,7 +26,9 @@ namespace DriftPaint.App
             Object.DontDestroyOnLoad(host);
 
             INetworkProvider transport = PhotonTransport.Create(host);
-            NetworkServices.Register(new NetworkManager(transport));
+            var manager = new NetworkManager(transport);
+            host.AddComponent<NetworkTicker>().Bind(manager);
+            NetworkServices.Register(manager);
         }
     }
 }

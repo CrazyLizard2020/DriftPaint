@@ -101,6 +101,7 @@ namespace DriftPaint.Transport
             {
                 _count = 0;
                 Apply(snapshot.Position, snapshot.Rotation, snapshot.Velocity, snapshot.Steer);
+                if (teleported) _car.NotifyRemoteTeleport();
             }
 
             Push(snapshot);

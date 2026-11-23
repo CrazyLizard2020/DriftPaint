@@ -19,6 +19,8 @@ namespace DriftPaint.Networking
         const string RoomIdAlphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         const int RoomIdLength = 5;
         const float ChatCooldownSeconds = 0.5f;
+        /// <summary>Espera entre intentos de volver a la sala después de un corte.</summary>
+        const float RejoinRetrySeconds = 2f;
 
         readonly INetworkProvider _provider;
         readonly List<RoomSummary> _rooms = new List<RoomSummary>();
@@ -44,6 +46,9 @@ namespace DriftPaint.Networking
         bool _disconnectRequested;
         bool _disconnectAfterLeave;
         float _nextChatTime;
+        // Reconexión: hasta cuándo se reserva el lugar en la sala y cuándo toca el próximo intento (0 = esperando uno en curso).
+        float _reconnectDeadline;
+        float _nextRejoinTime;
 
         public NetworkManager(INetworkProvider provider)
         {
@@ -89,6 +94,8 @@ namespace DriftPaint.Networking
         public int ScoreB => _scoreB;
         public int Round => _round;
         public byte Winner => _winner;
+        public float ReconnectTimeRemaining =>
+            _state == ConnectionState.Reconnecting ? Mathf.Max(0f, _reconnectDeadline - Time.realtimeSinceStartup) : 0f;
         public IReadOnlyList<NetworkObjectInfo> Objects
         {
             get
@@ -99,6 +106,7 @@ namespace DriftPaint.Networking
         }
 
         public event Action StateChanged;
+        public event Action Rejoined;
         public event Action<string> ErrorRaised;
         public event Action RoomListChanged;
         public event Action RoomChanged;
@@ -162,7 +170,27 @@ namespace DriftPaint.Networking
             if (_state == ConnectionState.Disconnected) return;
 
             _disconnectRequested = true;
+            // Durante una reconexión puede no haber conexión que cerrar: se suelta la sala acá mismo.
+            if (_state == ConnectionState.Reconnecting) StopReconnecting(ConnectionState.Disconnected);
             _provider.Disconnect();
+        }
+
+        /// <summary>Lo llama cada frame el host de la red: reintenta volver a la sala mientras dure la reserva.</summary>
+        public void Tick()
+        {
+            if (_state != ConnectionState.Reconnecting) return;
+
+            float now = Time.realtimeSinceStartup;
+            if (now >= _reconnectDeadline)
+            {
+                // Venció la reserva: el lugar en la sala ya no existe.
+                _disconnectRequested = true;
+                StopReconnecting(ConnectionState.Disconnected);
+                _provider.Disconnect();
+                RaiseError("No se pudo volver a la partida.");
+                return;
+            }
+            if (_nextRejoinTime > 0f && now >= _nextRejoinTime) TryRejoin();
         }
 
         public void SetNickname(string nickname)
@@ -388,14 +416,14 @@ namespace DriftPaint.Networking
             return SpawnLocal(prefabId, position, rotation);
         }
 
-        public GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation)
+        public GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation, object[] data = null)
         {
-            if (_provider.InRoom) return IsMaster ? _provider.InstantiateRoomObject(prefabId, position, rotation) : null;
-            return SpawnLocal(prefabId, position, rotation);
+            if (_provider.InRoom) return IsMaster ? _provider.InstantiateRoomObject(prefabId, position, rotation, data) : null;
+            return SpawnLocal(prefabId, position, rotation, data);
         }
 
         /// <summary>Sin sala se juega solo: el objeto se crea localmente y se anuncia igual.</summary>
-        GameObject SpawnLocal(string prefabId, Vector3 position, Quaternion rotation)
+        GameObject SpawnLocal(string prefabId, Vector3 position, Quaternion rotation, object[] data = null)
         {
             if (!_prefabs.TryGetValue(prefabId, out GameObject prefab))
             {
@@ -405,7 +433,7 @@ namespace DriftPaint.Networking
 
             GameObject instance = UnityEngine.Object.Instantiate(prefab, position, rotation);
             instance.name = prefabId;
-            OnObjectInstantiated(instance, LocalActorId, true, prefabId);
+            OnObjectInstantiated(instance, LocalActorId, true, prefabId, data);
             return instance;
         }
 
@@ -506,6 +534,12 @@ namespace DriftPaint.Networking
         void OnConnectedToServer()
         {
             if (_disconnectRequested) return;
+            // Llegar al servidor principal en medio de una reconexión significa que no se pudo volver a la sala.
+            if (_state == ConnectionState.Reconnecting)
+            {
+                StopReconnecting(ConnectionState.Connecting);
+                RaiseError("No se pudo volver a la partida.");
+            }
             if (_disconnectAfterLeave)
             {
                 _disconnectAfterLeave = false;
@@ -524,6 +558,20 @@ namespace DriftPaint.Networking
         {
             bool wasInRoom = _currentRoom.IsValid;
             bool expected = _disconnectRequested;
+
+            if (!expected && _state == ConnectionState.Reconnecting)
+            {
+                // Falló un intento de volver: el próximo lo lanza Tick mientras dure la reserva.
+                _nextRejoinTime = Time.realtimeSinceStartup + RejoinRetrySeconds;
+                return;
+            }
+            // Sin causa es un cierre pedido por este cliente (por ejemplo al salir de la aplicación): no se vuelve.
+            if (!expected && wasInRoom && _state == ConnectionState.InRoom && !string.IsNullOrEmpty(cause))
+            {
+                BeginReconnecting(cause);
+                return;
+            }
+
             _disconnectRequested = false;
             _disconnectAfterLeave = false;
 
@@ -531,9 +579,46 @@ namespace DriftPaint.Networking
             _rooms.Clear();
             SetState(ConnectionState.Disconnected);
             RoomListChanged?.Invoke();
-            if (wasInRoom) RoomChanged?.Invoke();
+            if (wasInRoom)
+            {
+                RoomChanged?.Invoke();
+                PlayersChanged?.Invoke();
+            }
 
             if (!expected) RaiseError(string.IsNullOrEmpty(cause) ? "Se perdió la conexión con el servidor." : $"Se perdió la conexión con el servidor ({cause}).");
+        }
+
+        /// <summary>
+        /// Corte en plena sala: el lugar queda reservado durante PlayerTtl, así que se conserva la sala y los
+        /// jugadores conocidos y se intenta volver como el mismo jugador.
+        /// </summary>
+        void BeginReconnecting(string cause)
+        {
+            Debug.LogWarning($"[Red] Se cortó la conexión en la sala ({cause ?? "sin causa"}). Intentando volver.");
+            _reconnectDeadline = Time.realtimeSinceStartup + RoomRules.PlayerTtlMs / 1000f;
+            _nextRejoinTime = 0f;
+            ResetSentScores();
+            SetState(ConnectionState.Reconnecting);
+            ChatReceived?.Invoke(ChatMessage.System("Se cortó la conexión. Volviendo a la partida..."));
+            TryRejoin();
+        }
+
+        void TryRejoin()
+        {
+            _nextRejoinTime = 0f;
+            if (!_provider.ReconnectAndRejoin())
+                _nextRejoinTime = Time.realtimeSinceStartup + RejoinRetrySeconds;
+        }
+
+        /// <summary>Deja de intentar volver: suelta la sala y pasa al estado indicado.</summary>
+        void StopReconnecting(ConnectionState next)
+        {
+            _nextRejoinTime = 0f;
+            _reconnectDeadline = 0f;
+            ClearRoom();
+            SetState(next);
+            RoomChanged?.Invoke();
+            PlayersChanged?.Invoke();
         }
 
         void OnJoinedLobby()
@@ -554,18 +639,35 @@ namespace DriftPaint.Networking
 
         void OnJoinedRoom()
         {
-            RefreshRoom(false);
+            bool rejoined = _state == ConnectionState.Reconnecting;
+            _nextRejoinTime = 0f;
+            _reconnectDeadline = 0f;
+
+            // Al volver, la fase pudo haber cambiado mientras no había conexión: se avisa como cualquier cambio.
+            RefreshRoom(rejoined);
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
             SetState(ConnectionState.InRoom);
             RoomChanged?.Invoke();
             PlayersChanged?.Invoke();
-            ChatReceived?.Invoke(ChatMessage.System($"Entraste a la sala {_currentRoom.Title}."));
+            if (rejoined)
+            {
+                ChatReceived?.Invoke(ChatMessage.System("Volviste a la partida."));
+                Rejoined?.Invoke();
+            }
+            else
+            {
+                ChatReceived?.Invoke(ChatMessage.System($"Entraste a la sala {_currentRoom.Title}."));
+            }
         }
 
         void OnLeftRoom()
         {
+            // Un corte también saca de la sala, justo antes de avisar la desconexión: la sala se conserva
+            // para poder volver, y OnDisconnected decide.
+            if (_state == ConnectionState.InRoom && !_disconnectRequested) return;
+
             ClearRoom();
             RoomChanged?.Invoke();
             PlayersChanged?.Invoke();
@@ -582,6 +684,13 @@ namespace DriftPaint.Networking
 
         void OnJoinRoomFailed(string message)
         {
+            if (_state == ConnectionState.Reconnecting)
+            {
+                // La sala ya no reserva el lugar (o terminó): el cliente sigue hacia el servidor principal.
+                StopReconnecting(ConnectionState.Connecting);
+                RaiseError($"No se pudo volver a la partida. {message}");
+                return;
+            }
             SetState(_provider.InLobby ? ConnectionState.InLobby : ConnectionState.Connecting);
             RaiseError($"No se pudo entrar a la sala. {message}");
         }
@@ -697,9 +806,9 @@ namespace DriftPaint.Networking
             }
         }
 
-        void OnObjectInstantiated(GameObject instance, int ownerActorId, bool isLocal, string prefabId)
+        void OnObjectInstantiated(GameObject instance, int ownerActorId, bool isLocal, string prefabId, object[] data)
         {
-            var info = new NetworkObjectInfo(instance, ownerActorId, isLocal, prefabId);
+            var info = new NetworkObjectInfo(instance, ownerActorId, isLocal, prefabId, data);
             _objects.RemoveAll(o => o.Instance == null || o.Instance == instance);
             _objects.Add(info);
             ObjectSpawned?.Invoke(info);

@@ -14,10 +14,10 @@ namespace DriftPaint.Transport
     sealed class PhotonPrefabPool : IPunPrefabPool
     {
         readonly Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
-        readonly Action<GameObject, int, bool, string> _onInstantiated;
+        readonly Action<GameObject, int, bool, string, object[]> _onInstantiated;
         readonly Action<GameObject> _onDestroyed;
 
-        public PhotonPrefabPool(Action<GameObject, int, bool, string> onInstantiated, Action<GameObject> onDestroyed)
+        public PhotonPrefabPool(Action<GameObject, int, bool, string, object[]> onInstantiated, Action<GameObject> onDestroyed)
         {
             _onInstantiated = onInstantiated;
             _onDestroyed = onDestroyed;
@@ -75,9 +75,9 @@ namespace DriftPaint.Transport
     sealed class NetworkObjectHook : MonoBehaviour, IPunInstantiateMagicCallback
     {
         string _prefabId;
-        Action<GameObject, int, bool, string> _onInstantiated;
+        Action<GameObject, int, bool, string, object[]> _onInstantiated;
 
-        public void Initialize(string prefabId, Action<GameObject, int, bool, string> onInstantiated)
+        public void Initialize(string prefabId, Action<GameObject, int, bool, string, object[]> onInstantiated)
         {
             _prefabId = prefabId;
             _onInstantiated = onInstantiated;
@@ -97,7 +97,7 @@ namespace DriftPaint.Transport
 
             PhotonView view = GetComponent<PhotonView>();
             int owner = view.Owner != null ? view.Owner.ActorNumber : view.CreatorActorNr;
-            _onInstantiated?.Invoke(gameObject, owner, view.IsMine, _prefabId);
+            _onInstantiated?.Invoke(gameObject, owner, view.IsMine, _prefabId, view.InstantiationData);
         }
     }
 }

@@ -28,6 +28,10 @@ namespace DriftPaint.Combat
     /// <summary>Consultas sobre los autos que existen en la partida, a partir de los objetos de red.</summary>
     public static class MatchCars
     {
+        /// <summary>
+        /// Autos en juego. Los de jugadores desconectados que esperan volver quedan afuera: no chocan, no
+        /// reciben impactos ni activan barriles hasta que vuelven.
+        /// </summary>
         public static void Collect(INetworkMediator mediator, List<MatchCar> cars)
         {
             cars.Clear();
@@ -36,9 +40,19 @@ namespace DriftPaint.Combat
             foreach (NetworkObjectInfo info in mediator.Objects)
             {
                 if (info.Instance == null || !info.Instance.TryGetComponent(out CarController car)) continue;
+                if (IsInactive(mediator, info.OwnerActorId)) continue;
                 byte team = car.TryGetComponent(out CarTeamColor color) ? color.Team : TeamId.None;
                 cars.Add(new MatchCar(car, info.OwnerActorId, team, info.IsLocal));
             }
+        }
+
+        /// <summary>El jugador se desconectó pero conserva su lugar en la sala.</summary>
+        public static bool IsInactive(INetworkMediator mediator, int actorId)
+        {
+            if (mediator == null) return false;
+            foreach (PlayerSummary player in mediator.Players)
+                if (player.ActorId == actorId) return player.IsInactive;
+            return false;
         }
 
         public static bool TryGetLocal(INetworkMediator mediator, out MatchCar local)

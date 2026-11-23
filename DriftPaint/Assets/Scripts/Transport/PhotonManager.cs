@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using DriftPaint.Networking;
 using ExitGames.Client.Photon;
 using Photon.Pun;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+using Photon.Pun.UtilityScripts;
+#endif
 using Photon.Realtime;
 using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
@@ -24,7 +27,15 @@ namespace DriftPaint.Transport
         readonly List<NetRoomInfo> _roomList = new List<NetRoomInfo>();
         readonly List<NetPlayerInfo> _players = new List<NetPlayerInfo>();
 
+        readonly List<GameObject> _staleObjects = new List<GameObject>();
+
         PhotonPrefabPool _pool;
+        // Diferencia entre el reloj del servidor y el local, para que el reloj siga sin saltos durante un corte.
+        double _serverClockOffset;
+        bool _hasServerClockOffset;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        PhotonLagSimulationGui _lagGui;
+#endif
 
         void Awake()
         {
@@ -33,10 +44,24 @@ namespace DriftPaint.Transport
             PhotonNetwork.SerializationRate = 20;
 
             _pool = new PhotonPrefabPool(
-                (instance, owner, isMine, prefabId) => ObjectInstantiated?.Invoke(instance, owner, isMine, prefabId),
+                (instance, owner, isMine, prefabId, data) => ObjectInstantiated?.Invoke(instance, owner, isMine, prefabId, data),
                 instance => ObjectDestroyed?.Invoke(instance));
             PhotonNetwork.PrefabPool = _pool;
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            // Simulador de lag, latencia y pérdida de paquetes para las pruebas. Se abre con F10.
+            _lagGui = gameObject.AddComponent<PhotonLagSimulationGui>();
+            _lagGui.Visible = false;
+#endif
         }
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        void Update()
+        {
+            UnityEngine.InputSystem.Keyboard keyboard = UnityEngine.InputSystem.Keyboard.current;
+            if (_lagGui != null && keyboard != null && keyboard.f10Key.wasPressedThisFrame) _lagGui.Visible = !_lagGui.Visible;
+        }
+#endif
 
         #region Estado
 
@@ -45,7 +70,22 @@ namespace DriftPaint.Transport
         public bool InRoom => PhotonNetwork.InRoom;
         public bool IsMaster => PhotonNetwork.IsMasterClient;
         public int LocalActorNumber => PhotonNetwork.LocalPlayer != null ? PhotonNetwork.LocalPlayer.ActorNumber : -1;
-        public double ServerTime => PhotonNetwork.IsConnected ? PhotonNetwork.Time : Time.realtimeSinceStartupAsDouble;
+        public double ServerTime
+        {
+            get
+            {
+                double local = Time.realtimeSinceStartupAsDouble;
+                if (PhotonNetwork.IsConnectedAndReady)
+                {
+                    double server = PhotonNetwork.Time;
+                    _serverClockOffset = server - local;
+                    _hasServerClockOffset = true;
+                    return server;
+                }
+                // Sin conexión, el reloj sigue desde la última hora conocida del servidor.
+                return _hasServerClockOffset ? local + _serverClockOffset : local;
+            }
+        }
         public int Ping => PhotonNetwork.IsConnected ? PhotonNetwork.GetPing() : 0;
 
         public string NickName
@@ -90,6 +130,28 @@ namespace DriftPaint.Transport
         public void Disconnect()
         {
             if (PhotonNetwork.IsConnected) PhotonNetwork.Disconnect();
+        }
+
+        public bool ReconnectAndRejoin()
+        {
+            // La sala guarda los objetos (CleanupCacheOnLeave en false) y los vuelve a crear al entrar: los
+            // que quedaron acá se borran antes, o Photon encontraría ids repetidos.
+            DestroyLocalNetworkObjects();
+            return PhotonNetwork.ReconnectAndRejoin();
+        }
+
+        /// <summary>Fuera de la sala, borra solo en este cliente los objetos creados en red.</summary>
+        void DestroyLocalNetworkObjects()
+        {
+            if (PhotonNetwork.InRoom) return;
+
+            _staleObjects.Clear();
+            foreach (PhotonView view in PhotonNetwork.PhotonViewCollection)
+                if (view != null && view.InstantiationId > 0) _staleObjects.Add(view.gameObject);
+
+            foreach (GameObject instance in _staleObjects)
+                if (instance != null) PhotonNetwork.Destroy(instance);
+            _staleObjects.Clear();
         }
 
         public bool JoinLobby()
@@ -150,10 +212,10 @@ namespace DriftPaint.Transport
             return PhotonNetwork.Instantiate(prefabId, position, rotation);
         }
 
-        public GameObject InstantiateRoomObject(string prefabId, Vector3 position, Quaternion rotation)
+        public GameObject InstantiateRoomObject(string prefabId, Vector3 position, Quaternion rotation, object[] data)
         {
             if (!PhotonNetwork.InRoom || !PhotonNetwork.IsMasterClient || !_pool.Contains(prefabId)) return null;
-            return PhotonNetwork.InstantiateRoomObject(prefabId, position, rotation);
+            return PhotonNetwork.InstantiateRoomObject(prefabId, position, rotation, 0, data);
         }
 
         public void Destroy(GameObject instance)
@@ -212,7 +274,7 @@ namespace DriftPaint.Transport
         public event Action<IReadOnlyDictionary<string, object>> RoomPropertiesChanged;
         public event Action<int, IReadOnlyDictionary<string, object>> PlayerPropertiesChanged;
         public event Action<byte, int, object> EventReceived;
-        public event Action<GameObject, int, bool, string> ObjectInstantiated;
+        public event Action<GameObject, int, bool, string, object[]> ObjectInstantiated;
         public event Action<GameObject> ObjectDestroyed;
 
         #endregion

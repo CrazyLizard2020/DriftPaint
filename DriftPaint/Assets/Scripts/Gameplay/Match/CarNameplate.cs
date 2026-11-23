@@ -13,6 +13,8 @@ namespace DriftPaint.Match
         [SerializeField] TMP_Text _nameText;
         [Tooltip("Marcador con el color del equipo.")]
         [SerializeField] Graphic _marker;
+        [Tooltip("Ícono que se muestra junto al nombre mientras el jugador está desconectado.")]
+        [SerializeField] GameObject _disconnectedIcon;
         [SerializeField] float _height = 2.3f;
         [Tooltip("Escala por metro de distancia a la cámara.")]
         [SerializeField] float _scalePerMeter = 0.0006f;
@@ -27,6 +29,12 @@ namespace DriftPaint.Match
             if (_nameText != null) _nameText.text = nickname;
             SetColor(teamColor);
             LateUpdate();
+        }
+
+        public void SetDisconnected(bool disconnected)
+        {
+            if (_disconnectedIcon != null && _disconnectedIcon.activeSelf != disconnected)
+                _disconnectedIcon.SetActive(disconnected);
         }
 
         public void SetColor(Color teamColor)

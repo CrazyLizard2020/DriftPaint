@@ -13,7 +13,9 @@ namespace DriftPaint.Net
         InLobby,
         JoiningRoom,
         InRoom,
-        LeavingRoom
+        LeavingRoom,
+        /// <summary>Se cortó la conexión estando en una sala y se intenta volver como el mismo jugador.</summary>
+        Reconnecting
     }
 
     /// <summary>Estado de la partida guardado en la sala. El valor numérico es el que viaja por red.</summary>
@@ -214,13 +216,16 @@ namespace DriftPaint.Net
         /// <summary>True si lo controla este cliente.</summary>
         public readonly bool IsLocal;
         public readonly string PrefabId;
+        /// <summary>Datos que pasó quien lo creó, iguales en todos los clientes. Nunca es null.</summary>
+        public readonly object[] Data;
 
-        public NetworkObjectInfo(GameObject instance, int ownerActorId, bool isLocal, string prefabId)
+        public NetworkObjectInfo(GameObject instance, int ownerActorId, bool isLocal, string prefabId, object[] data = null)
         {
             Instance = instance;
             OwnerActorId = ownerActorId;
             IsLocal = isLocal;
             PrefabId = prefabId;
+            Data = data ?? Array.Empty<object>();
         }
     }
 
@@ -242,6 +247,13 @@ namespace DriftPaint.Net
         event Action StateChanged;
         /// <summary>Error para mostrar al jugador (conexión perdida, sala llena, etc.).</summary>
         event Action<string> ErrorRaised;
+        /// <summary>
+        /// Volvió a la sala después de un corte, como el mismo jugador. Los objetos de red se vuelven a
+        /// crear y la grilla hay que pedirla de nuevo al Master.
+        /// </summary>
+        event Action Rejoined;
+        /// <summary>Segundos que quedan para volver a la sala mientras se reconecta.</summary>
+        float ReconnectTimeRemaining { get; }
 
         void Connect(string nickname);
         void Disconnect();
@@ -315,9 +327,10 @@ namespace DriftPaint.Net
         GameObject SpawnOwned(string prefabId, Vector3 position, Quaternion rotation);
         /// <summary>
         /// Solo el Master: crea un objeto de la sala, que no pertenece a ningún jugador y sigue aunque
-        /// quien lo pidió se desconecte. Sin sala, lo crea solo localmente.
+        /// quien lo pidió se desconecte. Sin sala, lo crea solo localmente. Los datos llegan a todos los
+        /// clientes en NetworkObjectInfo.Data, también a quien entra o vuelve después.
         /// </summary>
-        GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation);
+        GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation, object[] data = null);
         /// <summary>Destruye un objeto propio (o de la sala, si es el Master) en todos los clientes.</summary>
         void Despawn(GameObject instance);
         /// <summary>Objetos de red que existen ahora, propios y ajenos.</summary>

@@ -295,5 +295,15 @@ namespace DriftPaint.Cars
             _locomotion.Teleport(position, rotation);
             Teleported?.Invoke(position, rotation);
         }
+
+        /// <summary>
+        /// Un auto ajeno saltó de golpe a otra posición (teletransporte o corte de red). Avisa igual que
+        /// un teletransporte propio, para que nadie una la posición vieja con la nueva.
+        /// </summary>
+        public void NotifyRemoteTeleport()
+        {
+            if (Mode == CarSimulationMode.Local) return;
+            Teleported?.Invoke(Position, Rotation);
+        }
     }
 }
