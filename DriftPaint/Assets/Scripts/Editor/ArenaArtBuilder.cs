@@ -122,8 +122,11 @@ namespace DriftPaint.EditorTools
                 if (projectile != null)
                 {
                     projectile.transform.localScale = new Vector3(.40f, .40f, .86f);
-                    TrailRenderer trail = Trail(projectile.transform, "Estela", Vector3.zero, .19f, .34f);
-                    MenuSceneBuilder.Bind(projectile, ("_trail", trail));
+                    var wake = Child(projectile.transform, "Estela", Vector3.zero);
+                    if (wake.TryGetComponent(out TrailRenderer ribbon)) Object.DestroyImmediate(ribbon);
+                    var renderer = InkMesh(wake, "Tubo de proyectil", ProjectileTube, "Cola de tinta", "DriftPaint/Estela ondulada");
+                    renderer.enabled = false;
+                    MenuSceneBuilder.Bind(projectile, ("_wake", renderer));
                 }
                 var impact = root.GetComponentInChildren<ImpactBurst>(true);
                 if (impact != null)
@@ -234,7 +237,101 @@ namespace DriftPaint.EditorTools
                 fx = root.AddComponent<CarPaintEffects>();
             MenuSceneBuilder.Bind(fx, ("_leftJet", a), ("_rightJet", b), ("_drift", drift), ("_leftTrack", l),
                                   ("_rightTrack", r), ("_leftStream", Stream(left)),
-                                  ("_rightStream", Stream(right)));
+                                  ("_rightStream", Stream(right)), ("_contactSplash", ContactSplash(root.transform)));
+        }
+
+        static MeshRenderer InkMesh(Transform target, string meshName, System.Func<Mesh> bake, string material, string shader)
+        {
+            if (!target.TryGetComponent(out MeshFilter filter)) filter = target.gameObject.AddComponent<MeshFilter>();
+            filter.sharedMesh = EditorAssetUtility.LoadOrCreate("Assets/Art/Generated/" + meshName + ".asset", bake);
+            if (!target.TryGetComponent(out MeshRenderer renderer)) renderer = target.gameObject.AddComponent<MeshRenderer>();
+            renderer.sharedMaterial = MaterialFor(material, shader);
+            renderer.shadowCastingMode = ShadowCastingMode.Off;
+            renderer.receiveShadows = false;
+            return renderer;
+        }
+
+        static Mesh ProjectileTube()
+        {
+            const int sides = 8, rings = 33;
+            var vertices = new Vector3[sides * rings];
+            var triangles = new int[6 * sides * (rings - 1)];
+            for (int ring = 0; ring < rings; ring++)
+                for (int side = 0; side < sides; side++)
+                {
+                    float angle = 2f * Mathf.PI * side / sides;
+                    int i = ring * sides + side;
+                    vertices[i] = new Vector3(Mathf.Cos(angle), Mathf.Sin(angle), ring / (rings - 1f));
+                    if (ring == rings - 1) continue;
+                    int next = ring * sides + (side + 1) % sides;
+                    // El eje de la malla avanza desde la cabeza hacia la cola.
+                    int k = i * 6;
+                    triangles[k] = i; triangles[k + 1] = i + sides; triangles[k + 2] = next;
+                    triangles[k + 3] = next; triangles[k + 4] = i + sides; triangles[k + 5] = next + sides;
+                }
+            return new Mesh { name = "Tubo de tinta", vertices = vertices, triangles = triangles };
+        }
+
+        static ParticleSystem ContactSplash(Transform car)
+        {
+            // Un solo emisor por auto conserva las huellas de los dos escapes en sus puntos de contacto.
+            var ps = Drops(car, "Tinta que se asienta", Vector3.zero, 0, 24);
+            ps.transform.localRotation = Quaternion.identity;
+            var main = ps.main;
+            main.startSize = 1f;
+            main.startSpeed = 0f;
+            main.gravityModifier = 0f;
+            main.startRotation3D = true;
+            main.startLifetime = .34f;
+            var shape = ps.shape;
+            shape.enabled = false;
+            var size = ps.sizeOverLifetime;
+            size.enabled = true;
+            size.separateAxes = true;
+            var spread = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, .26f, 1f, 1.7f));
+            size.x = spread;
+            size.z = spread;
+            size.y = new ParticleSystem.MinMaxCurve(1f, new AnimationCurve(new Keyframe(0f, .3f),
+                new Keyframe(.19f, 1f), new Keyframe(.76f, .07f), new Keyframe(1f, .015f)));
+            var fade = ps.colorOverLifetime;
+            fade.enabled = true;
+            var gradient = new Gradient();
+            gradient.SetKeys(new[] { new GradientColorKey(Color.white, 0), new GradientColorKey(Color.white, 1) },
+                new[] { new GradientAlphaKey(.92f, 0), new GradientAlphaKey(.85f, .47f), new GradientAlphaKey(0, 1) });
+            fade.color = gradient;
+            var renderer = ps.GetComponent<ParticleSystemRenderer>();
+            renderer.renderMode = ParticleSystemRenderMode.Mesh;
+            renderer.alignment = ParticleSystemRenderSpace.World;
+            renderer.mesh = EditorAssetUtility.LoadOrCreate("Assets/Art/Generated/Contacto de escape.asset", Deposit);
+            renderer.sharedMaterial = MaterialFor("Tinta fresca", "DriftPaint/Depósito de pintura");
+            return ps;
+        }
+
+        static Mesh Deposit()
+        {
+            const int sides = 22;
+            var vertices = new Vector3[1 + sides * 2];
+            var uv = new Vector2[vertices.Length];
+            var triangles = new int[sides * 9];
+            uv[0] = Vector2.one * .5f;
+            for (int i = 0; i < sides; i++)
+            {
+                float a = i * 2f * Mathf.PI / sides;
+                Vector2 radial = new Vector2(Mathf.Cos(a), Mathf.Sin(a));
+                float lobe = .5f + .5f * Mathf.Sin(5f * a + Mathf.Cos(3f * a));
+                int lip = 1 + i, edge = lip + sides, next = 1 + (i + 1) % sides;
+                vertices[lip] = new Vector3(radial.x * .31f, .06f + .18f * lobe, radial.y * .31f);
+                vertices[edge] = new Vector3(radial.x, 0, radial.y) * (.40f + .12f * lobe);
+                uv[lip] = uv[0] + radial * .34f;
+                uv[edge] = uv[0] + radial * .50f;
+                int k = i * 9;
+                triangles[k] = 0; triangles[k + 1] = next; triangles[k + 2] = lip;
+                triangles[k + 3] = lip; triangles[k + 4] = next; triangles[k + 5] = edge;
+                triangles[k + 6] = edge; triangles[k + 7] = next; triangles[k + 8] = next + sides;
+            }
+            var mesh = new Mesh { name = "Depósito húmedo", vertices = vertices, uv = uv, triangles = triangles };
+            mesh.RecalculateNormals();
+            return mesh;
         }
 
         static ParticleSystem ExhaustDrops(Transform exhaust)

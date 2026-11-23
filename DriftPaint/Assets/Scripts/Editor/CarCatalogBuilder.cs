@@ -137,8 +137,11 @@ namespace DriftPaint.EditorTools
         {
             string path = $"{PreviewFolder}/T_{prefab.name}_{(team == TeamId.B ? "B" : "A")}.png";
             var preview = new PreviewRenderUtility();
+            bool asyncShaders = ShaderUtil.allowAsyncCompilation;
             try
             {
+                // La primera foto también necesita las variantes listas antes de leer los píxeles.
+                ShaderUtil.allowAsyncCompilation = false;
                 GameObject instance = preview.InstantiatePrefabInScene(prefab);
                 instance.transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
                 if (instance.TryGetComponent(out CarTeamColor teamColor))
@@ -201,6 +204,7 @@ namespace DriftPaint.EditorTools
             }
             finally
             {
+                ShaderUtil.allowAsyncCompilation = asyncShaders;
                 preview.Cleanup();
             }
         }

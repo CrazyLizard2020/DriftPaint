@@ -205,7 +205,7 @@ namespace DriftPaint.Combat
                     {
                         // Se oculta al tocar el piso; la explosión llega con el anuncio del Master.
                         shot.Landed = true;
-                        if (shot.View != null) shot.View.gameObject.SetActive(false);
+                        DestroyView(shot);
                     }
                 }
 
@@ -213,8 +213,7 @@ namespace DriftPaint.Combat
                 if (shot.View != null && shot.View.gameObject.activeSelf)
                 {
                     Vector3 velocity = shot.Info.Velocity + Vector3.down * (_settings.Gravity * t);
-                    shot.View.transform.SetPositionAndRotation(position,
-                        velocity.sqrMagnitude > 0.01f ? Quaternion.LookRotation(velocity) : Quaternion.identity);
+                    shot.View.ShowFlight(position, velocity, _settings.Gravity, t);
                 }
             }
 

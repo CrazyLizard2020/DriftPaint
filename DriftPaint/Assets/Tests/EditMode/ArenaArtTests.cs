@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DriftPaint.Cars;
+using DriftPaint.Combat;
 using DriftPaint.Teams;
 using NUnit.Framework;
 using UnityEditor;
@@ -47,6 +48,15 @@ namespace DriftPaint.Tests
                         links++;
                     }
                 Assert.That(links, Is.GreaterThan(6));
+                foreach (var root in scene.GetRootGameObjects())
+                {
+                    var projectile = root.GetComponentInChildren<ProjectileView>(true);
+                    if (projectile == null) continue;
+                    var wake = (MeshRenderer)new SerializedObject(projectile).FindProperty("_wake").objectReferenceValue;
+                    Assert.That(wake, Is.Not.Null);
+                    Assert.That(wake.GetComponent<MeshFilter>().sharedMesh, Is.Not.Null);
+                    Assert.That(wake.sharedMaterial.shader.name, Is.EqualTo("DriftPaint/Estela ondulada"));
+                }
             }
             finally
             {
@@ -70,6 +80,11 @@ namespace DriftPaint.Tests
             var fx = new SerializedObject(car.GetComponent<CarPaintEffects>());
             foreach (string field in new[] { "_leftJet", "_rightJet", "_drift", "_leftTrack", "_rightTrack", "_leftStream", "_rightStream" })
                 Assert.That(fx.FindProperty(field).objectReferenceValue, Is.Not.Null, field);
+            var contact = (ParticleSystem)fx.FindProperty("_contactSplash").objectReferenceValue;
+            Assert.That(contact, Is.Not.Null);
+            Assert.That(contact.main.simulationSpace, Is.EqualTo(ParticleSystemSimulationSpace.World));
+            Assert.That(contact.sizeOverLifetime.separateAxes, Is.True);
+            Assert.That(contact.GetComponent<ParticleSystemRenderer>().mesh, Is.Not.Null);
         }
     }
 }
