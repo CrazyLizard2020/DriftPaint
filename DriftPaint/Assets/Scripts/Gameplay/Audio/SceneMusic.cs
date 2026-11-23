@@ -32,8 +32,11 @@ namespace DriftPaint.Audio
         {
             if (!_useRoomMap) return _context;
             INetworkMediator mediator = NetworkServices.Mediator;
-            if (mediator != null && mediator.CurrentRoom.IsValid && !string.IsNullOrEmpty(mediator.CurrentRoom.MapId))
+            if (mediator != null && mediator.CurrentRoom.IsValid && MapCatalog.IsKnown(mediator.CurrentRoom.MapId))
                 return mediator.CurrentRoom.MapId;
+            // Sin sala, o con un mapa que el catálogo no conoce: el mapa de esta escena.
+            string sceneMap = MapCatalog.MapForScene(gameObject.scene.name);
+            if (sceneMap != null) return sceneMap;
             return string.IsNullOrEmpty(_context) ? MapCatalog.DefaultMapId : _context;
         }
 

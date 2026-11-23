@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using DriftPaint.Match;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace DriftPaint.Audio
 {
@@ -12,6 +14,10 @@ namespace DriftPaint.Audio
     /// Formas de pedir música: por contexto (pantalla o mapa, resuelto con la biblioteca), por id, con
     /// una pista directa, o encima de la actual con <see cref="PushOverride"/> para volver después al
     /// mismo segundo con <see cref="PopOverride"/>.
+    /// </para>
+    /// <para>
+    /// Al cargar una escena sin <see cref="SceneMusic"/>, elige solo la música: la del menú en la escena
+    /// de menú y la del mapa en cada escena de partida.
     /// </para>
     /// </summary>
     public sealed class MusicManager : MonoBehaviour
@@ -113,6 +119,7 @@ namespace DriftPaint.Audio
             _a = CreateChannel("Music A");
             _b = CreateChannel("Music B");
             VolumeSettings.Changed += ApplyVolumes;
+            SceneManager.sceneLoaded += OnSceneLoaded;
         }
 
         void OnDestroy()
@@ -120,7 +127,26 @@ namespace DriftPaint.Audio
             if (_instance != this) return;
             _instance = null;
             VolumeSettings.Changed -= ApplyVolumes;
+            SceneManager.sceneLoaded -= OnSceneLoaded;
         }
+
+        void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+        {
+            if (mode != LoadSceneMode.Single || HasSceneMusic(scene)) return;
+            string context = ContextForScene(scene.name);
+            if (context != null) PlayContext(context);
+        }
+
+        static bool HasSceneMusic(Scene scene)
+        {
+            foreach (GameObject root in scene.GetRootGameObjects())
+                if (root.GetComponentInChildren<SceneMusic>(true) != null) return true;
+            return false;
+        }
+
+        /// <summary>Contexto de música que corresponde a una escena, o null si no se reconoce.</summary>
+        public static string ContextForScene(string sceneName) =>
+            sceneName == MapCatalog.MenuScene ? MusicContexts.Menu : MapCatalog.MapForScene(sceneName);
 
         Channel CreateChannel(string sourceName)
         {

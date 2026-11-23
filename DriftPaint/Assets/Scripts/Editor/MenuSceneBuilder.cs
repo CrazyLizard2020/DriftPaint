@@ -21,7 +21,7 @@ namespace DriftPaint.EditorTools
     /// </summary>
     public static class MenuSceneBuilder
     {
-        const string ScenePath = "Assets/Scenes/Menu.unity";
+        internal const string ScenePath = "Assets/Scenes/Menu.unity";
         const string ArtFolder = "Assets/Art/Generated";
         const string LogoPath = "Assets/Sprites/driftpaint_logo.png";
         const string PalettePath = ScriptableObjectPaths.TeamPalette;

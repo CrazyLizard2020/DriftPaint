@@ -18,8 +18,8 @@ namespace DriftPaint.EditorTools
 {
     /// <summary>
     /// Agrega a una escena el menú de opciones (volumen y controles) y el objeto que pide su música.
-    /// Lo usan los generadores de las escenas de menú y de partida, y también se puede aplicar a la
-    /// escena abierta sin regenerarla. Crea la biblioteca de música con sus pistas si no existe.
+    /// Lo usan los generadores de las escenas de menú y de partida, y <see cref="SceneAutoSetup"/> lo aplica
+    /// solo a las escenas existentes que no lo tienen. Crea la biblioteca de música con sus pistas si no existe.
     /// </summary>
     public static class OptionsMenuBuilder
     {
@@ -64,15 +64,6 @@ namespace DriftPaint.EditorTools
             ("Tabla de puntajes", "UI/Scoreboard", null, null),
             ("Opciones", "UI/Menu", null, null),
         };
-
-        [MenuItem("DriftPaint/Agregar menú de opciones y música")]
-        static void InstallInOpenScene()
-        {
-            Scene scene = SceneManager.GetActiveScene();
-            Install(scene);
-            EditorSceneManager.MarkSceneDirty(scene);
-            AssetDatabase.SaveAssets();
-        }
 
         /// <summary>
         /// Agrega lo que le falte a la escena: si ya tiene menú de opciones o música no los toca, así no se

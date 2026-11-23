@@ -12,6 +12,18 @@ namespace DriftPaint.Match
         /// <summary>Mapa que se usa al crear una sala sin elegir otro y al jugar sin sala.</summary>
         public const string DefaultMapId = GraffithasiaId;
 
+        static readonly string[] MapIds = { GraffithasiaId, RoyalDriftRoadId };
+
+        public static bool IsKnown(string mapId) => System.Array.IndexOf(MapIds, mapId) >= 0;
+
+        /// <summary>Mapa que se juega en la escena, o null si la escena no es de partida.</summary>
+        public static string MapForScene(string sceneName)
+        {
+            foreach (string mapId in MapIds)
+                if (SceneFor(mapId) == sceneName) return mapId;
+            return null;
+        }
+
         public static string SceneFor(string mapId)
         {
             switch (mapId)

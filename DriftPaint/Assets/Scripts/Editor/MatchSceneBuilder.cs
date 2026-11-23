@@ -25,7 +25,7 @@ namespace DriftPaint.EditorTools
     /// </summary>
     public static class MatchSceneBuilder
     {
-        const string ScenePath = "Assets/Scenes/Match_DriftArena.unity";
+        internal const string ScenePath = "Assets/Scenes/Match_DriftArena.unity";
         const string DataPath = ScriptableObjectPaths.CarData;
         const string PalettePath = ScriptableObjectPaths.TeamPalette;
         const string PrefabFolder = "Assets/Prefabs/Cars";
