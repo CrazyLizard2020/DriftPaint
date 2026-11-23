@@ -4,8 +4,10 @@ using DriftPaint.Cars;
 using DriftPaint.Level;
 using DriftPaint.Match;
 using DriftPaint.Paint;
+using DriftPaint.Scoring;
 using DriftPaint.Teams;
 using DriftPaint.UI;
+using DriftPaint.UI.Score;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -49,6 +51,7 @@ namespace DriftPaint.EditorTools
             }
 
             LoadUiAssets();
+            MenuSceneBuilder.LoadAssets();
             Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
 
             CarSandboxSceneBuilder.ConfigureLighting();
@@ -58,10 +61,15 @@ namespace DriftPaint.EditorTools
             var matchGo = new GameObject("Match");
             var match = matchGo.AddComponent<MatchController>();
             PaintSystem paint = matchGo.AddComponent<PaintSystem>();
+            MatchScore score = matchGo.AddComponent<MatchScore>();
             MenuSceneBuilder.Bind(paint, ("_match", match));
+            MenuSceneBuilder.Bind(score, ("_paint", paint), ("_match", match));
+            MenuSceneBuilder.Bind(match, ("_score", score));
             BuildPaintSurface(paint, palette);
-            MatchHUD hud = BuildHud(match, palette);
+            MatchHUD hud = BuildHud(match, score, palette);
+            BuildResults(match, score, palette);
             CarNameplate nameplate = BuildNameplateTemplate();
+            MenuSceneBuilder.BuildEventSystem();
 
             var spawner = matchGo.AddComponent<MatchSpawner>();
             var so = new SerializedObject(spawner);
@@ -237,7 +245,7 @@ namespace DriftPaint.EditorTools
 
         #region HUD
 
-        static MatchHUD BuildHud(MatchController match, TeamPaletteSO palette)
+        static MatchHUD BuildHud(MatchController match, MatchScore score, TeamPaletteSO palette)
         {
             Canvas canvas = UiFactory.CreateOverlayCanvas(null, "Match HUD");
             Transform root = canvas.transform;
@@ -278,20 +286,20 @@ namespace DriftPaint.EditorTools
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic);
             countdownText.text = "3";
 
-            // Fin de la partida
-            Image results = UiFactory.CreatePanel(root, "Time Up", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+            // Cartel de fin de tiempo y de desempate
+            Image banner = UiFactory.CreatePanel(root, "Banner", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
                 new Vector2(0f, 80f), new Vector2(980f, 220f), panel);
-            MenuSceneBuilder.Skew(results, 10f);
-            UiFactory.CreatePanel(results.transform, "Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+            MenuSceneBuilder.Skew(banner, 10f);
+            UiFactory.CreatePanel(banner.transform, "Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
                 Vector2.zero, new Vector2(0f, 10f), DriftPaintPalette.SunsetGold);
-            TextMeshProUGUI timeUp = MenuSceneBuilder.CreateLabel(results.transform, "Title", _titleFont, 120f, TextAlignmentOptions.Center,
+            TextMeshProUGUI bannerTitle = MenuSceneBuilder.CreateLabel(banner.transform, "Title", _titleFont, 120f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -16f), new Vector2(900f, 130f));
-            timeUp.text = "¡TIEMPO!";
-            TextMeshProUGUI back = MenuSceneBuilder.CreateLabel(results.transform, "Subtitle", _labelFont, 36f, TextAlignmentOptions.Center,
+            bannerTitle.text = "¡TIEMPO!";
+            TextMeshProUGUI bannerSubtitle = MenuSceneBuilder.CreateLabel(banner.transform, "Subtitle", _labelFont, 36f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite.WithAlpha(0.75f), FontStyles.Italic, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 20f), new Vector2(900f, 50f));
-            back.text = "Volviendo al lobby...";
+            bannerSubtitle.text = "Contando celdas...";
 
             // Velocímetro
             Image speedPanel = UiFactory.CreatePanel(root, "Speedometer", new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f),
@@ -344,15 +352,210 @@ namespace DriftPaint.EditorTools
 
             var hud = canvas.gameObject.AddComponent<MatchHUD>();
             MenuSceneBuilder.Bind(hud,
-                ("_match", match),
+                ("_match", match), ("_score", score),
                 ("_leftPercentText", leftText), ("_rightPercentText", rightText), ("_clockText", clock),
-                ("_countdownRoot", countdown.gameObject), ("_countdownText", countdownText), ("_resultsRoot", results.gameObject),
+                ("_countdownRoot", countdown.gameObject), ("_countdownText", countdownText),
+                ("_bannerRoot", banner.gameObject), ("_bannerTitle", bannerTitle), ("_bannerSubtitle", bannerSubtitle),
                 ("_speedText", speedText), ("_speedFill", speedFill),
                 ("_fireCooldownText", fireText), ("_fireCooldownFill", fireFill), ("_barrelsText", barrels));
 
-            results.gameObject.SetActive(false);
+            BuildScoreboard(canvas, match, score, palette);
+
+            banner.gameObject.SetActive(false);
             return hud;
         }
+
+        /// <summary>Tabla que se abre con Tab durante la partida.</summary>
+        static void BuildScoreboard(Canvas canvas, MatchController match, MatchScore score, TeamPaletteSO palette)
+        {
+            Image panel = UiFactory.CreatePanel(canvas.transform, "Scoreboard", new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f),
+                new Vector2(0.5f, 0.5f), new Vector2(0f, -20f), new Vector2(1400f, 560f), DriftPaintPalette.HudNavy.WithAlpha(0.94f));
+            MenuSceneBuilder.Skew(panel, 6f);
+            UiFactory.CreatePanel(panel.transform, "Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                Vector2.zero, new Vector2(0f, 8f), DriftPaintPalette.SunsetGold);
+            TextMeshProUGUI title = MenuSceneBuilder.CreateLabel(panel.transform, "Title", _titleFont, 54f, TextAlignmentOptions.Center,
+                DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -18f), new Vector2(800f, 70f));
+            title.text = "PUNTAJE";
+
+            ScoreTableView table = BuildScoreTable(panel.transform, "Table", palette, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                new Vector2(0f, -110f), new Vector2(1320f, 420f));
+
+            var scoreboard = canvas.gameObject.AddComponent<ScoreboardPanel>();
+            MenuSceneBuilder.Bind(scoreboard, ("_match", match), ("_score", score), ("_root", panel.gameObject), ("_table", table));
+            panel.gameObject.SetActive(false);
+        }
+
+        #endregion
+
+        #region Resultados
+
+        static void BuildResults(MatchController match, MatchScore score, TeamPaletteSO palette)
+        {
+            Canvas canvas = UiFactory.CreateOverlayCanvas(null, "Results", 20);
+            Image overlay = UiFactory.CreatePanel(canvas.transform, "Screen", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, DriftPaintPalette.HudNavy.WithAlpha(0.93f));
+            overlay.raycastTarget = true;
+            Transform root = overlay.transform;
+            Vector2 top = new Vector2(0.5f, 1f);
+            Vector2 bottom = new Vector2(0.5f, 0f);
+
+            UiFactory.CreatePanel(root, "Stripe", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                Vector2.zero, new Vector2(0f, 10f), DriftPaintPalette.SunsetGold);
+
+            TextMeshProUGUI title = MenuSceneBuilder.CreateLabel(root, "Title", _titleFont, 150f, TextAlignmentOptions.Center,
+                DriftPaintPalette.SunsetGold, FontStyles.Bold | FontStyles.Italic, top, top, new Vector2(0f, -36f), new Vector2(1400f, 170f));
+            title.text = "¡VICTORIA!";
+            TextMeshProUGUI winner = MenuSceneBuilder.CreateLabel(root, "Winner", _labelFont, 44f, TextAlignmentOptions.Center,
+                DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, top, top, new Vector2(0f, -200f), new Vector2(1200f, 60f));
+            winner.text = "GANA EL EQUIPO NARANJA";
+
+            TextMeshProUGUI leftPercent = BuildPercentBlock(root, "Left Percent", palette.Get(TeamId.B).Main, new Vector2(-300f, -280f));
+            TextMeshProUGUI rightPercent = BuildPercentBlock(root, "Right Percent", palette.Get(TeamId.A).Main, new Vector2(300f, -280f));
+
+            ScoreTableView table = BuildScoreTable(root, "Table", palette, top, top, new Vector2(0f, -420f), new Vector2(1500f, 400f));
+
+            Button rematch = MenuSceneBuilder.CreateButton(root, "Rematch Button", "REVANCHA", MenuSceneBuilder.ButtonStyle.Primary, 46f,
+                bottom, new Vector2(-210f, 110f), new Vector2(360f, 92f), new Vector2(0.5f, 0f));
+            Button leave = MenuSceneBuilder.CreateButton(root, "Leave Button", "SALIR", MenuSceneBuilder.ButtonStyle.Outline, 46f,
+                bottom, new Vector2(210f, 110f), new Vector2(360f, 92f), new Vector2(0.5f, 0f));
+            TextMeshProUGUI timeout = MenuSceneBuilder.CreateLabel(root, "Timeout", _bodyFont, 28f, TextAlignmentOptions.Center,
+                MenuSceneBuilder.MutedText, FontStyles.Normal, bottom, bottom, new Vector2(0f, 40f), new Vector2(800f, 44f));
+            timeout.text = "Saliendo en 30 s";
+
+            var screen = canvas.gameObject.AddComponent<ResultsScreen>();
+            MenuSceneBuilder.Bind(screen,
+                ("_match", match), ("_score", score), ("_palette", palette), ("_root", overlay.gameObject),
+                ("_titleText", title), ("_winnerText", winner),
+                ("_leftPercentText", leftPercent), ("_rightPercentText", rightPercent),
+                ("_table", table), ("_rematchButton", rematch), ("_leaveButton", leave), ("_timeoutText", timeout));
+            overlay.gameObject.SetActive(false);
+        }
+
+        static TextMeshProUGUI BuildPercentBlock(Transform parent, string name, Color color, Vector2 position)
+        {
+            Image block = UiFactory.CreatePanel(parent, name, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
+                position, new Vector2(380f, 110f), color);
+            MenuSceneBuilder.Skew(block, 14f);
+            TextMeshProUGUI text = UiFactory.CreateText(block.transform, "Percent", _titleFont, 84f, TextAlignmentOptions.Center,
+                DriftPaintPalette.HudNavy, FontStyles.Bold | FontStyles.Italic);
+            text.text = "50%";
+            return text;
+        }
+
+        #endregion
+
+        #region Tabla de puntaje
+
+        const float ScoreRowHeight = 60f;
+
+        /// <summary>Tabla con una columna por equipo (izquierda Naranja, derecha Cyan) y una fila plantilla inactiva.</summary>
+        static ScoreTableView BuildScoreTable(Transform parent, string name, TeamPaletteSO palette, Vector2 anchor, Vector2 pivot,
+            Vector2 position, Vector2 size)
+        {
+            RectTransform root = UiFactory.CreateRect(parent, name, anchor, anchor, pivot, position, size);
+            const float gap = 60f;
+            float columnWidth = (size.x - gap) * 0.5f;
+
+            RectTransform leftRows = BuildScoreColumn(root, "Left Team", palette.Get(TeamId.B).Main, 0f, columnWidth, size.y,
+                out TextMeshProUGUI leftHeader);
+            RectTransform rightRows = BuildScoreColumn(root, "Right Team", palette.Get(TeamId.A).Main, columnWidth + gap, columnWidth, size.y,
+                out TextMeshProUGUI rightHeader);
+            ScoreRowView template = BuildScoreRow(root, columnWidth);
+
+            var table = root.gameObject.AddComponent<ScoreTableView>();
+            MenuSceneBuilder.Bind(table, ("_palette", palette), ("_leftColumn", leftRows), ("_rightColumn", rightRows),
+                ("_leftHeader", leftHeader), ("_rightHeader", rightHeader), ("_rowTemplate", template));
+            template.gameObject.SetActive(false);
+            return table;
+        }
+
+        static RectTransform BuildScoreColumn(RectTransform table, string name, Color color, float x, float width, float height,
+            out TextMeshProUGUI header)
+        {
+            RectTransform column = UiFactory.CreateRect(table, name, new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                new Vector2(x, 0f), new Vector2(width, height));
+
+            Image headerBack = UiFactory.CreatePanel(column, "Header", new Vector2(0f, 1f), new Vector2(1f, 1f), new Vector2(0.5f, 1f),
+                Vector2.zero, new Vector2(0f, 56f), color);
+            MenuSceneBuilder.Skew(headerBack, 10f);
+            header = UiFactory.CreateText(headerBack.transform, "Label", _titleFont, 36f, TextAlignmentOptions.Center,
+                DriftPaintPalette.HudNavy, FontStyles.Bold | FontStyles.Italic);
+            header.text = "EQUIPO";
+
+            RectTransform rows = UiFactory.CreateRect(column, "Rows", Vector2.zero, Vector2.one, new Vector2(0.5f, 1f), Vector2.zero, Vector2.zero);
+            rows.offsetMin = Vector2.zero;
+            rows.offsetMax = new Vector2(0f, -70f);
+            var layout = rows.gameObject.AddComponent<VerticalLayoutGroup>();
+            layout.spacing = 8f;
+            layout.childAlignment = TextAnchor.UpperCenter;
+            layout.childControlWidth = true;
+            layout.childControlHeight = false;
+            layout.childForceExpandWidth = true;
+            layout.childForceExpandHeight = false;
+            return rows;
+        }
+
+        static ScoreRowView BuildScoreRow(RectTransform parent, float width)
+        {
+            RectTransform row = UiFactory.CreateRect(parent, "Row Template", new Vector2(0f, 1f), new Vector2(0f, 1f), new Vector2(0f, 1f),
+                Vector2.zero, new Vector2(width, ScoreRowHeight));
+
+            Image highlight = UiFactory.CreatePanel(row, "Local Highlight", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, DriftPaintPalette.OffWhite);
+            UiFactory.Stretch((RectTransform)highlight.transform, -3f);
+            MenuSceneBuilder.Skew(highlight, 4f);
+
+            Image background = UiFactory.CreatePanel(row, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
+                Vector2.zero, Vector2.zero, MenuSceneBuilder.RowColor);
+            MenuSceneBuilder.Skew(background, 4f);
+
+            Image car = UiFactory.CreatePanel(row, "Car Icon", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(20f, 0f), new Vector2(54f, 24f), DriftPaintPalette.Cyan);
+            MenuSceneBuilder.Skew(car, 10f);
+
+            // Corona: base dorada con tres puntas.
+            RectTransform crown = UiFactory.CreateRect(row, "Crown", new Vector2(0f, 0.5f), new Vector2(0f, 0.5f), new Vector2(0f, 0.5f),
+                new Vector2(86f, 0f), new Vector2(34f, 30f));
+            UiFactory.CreatePanel(crown, "Base", new Vector2(0f, 0f), new Vector2(1f, 0f), new Vector2(0.5f, 0f),
+                Vector2.zero, new Vector2(0f, 12f), DriftPaintPalette.SunsetGold);
+            foreach (float x in new[] { 0.12f, 0.5f, 0.88f })
+            {
+                Image tip = UiFactory.CreatePanel(crown, "Tip", new Vector2(x, 0f), new Vector2(x, 0f), new Vector2(0.5f, 0.5f),
+                    new Vector2(0f, 14f), new Vector2(11f, 11f), DriftPaintPalette.SunsetGold);
+                tip.transform.localEulerAngles = new Vector3(0f, 0f, 45f);
+            }
+
+            TextMeshProUGUI name = UiFactory.CreateText(row, "Name", _titleFont, 32f, TextAlignmentOptions.Left,
+                DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic);
+            var nameRect = (RectTransform)name.transform;
+            nameRect.offsetMin = new Vector2(132f, 8f);
+            nameRect.offsetMax = new Vector2(-190f, 0f);
+            name.overflowMode = TextOverflowModes.Ellipsis;
+            name.text = "Piloto";
+
+            TextMeshProUGUI disconnected = MenuSceneBuilder.CreateLabel(row, "Disconnected", _labelFont, 20f, TextAlignmentOptions.Left,
+                MenuSceneBuilder.MutedText, FontStyles.Italic, new Vector2(0f, 0f), new Vector2(0f, 0f), new Vector2(132f, 2f), new Vector2(240f, 22f));
+            disconnected.text = "DESCONECTADO";
+
+            TextMeshProUGUI points = MenuSceneBuilder.CreateLabel(row, "Points", _titleFont, 38f, TextAlignmentOptions.Right,
+                DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, new Vector2(1f, 0.5f), new Vector2(1f, 0.5f),
+                new Vector2(-24f, 0f), new Vector2(160f, 50f));
+            points.text = "0";
+
+            var view = row.gameObject.AddComponent<ScoreRowView>();
+            MenuSceneBuilder.Bind(view, ("_carIcon", car), ("_nameText", name), ("_pointsText", points),
+                ("_crown", crown.gameObject), ("_localHighlight", highlight.gameObject), ("_disconnectedMark", disconnected.gameObject));
+
+            crown.gameObject.SetActive(false);
+            highlight.gameObject.SetActive(false);
+            disconnected.gameObject.SetActive(false);
+            return view;
+        }
+
+        #endregion
+
+        #region Nombres sobre los autos
 
         static CarNameplate BuildNameplateTemplate()
         {

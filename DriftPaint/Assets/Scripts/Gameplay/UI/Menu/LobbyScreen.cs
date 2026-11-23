@@ -105,7 +105,7 @@ namespace DriftPaint.UI.Menu
             if (_maxPlayersText != null) _maxPlayersText.text = room.MaxPlayers.ToString();
             if (_durationText != null) _durationText.text = RoomsScreen.FormatDuration(room.DurationSeconds);
 
-            bool canEdit = _mediator.IsMaster && _mediator.Phase == MatchPhase.Lobby;
+            bool canEdit = _mediator.IsMaster && _mediator.Phase.IsBetweenMatches();
             SetVisible(_durationMinus, canEdit);
             SetVisible(_durationPlus, canEdit);
 
@@ -137,7 +137,7 @@ namespace DriftPaint.UI.Menu
             RefreshPlayersHeader();
             // El host puede cambiar de manos cuando alguien se va.
             if (_startLabel != null) _startLabel.text = _mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST";
-            if (_startButton != null) _startButton.interactable = _mediator.IsMaster && _mediator.Phase == MatchPhase.Lobby;
+            if (_startButton != null) _startButton.interactable = _mediator.IsMaster && _mediator.Phase.IsBetweenMatches();
         }
 
         void AddTeam(byte team)

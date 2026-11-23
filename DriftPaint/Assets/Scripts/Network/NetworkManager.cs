@@ -28,6 +28,13 @@ namespace DriftPaint.Networking
         readonly List<NetworkObjectInfo> _objects = new List<NetworkObjectInfo>();
         int _scoreA;
         int _scoreB;
+        int _round;
+        byte _winner;
+
+        // Último puntaje enviado, para publicar solo lo que cambió.
+        int _sentScoreA = -1;
+        int _sentScoreB = -1;
+        readonly Dictionary<int, (int points, int standing)> _sentPlayerScores = new Dictionary<int, (int points, int standing)>();
 
         ConnectionState _state = ConnectionState.Disconnected;
         string _nickname = "";
@@ -35,6 +42,7 @@ namespace DriftPaint.Networking
         MatchPhase _phase = MatchPhase.Lobby;
         double _matchStartTime;
         bool _disconnectRequested;
+        bool _disconnectAfterLeave;
         float _nextChatTime;
 
         public NetworkManager(INetworkProvider provider)
@@ -79,6 +87,8 @@ namespace DriftPaint.Networking
         public double MatchStartTime => _matchStartTime;
         public int ScoreA => _scoreA;
         public int ScoreB => _scoreB;
+        public int Round => _round;
+        public byte Winner => _winner;
         public IReadOnlyList<NetworkObjectInfo> Objects
         {
             get
@@ -206,13 +216,26 @@ namespace DriftPaint.Networking
             if (_provider.LeaveRoom()) SetState(ConnectionState.LeavingRoom);
         }
 
+        public void LeaveRoomAndDisconnect()
+        {
+            if (_state != ConnectionState.InRoom)
+            {
+                Disconnect();
+                return;
+            }
+
+            // Salir primero libera el lugar en la sala; desconectarse directo lo dejaría reservado.
+            _disconnectAfterLeave = true;
+            LeaveRoom();
+        }
+
         #endregion
 
         #region INetworkMediator: sala actual
 
         public void SetRoomDuration(int seconds)
         {
-            if (!IsMaster || _phase != MatchPhase.Lobby) return;
+            if (!IsMaster || !_phase.IsBetweenMatches()) return;
             _provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.Duration, ClampDuration(seconds) } });
         }
 
@@ -231,13 +254,73 @@ namespace DriftPaint.Networking
 
         public bool RequestStartMatch()
         {
-            if (!IsMaster || _phase != MatchPhase.Lobby) return false;
+            if (!IsMaster || !_phase.IsBetweenMatches()) return false;
+
+            // Los puntajes de la partida anterior se limpian antes del cambio de estado: llegan en ese orden.
+            ResetSentScores();
+            foreach (PlayerSummary player in _players)
+                _provider.SetPlayerProperties(player.ActorId, new Dictionary<string, object> { { PlayerKeys.Points, new[] { 0, 0 } } });
 
             return _provider.SetRoomProperties(new Dictionary<string, object>
             {
                 { RoomKeys.State, (byte)MatchPhase.Countdown },
                 { RoomKeys.StartTime, ServerTime + RoomRules.CountdownSeconds },
-                { RoomKeys.Round, 1 }
+                { RoomKeys.Round, 1 },
+                { RoomKeys.ScoreA, 0 },
+                { RoomKeys.ScoreB, 0 },
+                { RoomKeys.Winner, TeamId.None }
+            });
+        }
+
+        public void PublishTeamScores(int cellsA, int cellsB)
+        {
+            if (!IsMaster || (cellsA == _sentScoreA && cellsB == _sentScoreB)) return;
+
+            if (_provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.ScoreA, cellsA }, { RoomKeys.ScoreB, cellsB } }))
+            {
+                _sentScoreA = cellsA;
+                _sentScoreB = cellsB;
+            }
+        }
+
+        public void PublishPlayerScore(int actorId, int points, int standing)
+        {
+            if (!IsMaster) return;
+            if (_sentPlayerScores.TryGetValue(actorId, out (int points, int standing) sent) && sent.points == points && sent.standing == standing)
+                return;
+
+            if (_provider.SetPlayerProperties(actorId, new Dictionary<string, object> { { PlayerKeys.Points, new[] { points, standing } } }))
+                _sentPlayerScores[actorId] = (points, standing);
+        }
+
+        public bool FinishMatch(int cellsA, int cellsB, byte winner)
+        {
+            if (!IsMaster) return false;
+
+            bool sent = _provider.SetRoomProperties(new Dictionary<string, object>
+            {
+                { RoomKeys.ScoreA, cellsA },
+                { RoomKeys.ScoreB, cellsB },
+                { RoomKeys.Winner, winner },
+                { RoomKeys.State, (byte)MatchPhase.Results }
+            });
+            if (sent)
+            {
+                _sentScoreA = cellsA;
+                _sentScoreB = cellsB;
+            }
+            return sent;
+        }
+
+        public bool StartTiebreak(double startTime)
+        {
+            if (!IsMaster) return false;
+
+            return _provider.SetRoomProperties(new Dictionary<string, object>
+            {
+                { RoomKeys.State, (byte)MatchPhase.Tiebreak },
+                { RoomKeys.StartTime, startTime },
+                { RoomKeys.Round, Mathf.Max(1, _round) + 1 }
             });
         }
 
@@ -332,6 +415,12 @@ namespace DriftPaint.Networking
         void OnConnectedToServer()
         {
             if (_disconnectRequested) return;
+            if (_disconnectAfterLeave)
+            {
+                _disconnectAfterLeave = false;
+                Disconnect();
+                return;
+            }
 
             if (!_provider.JoinLobby())
             {
@@ -345,6 +434,7 @@ namespace DriftPaint.Networking
             bool wasInRoom = _currentRoom.IsValid;
             bool expected = _disconnectRequested;
             _disconnectRequested = false;
+            _disconnectAfterLeave = false;
 
             ClearRoom();
             _rooms.Clear();
@@ -426,6 +516,7 @@ namespace DriftPaint.Networking
 
         void OnMasterSwitched(int newMasterActorId)
         {
+            ResetSentScores();
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
@@ -530,7 +621,17 @@ namespace DriftPaint.Networking
             _matchStartTime = 0;
             _scoreA = 0;
             _scoreB = 0;
+            _round = 0;
+            _winner = TeamId.None;
             _objects.Clear();
+            ResetSentScores();
+        }
+
+        void ResetSentScores()
+        {
+            _sentScoreA = -1;
+            _sentScoreB = -1;
+            _sentPlayerScores.Clear();
         }
 
         void RefreshRoom(bool notifyPhase)
@@ -542,6 +643,8 @@ namespace DriftPaint.Networking
             _matchStartTime = ToDouble(Get(room.Properties, RoomKeys.StartTime), 0);
             _scoreA = ToInt(Get(room.Properties, RoomKeys.ScoreA), 0);
             _scoreB = ToInt(Get(room.Properties, RoomKeys.ScoreB), 0);
+            _round = ToInt(Get(room.Properties, RoomKeys.Round), 0);
+            _winner = (byte)ToInt(Get(room.Properties, RoomKeys.Winner), TeamId.None);
 
             MatchPhase previous = _phase;
             _phase = _currentRoom.Phase;
@@ -555,7 +658,14 @@ namespace DriftPaint.Networking
             {
                 byte team = (byte)ToInt(Get(player.Properties, PlayerKeys.Team), TeamId.None);
                 string name = string.IsNullOrEmpty(player.NickName) ? $"Jugador {player.ActorNumber}" : player.NickName;
-                _players.Add(new PlayerSummary(player.ActorNumber, name, team, player.IsMaster, player.IsLocal, player.IsInactive));
+                // pts viaja como { puntaje, celdas en pie }.
+                int points = 0, standing = 0;
+                if (Get(player.Properties, PlayerKeys.Points) is int[] pts && pts.Length >= 2)
+                {
+                    points = pts[0];
+                    standing = pts[1];
+                }
+                _players.Add(new PlayerSummary(player.ActorNumber, name, team, player.IsMaster, player.IsLocal, player.IsInactive, points, standing));
             }
             _players.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
         }
@@ -573,7 +683,8 @@ namespace DriftPaint.Networking
                 if (player.Team == TeamId.A || player.Team == TeamId.B) continue;
 
                 byte team = TeamRules.PickTeam(_players, player.ActorId);
-                _players[i] = new PlayerSummary(player.ActorId, player.Nickname, team, player.IsMaster, player.IsLocal, player.IsInactive);
+                _players[i] = new PlayerSummary(player.ActorId, player.Nickname, team, player.IsMaster, player.IsLocal, player.IsInactive,
+                    player.Points, player.Standing);
                 _provider.SetPlayerProperties(player.ActorId, new Dictionary<string, object> { { PlayerKeys.Team, team } });
             }
         }

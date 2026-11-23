@@ -26,6 +26,15 @@ namespace DriftPaint.Net
         Results = 4
     }
 
+    public static class MatchPhaseExtensions
+    {
+        /// <summary>Entre partidas: en el lobby o mostrando resultados. El host puede arrancar otra.</summary>
+        public static bool IsBetweenMatches(this MatchPhase phase) => phase == MatchPhase.Lobby || phase == MatchPhase.Results;
+
+        /// <summary>Se está jugando una ronda (la normal o un desempate).</summary>
+        public static bool IsRound(this MatchPhase phase) => phase == MatchPhase.Playing || phase == MatchPhase.Tiebreak;
+    }
+
     /// <summary>Configuración que elige el creador de la sala.</summary>
     [Serializable]
     public struct RoomSettings
@@ -76,8 +85,13 @@ namespace DriftPaint.Net
         public readonly bool IsLocal;
         /// <summary>Desconectado, pero con el lugar reservado hasta que venza el tiempo de reconexión.</summary>
         public readonly bool IsInactive;
+        /// <summary>Puntaje publicado por el Master: celdas en pie más robos.</summary>
+        public readonly int Points;
+        /// <summary>Celdas en pie publicadas por el Master, para desempatar el orden de la tabla.</summary>
+        public readonly int Standing;
 
-        public PlayerSummary(int actorId, string nickname, byte team, bool isMaster, bool isLocal, bool isInactive)
+        public PlayerSummary(int actorId, string nickname, byte team, bool isMaster, bool isLocal, bool isInactive,
+            int points = 0, int standing = 0)
         {
             ActorId = actorId;
             Nickname = nickname;
@@ -85,6 +99,8 @@ namespace DriftPaint.Net
             IsMaster = isMaster;
             IsLocal = isLocal;
             IsInactive = isInactive;
+            Points = points;
+            Standing = standing;
         }
     }
 
@@ -200,6 +216,8 @@ namespace DriftPaint.Net
         bool CreateRoom(RoomSettings settings);
         bool JoinRoom(string roomId);
         void LeaveRoom();
+        /// <summary>Deja la sala y después se desconecta, para volver al menú principal.</summary>
+        void LeaveRoomAndDisconnect();
 
         // Sala actual
         RoomSummary CurrentRoom { get; }
@@ -216,13 +234,29 @@ namespace DriftPaint.Net
         /// <summary>Solo el Master y en el lobby: cambia la duración de la partida.</summary>
         void SetRoomDuration(int seconds);
         void SendChat(string text);
-        /// <summary>Solo el Master: pasa la sala a la cuenta regresiva.</summary>
+        /// <summary>Solo el Master, en el lobby o en resultados: pasa la sala a la cuenta regresiva y limpia los puntajes.</summary>
         bool RequestStartMatch();
         /// <summary>Solo el Master: cambia el estado de la partida. Volver a Lobby limpia el reloj y la ronda.</summary>
         bool SetMatchPhase(MatchPhase phase);
         /// <summary>Celdas pintadas por cada equipo, publicadas por el Master.</summary>
         int ScoreA { get; }
         int ScoreB { get; }
+        /// <summary>Ronda actual: 1 la partida normal, 2 en adelante los desempates. 0 fuera de partida.</summary>
+        int Round { get; }
+        /// <summary>Equipo ganador publicado al cerrar la partida, o ninguno.</summary>
+        byte Winner { get; }
+
+        /// <summary>Solo el Master: publica las celdas de cada equipo si cambiaron desde el último envío.</summary>
+        void PublishTeamScores(int cellsA, int cellsB);
+        /// <summary>Solo el Master: publica el puntaje y las celdas en pie de un jugador si cambiaron.</summary>
+        void PublishPlayerScore(int actorId, int points, int standing);
+        /// <summary>
+        /// Solo el Master: cierra la partida publicando en una sola actualización las celdas finales,
+        /// el ganador y el estado de resultados.
+        /// </summary>
+        bool FinishMatch(int cellsA, int cellsB, byte winner);
+        /// <summary>Solo el Master: programa una ronda de desempate sobre la misma grilla, que arranca en startTime (reloj del servidor).</summary>
+        bool StartTiebreak(double startTime);
 
         /// <summary>
         /// Frena la entrega de mensajes mientras se carga una escena, para que nada llegue

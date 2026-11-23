@@ -224,6 +224,20 @@ namespace DriftPaint.Paint
             }
         }
 
+        /// <summary>
+        /// Al agotarse el tiempo, la autoridad pinta el último tramo de cada auto y manda los cambios
+        /// pendientes sin esperar al próximo envío, así el puntaje final incluye todo lo pintado.
+        /// </summary>
+        public void CompleteRound()
+        {
+            if (!IsAuthority) return;
+
+            foreach (TrackedCar car in _cars)
+                if (car.Car != null) Sample(car);
+            FlushDelta();
+            _sendTimer = 0f;
+        }
+
         bool IsNearGround(Vector3 position)
         {
             const float lift = 0.2f;

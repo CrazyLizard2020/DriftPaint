@@ -1,7 +1,10 @@
-using System;
+﻿using System;
 using DriftPaint.Cars;
 using DriftPaint.Net;
+using DriftPaint.Scoring;
+using DriftPaint.Teams;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace DriftPaint.Match
 {
@@ -9,42 +12,73 @@ namespace DriftPaint.Match
     /// Ciclo de la partida. El estado oficial vive en la sala y solo lo cambia el Master, pero cada
     /// cliente calcula el reloj por su cuenta con el tiempo del servidor: todos arrancan y terminan en
     /// el mismo instante sin mensajes por segundo. También bloquea el manejo fuera de la partida.
+    /// Al agotarse el tiempo, el Master decide el ganador con su grilla o arranca un desempate.
     /// Sin sala (jugando solo) simula el mismo ciclo localmente.
     /// </summary>
+    [DefaultExecutionOrder(-50)] // Antes que la pintura: el último tramo se procesa antes de cortar.
     public class MatchController : MonoBehaviour, IDrivingGate
     {
-        [Tooltip("Segundos que se muestra el cierre antes de volver al lobby.")]
-        [SerializeField, Min(1f)] float _resultsSeconds = 6f;
+        public const int TiebreakSeconds = 60;
+        /// <summary>Segundos entre el empate y el arranque del desempate, para que todos entiendan qué pasó.</summary>
+        public const float TiebreakPauseSeconds = 3f;
+
+        [SerializeField] MatchScore _score;
+        [Tooltip("Segundos en la pantalla de resultados sin elegir nada antes de salir solo.")]
+        [SerializeField, Min(5f)] float _resultsTimeout = 30f;
 
         [Header("Sin sala")]
         [SerializeField, Min(0f)] float _offlineCountdown = 3f;
         [SerializeField, Min(10)] int _offlineDurationSeconds = 120;
 
+        const double RequestRetrySeconds = 1.0;
+        const double ResolveRetrySeconds = 3.0;
+
         INetworkMediator _mediator;
         bool _online;
+
         MatchPhase _offlinePhase = MatchPhase.Countdown;
         double _offlineStartTime;
+        int _offlineRound = 1;
+        byte _offlineWinner;
+
         MatchPhase _phase = MatchPhase.Countdown;
         double _resultsSince = -1;
         bool _closing;
 
-        /// <summary>Estado efectivo: el publicado, adelantado si el reloj ya cruzó el límite.</summary>
+        MatchPhase? _requestedPhase;
+        double _requestedAt;
+        int _resolvedRound = -1;
+        double _resolvedAt;
+
+        /// <summary>Estado efectivo: el publicado, adelantado si la cuenta regresiva ya terminó.</summary>
         public MatchPhase Phase => _phase;
-        public bool AllowsDriving => _phase == MatchPhase.Playing || _phase == MatchPhase.Tiebreak;
+        /// <summary>Se terminó el tiempo de la ronda y se espera que el Master publique el resultado.</summary>
+        public bool TimeUp => _phase.IsRound() && StartTime > 0 && Now >= StartTime + DurationSeconds;
+        /// <summary>Hubo empate y se espera el arranque del desempate, con los autos quietos.</summary>
+        public bool TiebreakPending => _phase == MatchPhase.Tiebreak && Now < StartTime;
+        public bool AllowsDriving => _phase.IsRound() && Now >= StartTime && !TimeUp;
         public bool IsOnline => _online;
+        /// <summary>El Master, o este cliente si se juega solo.</summary>
+        public bool IsAuthority => !_online || _mediator.IsMaster;
 
         public double Now => _online ? _mediator.ServerTime : Time.timeAsDouble;
         public double StartTime => _online ? _mediator.MatchStartTime : _offlineStartTime;
-        public int DurationSeconds => _online ? _mediator.CurrentRoom.DurationSeconds : _offlineDurationSeconds;
+        public int Round => _online ? _mediator.Round : _offlineRound;
+        public byte Winner => _online ? _mediator.Winner : _offlineWinner;
+        public int DurationSeconds => _phase == MatchPhase.Tiebreak ? TiebreakSeconds
+            : _online ? _mediator.CurrentRoom.DurationSeconds : _offlineDurationSeconds;
 
         /// <summary>Segundos hasta que termina la cuenta regresiva.</summary>
         public float CountdownRemaining => Mathf.Max(0f, (float)(StartTime - Now));
-        /// <summary>Segundos desde que arrancó la partida (negativo durante la cuenta regresiva).</summary>
+        /// <summary>Segundos desde que arrancó la ronda (negativo durante la cuenta regresiva).</summary>
         public float TimeSinceStart => (float)(Now - StartTime);
         public float TimeRemaining => Mathf.Clamp(DurationSeconds - TimeSinceStart, 0f, DurationSeconds);
+        /// <summary>Segundos hasta salir solo de la pantalla de resultados.</summary>
+        public float ResultsTimeRemaining =>
+            _resultsSince < 0 ? _resultsTimeout : Mathf.Max(0f, _resultsTimeout - (float)(Time.unscaledTimeAsDouble - _resultsSince));
 
         public event Action<MatchPhase> PhaseChanged;
-        /// <summary>Se dispara justo antes de volver al menú, para limpiar los objetos propios.</summary>
+        /// <summary>Se dispara justo antes de dejar la escena, para limpiar los objetos propios.</summary>
         public event Action Closing;
 
         void Awake()
@@ -65,38 +99,37 @@ namespace DriftPaint.Match
             }
 
             MatchPhase published = _online ? _mediator.Phase : _offlinePhase;
+
+            if (_phase == MatchPhase.Results)
+            {
+                // El host ya arrancó otra partida: se pasa por el menú, que carga la escena de nuevo.
+                if (_online && (published == MatchPhase.Countdown || published.IsRound()))
+                {
+                    Close();
+                    return;
+                }
+                if (ResultsTimeRemaining <= 0f) Leave();
+                return;
+            }
+
             if (_online && published == MatchPhase.Lobby)
             {
                 Close();
                 return;
             }
 
-            MatchPhase effective = Evaluate(published);
-            if (effective != published) Publish(effective);
+            MatchPhase effective = published;
+            if (published == MatchPhase.Countdown && StartTime > 0 && Now >= StartTime)
+            {
+                effective = MatchPhase.Playing;
+                Publish(MatchPhase.Playing);
+            }
             SetPhase(effective);
 
-            if (_phase == MatchPhase.Results)
-            {
-                if (_resultsSince < 0) _resultsSince = Time.unscaledTimeAsDouble;
-                if (Time.unscaledTimeAsDouble - _resultsSince >= _resultsSeconds) FinishResults();
-            }
+            if (TimeUp && IsAuthority) Resolve();
         }
 
-        MatchPhase Evaluate(MatchPhase published)
-        {
-            if (published != MatchPhase.Countdown && published != MatchPhase.Playing) return published;
-            if (StartTime <= 0) return published;
-
-            double now = Now;
-            if (now >= StartTime + DurationSeconds) return MatchPhase.Results;
-            if (now >= StartTime) return MatchPhase.Playing;
-            return MatchPhase.Countdown;
-        }
-
-        /// <summary>
-        /// Solo el Master escribe el estado en la sala; los demás solo lo adelantan localmente.
-        /// El cambio tarda un viaje al servidor, así que no se repite el mismo pedido en cada frame.
-        /// </summary>
+        /// <summary>Solo el Master escribe el estado en la sala; los demás solo lo adelantan localmente.</summary>
         void Publish(MatchPhase phase)
         {
             if (!_online)
@@ -106,6 +139,7 @@ namespace DriftPaint.Match
             }
 
             if (!_mediator.IsMaster) return;
+            // El cambio tarda un viaje al servidor, así que no se repite el mismo pedido en cada frame.
             if (phase == _requestedPhase && Time.unscaledTimeAsDouble - _requestedAt < RequestRetrySeconds) return;
 
             _requestedPhase = phase;
@@ -113,22 +147,76 @@ namespace DriftPaint.Match
             _mediator.SetMatchPhase(phase);
         }
 
-        const double RequestRetrySeconds = 1.0;
-        MatchPhase? _requestedPhase;
-        double _requestedAt;
+        /// <summary>
+        /// Fin de la ronda en la autoridad: cierra la pintura, publica los puntajes finales y después el
+        /// resultado. Gana quien tiene más celdas; con la misma cantidad exacta se juega un desempate.
+        /// </summary>
+        void Resolve()
+        {
+            int round = Round;
+            if (round == _resolvedRound && Time.unscaledTimeAsDouble - _resolvedAt < ResolveRetrySeconds) return;
+            _resolvedRound = round;
+            _resolvedAt = Time.unscaledTimeAsDouble;
+
+            if (_score != null) _score.CompleteRound();
+            int cellsA = _score != null ? _score.AuthorityCellsA : 0;
+            int cellsB = _score != null ? _score.AuthorityCellsB : 0;
+            byte winner = ScoreRules.WinnerOf(cellsA, cellsB);
+
+            if (_online)
+            {
+                if (winner == TeamId.None) _mediator.StartTiebreak(Now + TiebreakPauseSeconds);
+                else _mediator.FinishMatch(cellsA, cellsB, winner);
+                return;
+            }
+
+            if (winner == TeamId.None)
+            {
+                _offlineRound++;
+                _offlineStartTime = Now + TiebreakPauseSeconds;
+                _offlinePhase = MatchPhase.Tiebreak;
+            }
+            else
+            {
+                _offlineWinner = winner;
+                _offlinePhase = MatchPhase.Results;
+            }
+        }
 
         void SetPhase(MatchPhase phase)
         {
             if (_phase == phase) return;
             _phase = phase;
+            if (phase == MatchPhase.Results) _resultsSince = Time.unscaledTimeAsDouble;
             PhaseChanged?.Invoke(phase);
         }
 
-        void FinishResults()
+        /// <summary>Revancha: vuelve al lobby de la misma sala. Jugando solo, arranca otra partida.</summary>
+        public void Rematch()
         {
-            // Los clientes que no son Master esperan a que el Master publique Lobby.
-            if (!_online) Close();
-            else Publish(MatchPhase.Lobby);
+            if (_closing) return;
+
+            if (!_online)
+            {
+                _closing = true;
+                Closing?.Invoke();
+                SceneLoader.Load(SceneManager.GetActiveScene().name);
+                return;
+            }
+
+            if (_mediator.IsMaster) _mediator.SetMatchPhase(MatchPhase.Lobby);
+            Close();
+        }
+
+        /// <summary>Salir: deja la sala y vuelve al menú principal.</summary>
+        public void Leave()
+        {
+            if (_closing) return;
+
+            bool inRoom = _online && _mediator.State == ConnectionState.InRoom;
+            // Primero se limpian los objetos propios, que necesitan la sala para borrarse en todos.
+            Close();
+            if (inRoom) _mediator.LeaveRoomAndDisconnect();
         }
 
         void Close()

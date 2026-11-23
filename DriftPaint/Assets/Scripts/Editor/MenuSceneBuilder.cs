@@ -25,9 +25,9 @@ namespace DriftPaint.EditorTools
         const string LogoPath = "Assets/Sprites/driftpaint_logo.png";
         const string PalettePath = "Assets/Data/Teams/TeamPalette_Default.asset";
 
-        static readonly Color PanelColor = DriftPaintPalette.HudNavy.WithAlpha(0.9f);
-        static readonly Color RowColor = DriftPaintPalette.Hex(0x2A2F4A);
-        static readonly Color MutedText = DriftPaintPalette.OffWhite.WithAlpha(0.6f);
+        internal static readonly Color PanelColor = DriftPaintPalette.HudNavy.WithAlpha(0.9f);
+        internal static readonly Color RowColor = DriftPaintPalette.Hex(0x2A2F4A);
+        internal static readonly Color MutedText = DriftPaintPalette.OffWhite.WithAlpha(0.6f);
         static readonly Color InputColor = DriftPaintPalette.Hex(0x3A3F5C);
 
         static Sprite _white;
@@ -81,7 +81,8 @@ namespace DriftPaint.EditorTools
 
         #region Recursos
 
-        static void LoadAssets()
+        /// <summary>Carga el sprite blanco y las fuentes que usan las piezas de UI compartidas, como los botones.</summary>
+        internal static void LoadAssets()
         {
             string whitePath = ArtFolder + "/T_White.png";
             if (AssetDatabase.LoadAssetAtPath<Sprite>(whitePath) == null)
@@ -141,7 +142,7 @@ namespace DriftPaint.EditorTools
             go.AddComponent<AudioListener>();
         }
 
-        static void BuildEventSystem()
+        internal static void BuildEventSystem()
         {
             var go = new GameObject("EventSystem", typeof(EventSystem), typeof(InputSystemUIInputModule));
             go.transform.SetAsLastSibling();
@@ -613,7 +614,7 @@ namespace DriftPaint.EditorTools
 
         #region Piezas de UI
 
-        enum ButtonStyle
+        internal enum ButtonStyle
         {
             Primary,
             Outline,
@@ -639,7 +640,7 @@ namespace DriftPaint.EditorTools
             return text;
         }
 
-        static Button CreateButton(Transform parent, string name, string label, ButtonStyle style, float fontSize,
+        internal static Button CreateButton(Transform parent, string name, string label, ButtonStyle style, float fontSize,
             Vector2 anchor, Vector2 position, Vector2 size, Vector2? pivot = null)
         {
             Color fill = style == ButtonStyle.Primary ? DriftPaintPalette.Cyan

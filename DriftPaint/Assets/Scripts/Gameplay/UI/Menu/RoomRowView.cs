@@ -34,7 +34,7 @@ namespace DriftPaint.UI.Menu
             if (_playersText != null) _playersText.text = $"{room.PlayerCount} / {room.MaxPlayers}";
             if (_pingText != null) _pingText.text = ping > 0 ? $"{ping} ms" : "-";
 
-            bool playing = !room.IsOpen || room.Phase != MatchPhase.Lobby;
+            bool playing = !room.IsOpen || !room.Phase.IsBetweenMatches();
             bool canJoin = !playing && !room.IsFull;
             if (_joinButton != null) _joinButton.interactable = canJoin;
             if (_joinLabel != null) _joinLabel.text = playing ? "EN JUEGO" : room.IsFull ? "LLENA" : "UNIRSE";
