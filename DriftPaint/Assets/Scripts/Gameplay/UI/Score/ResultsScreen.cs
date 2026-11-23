@@ -24,6 +24,7 @@ namespace DriftPaint.UI.Score
         [Header("Título")]
         [SerializeField] TMP_Text _titleText;
         [SerializeField] TMP_Text _winnerText;
+        [SerializeField] Image _winnerBrush;
         [SerializeField] string _victoryTitle = "¡VICTORIA!";
         [SerializeField] string _defeatTitle = "¡DERROTA!";
         [Tooltip("Texto debajo del título. {0} es el nombre del equipo ganador.")]
@@ -77,10 +78,11 @@ namespace DriftPaint.UI.Score
 
             byte winner = _match.Winner;
             bool victory = winner != TeamId.None && winner == _score.LocalTeam;
+            if (_winnerBrush != null && _palette != null) _winnerBrush.color = _palette.Get(winner).Detail;
             if (_titleText != null)
             {
                 _titleText.text = victory ? _victoryTitle : _defeatTitle;
-                _titleText.color = victory ? _victoryColor : _defeatColor;
+                _titleText.color = _winnerBrush != null ? Color.white : victory ? _victoryColor : _defeatColor;
             }
             if (_winnerText != null)
                 _winnerText.text = winner == TeamId.None ? "" : string.Format(_winnerFormat, TeamName(winner));

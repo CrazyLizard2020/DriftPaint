@@ -32,6 +32,9 @@ namespace DriftPaint.Cars
         Renderer[] _renderers;
 
         public byte Team => _team;
+        /// <summary>Pigmento y reflejos que comparten la carrocería y los escapes.</summary>
+        public TeamPaletteSO.TeamColors Colors => _palette != null ? _palette.Get(_team)
+            : new TeamPaletteSO.TeamColors { Main = Color.white, Glow = Color.white };
 
         void Awake() => Apply();
 

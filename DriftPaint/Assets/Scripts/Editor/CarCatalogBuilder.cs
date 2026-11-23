@@ -37,7 +37,8 @@ namespace DriftPaint.EditorTools
         internal static CarCatalogSO LoadOrBuild()
         {
             var catalog = AssetDatabase.LoadAssetAtPath<CarCatalogSO>(CatalogPath);
-            return IsComplete(catalog) ? catalog : Build();
+            int count = AssetDatabase.FindAssets("t:Prefab", new[] { PrefabFolder }).Length;
+            return IsComplete(catalog) && catalog.Count == count ? catalog : Build();
         }
 
         static bool IsComplete(CarCatalogSO catalog)
@@ -72,7 +73,7 @@ namespace DriftPaint.EditorTools
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
                 .Where(p => p != null && p.GetComponent<CarController>() != null)
-                .OrderBy(p => p.name)
+                .OrderBy(p => p.name, System.StringComparer.Ordinal)
                 .ToList();
             if (prefabs.Count == 0)
             {
@@ -85,6 +86,12 @@ namespace DriftPaint.EditorTools
 
             var so = new SerializedObject(catalog);
             SerializedProperty entries = so.FindProperty("_entries");
+            var names = new Dictionary<string, string>();
+            for (int i = 0; i < entries.arraySize; i++)
+            {
+                var entry = entries.GetArrayElementAtIndex(i);
+                names[entry.FindPropertyRelative("_id").stringValue] = entry.FindPropertyRelative("_displayName").stringValue;
+            }
             entries.arraySize = prefabs.Count;
             for (int i = 0; i < prefabs.Count; i++)
             {
@@ -94,7 +101,8 @@ namespace DriftPaint.EditorTools
 
                 SerializedProperty displayName = entry.FindPropertyRelative("_displayName");
                 // El nombre se respeta si ya se editó a mano en el asset.
-                if (string.IsNullOrEmpty(displayName.stringValue)) displayName.stringValue = DisplayNameFor(prefab.name);
+                displayName.stringValue = names.TryGetValue(prefab.name, out string saved) && !string.IsNullOrEmpty(saved)
+                    ? saved : DisplayNameFor(prefab.name);
 
                 entry.FindPropertyRelative("_previewTeamA").objectReferenceValue = RenderPreview(prefab, TeamId.A, palette);
                 entry.FindPropertyRelative("_previewTeamB").objectReferenceValue = RenderPreview(prefab, TeamId.B, palette);
@@ -144,7 +152,7 @@ namespace DriftPaint.EditorTools
                     teamColor.SetTeam(team);
                 }
 
-                Bounds bounds = EditorAssetUtility.GetRendererBounds(instance);
+                Bounds bounds = EditorAssetUtility.GetRendererBounds(instance.transform.Find("Visual").gameObject);
                 Camera camera = preview.camera;
                 camera.fieldOfView = 22f;
                 camera.nearClipPlane = 0.05f;
@@ -155,7 +163,7 @@ namespace DriftPaint.EditorTools
                 // De frente y a la derecha del auto, un poco desde arriba.
                 Vector3 direction = new Vector3(1.15f, 0.45f, 1.5f).normalized;
                 float radius = bounds.extents.magnitude;
-                float distance = radius / Mathf.Sin(camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * 0.82f;
+                float distance = radius / Mathf.Sin(camera.fieldOfView * 0.5f * Mathf.Deg2Rad) * 0.57f;
                 camera.transform.position = bounds.center + direction * distance;
                 camera.transform.LookAt(bounds.center);
 
@@ -171,7 +179,15 @@ namespace DriftPaint.EditorTools
                 Texture2D rendered = preview.EndStaticPreview();
 
                 var output = new Texture2D(rendered.width, rendered.height, TextureFormat.RGBA32, false);
-                output.SetPixels(rendered.GetPixels());
+                // El estudio tiene fondo uniforme. Dejarlo transparente permite ver la pista detrás del auto.
+                var pixels = rendered.GetPixels32();
+                Color32 background = pixels[0];
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    if (pixels[i].r == background.r && pixels[i].g == background.g && pixels[i].b == background.b)
+                        pixels[i].a = 0;
+                }
+                output.SetPixels32(pixels);
                 output.Apply();
                 EditorAssetUtility.SaveTexture(output, path, true, TextureWrapMode.Clamp);
                 Object.DestroyImmediate(output);

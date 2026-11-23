@@ -60,7 +60,11 @@ namespace DriftPaint.EditorTools
                 RimLeft = ModelsRoot + "A_R7/Rims/Rims_2_L.fbx",
                 RimRight = ModelsRoot + "A_R7/Rims/Rims_1_R.fbx",
                 Spoiler = ModelsRoot + "A_R7/Spoilers/A_R7_Spoiler_1fbx.fbx"
-            }
+            },
+            new CarModelSpec { Name = "AE86", Body = ModelsRoot + "AE86/Body.fbx",
+                RimLeft = ModelsRoot + "AE86/Rim_L.fbx", RimRight = ModelsRoot + "AE86/Rim_R.fbx", AxleFraction = 0.285f, BodyClearance = 0.15f },
+            new CarModelSpec { Name = "RX7", Body = ModelsRoot + "RX7/Body.fbx",
+                RimLeft = ModelsRoot + "RX7/Rim_L.fbx", RimRight = ModelsRoot + "RX7/Rim_R.fbx", AxleFraction = 0.285f, BodyClearance = 0.08f }
         };
 
         public static List<GameObject> BuildAll(CarDataSO carData, TeamPaletteSO palette)
@@ -186,6 +190,7 @@ namespace DriftPaint.EditorTools
                 visualsSo.ApplyModifiedPropertiesWithoutUndo();
 
                 StripColliders(visual);
+                ArenaArtBuilder.ConnectCar(root);
 
                 string path = $"{PrefabFolder}/Car_{spec.Name}.prefab";
                 GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, path);

@@ -113,6 +113,8 @@ namespace DriftPaint.Networking
         public double MatchStartTime => _matchStartTime;
         public int ScoreA => _scoreA;
         public int ScoreB => _scoreB;
+        /// <summary>Dupla que acompaña al identificador de partida durante todas sus rondas.</summary>
+        public int PaletteIndex { get; private set; }
         public int Round => _round;
         public byte Winner => _winner;
         /// <summary>La sala decide al recibir el pedido si todavía conserva al actor.</summary>
@@ -437,6 +439,7 @@ namespace DriftPaint.Networking
                 { RoomKeys.MatchId, Guid.NewGuid().ToString("N") },
                 { RoomKeys.StartTime, ServerTime + RoomRules.CountdownSeconds },
                 { RoomKeys.Round, 1 },
+                { RoomKeys.Palette, UnityEngine.Random.Range(0, TeamPaletteSO.PairCount) },
                 { RoomKeys.ScoreA, 0 },
                 { RoomKeys.ScoreB, 0 },
                 { RoomKeys.Winner, TeamId.None }
@@ -504,6 +507,7 @@ namespace DriftPaint.Networking
             {
                 properties[RoomKeys.StartTime] = 0d;
                 properties[RoomKeys.Round] = 0;
+                properties[RoomKeys.Palette] = 0;
             }
             return _provider.SetRoomProperties(properties);
         }
@@ -1024,6 +1028,7 @@ namespace DriftPaint.Networking
             _scoreA = 0;
             _scoreB = 0;
             _round = 0;
+            PaletteIndex = 0;
             _winner = TeamId.None;
             _objects.Clear();
             ResetSentScores();
@@ -1047,6 +1052,7 @@ namespace DriftPaint.Networking
             _scoreA = ToInt(Get(room.Properties, RoomKeys.ScoreA), 0);
             _scoreB = ToInt(Get(room.Properties, RoomKeys.ScoreB), 0);
             _round = ToInt(Get(room.Properties, RoomKeys.Round), 0);
+            PaletteIndex = ToInt(Get(room.Properties, RoomKeys.Palette), 0);
             _winner = (byte)ToInt(Get(room.Properties, RoomKeys.Winner), TeamId.None);
 
             MatchPhase previous = _phase;

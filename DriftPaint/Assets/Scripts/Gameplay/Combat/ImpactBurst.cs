@@ -12,15 +12,26 @@ namespace DriftPaint.Combat
 
         float _size;
         float _elapsed;
+        [SerializeField] ParticleSystem _drops;
 
-        public void Play(Vector3 position, float size, Color color)
+        /// <summary>Expande una corona de tinta y lanza gotas según el alcance del impacto.</summary>
+        public void Play(Vector3 position, float size, Color color, bool barrel)
         {
-            transform.position = position;
+            transform.SetPositionAndRotation(position + Vector3.up * .04f, Quaternion.Euler(0, Random.Range(0f, 360f), 0));
             _size = size;
             _elapsed = 0f;
             RendererTint.Apply(_tinted, color);
             gameObject.SetActive(true);
             Apply(0f);
+            if (_drops != null)
+            {
+                var main = _drops.main;
+                main.startColor = new ParticleSystem.MinMaxGradient(color, Color.Lerp(color, Color.white, .35f));
+                main.startSpeed = new ParticleSystem.MinMaxCurve(barrel ? 6f : 3f, barrel ? 12f : 7f);
+                _drops.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                _drops.Play();
+                _drops.Emit(barrel ? 38 : 20);
+            }
         }
 
         void Update()
@@ -29,7 +40,7 @@ namespace DriftPaint.Combat
             float t = _elapsed / _duration;
             if (t >= 1f)
             {
-                Destroy(gameObject);
+                gameObject.SetActive(false);
                 return;
             }
             Apply(t);
@@ -38,7 +49,8 @@ namespace DriftPaint.Combat
         void Apply(float t)
         {
             float width = Mathf.Lerp(0.3f, 1f, 1f - (1f - t) * (1f - t)) * _size;
-            transform.localScale = new Vector3(width, Mathf.Max(0.05f, width * _heightRatio), width);
+            float height = Mathf.Sin(t * Mathf.PI) * width * _heightRatio;
+            transform.localScale = new Vector3(width, Mathf.Max(0.025f, height), width);
         }
     }
 }

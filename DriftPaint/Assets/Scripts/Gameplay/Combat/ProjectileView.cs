@@ -7,6 +7,16 @@ namespace DriftPaint.Combat
     {
         [SerializeField] Renderer[] _tinted;
 
-        public void SetColor(Color color) => RendererTint.Apply(_tinted, color);
+        [SerializeField] TrailRenderer _trail;
+
+        /// <summary>Prepara la estela al reutilizar un proyectil.</summary>
+        public void SetColor(Color color)
+        {
+            RendererTint.Apply(_tinted, color);
+            if (_trail == null) return;
+            _trail.Clear();
+            _trail.startColor = color;
+            _trail.endColor = new Color(color.r, color.g, color.b, 0f);
+        }
     }
 }

@@ -94,7 +94,13 @@ namespace DriftPaint.Match
         {
             _mediator = NetworkServices.Mediator;
             _online = _mediator != null && _mediator.State == ConnectionState.InRoom;
+            if (!_online) TeamPaletteSO.StartSoloMatch();
             _offlineStartTime = Time.timeAsDouble + _offlineCountdown;
+        }
+
+        void OnDestroy()
+        {
+            if (!_online) TeamPaletteSO.ClearSoloPair();
         }
 
         void Update()

@@ -31,7 +31,6 @@ namespace DriftPaint.UI.Menu
             {
                 _nameText.text = player.IsInactive ? $"{player.Nickname} (reconectando)" : player.Nickname;
                 _nameText.color = player.IsInactive ? _emptyColor : _nameColor;
-                _nameText.fontStyle = FontStyles.Bold | FontStyles.Italic;
             }
         }
 
@@ -46,7 +45,6 @@ namespace DriftPaint.UI.Menu
             {
                 _nameText.text = "Esperando jugador...";
                 _nameText.color = _emptyColor;
-                _nameText.fontStyle = FontStyles.Italic;
             }
         }
 

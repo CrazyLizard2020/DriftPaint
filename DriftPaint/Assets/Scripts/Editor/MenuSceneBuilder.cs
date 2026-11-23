@@ -81,6 +81,7 @@ namespace DriftPaint.EditorTools
             busy.SetActive(false);
             error.SetActive(false);
             OptionsMenuBuilder.Install(scene);
+            ArenaArtBuilder.Install(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -110,33 +111,6 @@ namespace DriftPaint.EditorTools
             _logo = AssetDatabase.LoadAssetAtPath<Texture2D>(LogoPath);
         }
 
-        static Texture2D CreateBackgroundTexture()
-        {
-            // Cielo violeta, franja cálida de atardecer y piso oscuro.
-            var stops = new (float t, Color color)[]
-            {
-                (0.00f, DriftPaintPalette.Hex(0x1B1A2E)),
-                (0.38f, DriftPaintPalette.Hex(0x2E2B45)),
-                (0.46f, DriftPaintPalette.Hex(0xD9875A)),
-                (0.55f, DriftPaintPalette.Hex(0x9A6FC6)),
-                (0.80f, DriftPaintPalette.Hex(0x5A4BA6)),
-                (1.00f, DriftPaintPalette.Hex(0x34327A))
-            };
-
-            const int height = 256;
-            var texture = new Texture2D(4, height, TextureFormat.RGBA32, false);
-            for (int y = 0; y < height; y++)
-            {
-                float t = y / (height - 1f);
-                int i = 0;
-                while (i < stops.Length - 2 && t > stops[i + 1].t) i++;
-                float local = Mathf.InverseLerp(stops[i].t, stops[i + 1].t, t);
-                Color color = Color.Lerp(stops[i].color, stops[i + 1].color, local);
-                for (int x = 0; x < 4; x++) texture.SetPixel(x, y, color);
-            }
-            texture.Apply();
-            return texture;
-        }
 
         #endregion
 
@@ -160,23 +134,10 @@ namespace DriftPaint.EditorTools
 
         static void BuildBackground(Transform root)
         {
-            Texture2D gradient = EditorAssetUtility.SaveTexture(CreateBackgroundTexture(), ArtFolder + "/T_MenuBackground.png",
-                false, TextureWrapMode.Clamp);
-
             var rect = UiFactory.CreateRect(root, "Background", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f), Vector2.zero, Vector2.zero);
             var image = rect.gameObject.AddComponent<RawImage>();
-            image.texture = gradient;
+            image.texture = AssetDatabase.LoadAssetAtPath<Texture2D>(ArtFolder + "/T_ArenaSunset.png");
             image.raycastTarget = false;
-
-            // Manchas de pintura de los dos equipos en las esquinas inferiores.
-            Image cyan = UiFactory.CreatePanel(root, "Paint Cyan", Vector2.zero, Vector2.zero, Vector2.zero,
-                new Vector2(-80f, -60f), new Vector2(520f, 150f), DriftPaintPalette.Cyan.WithAlpha(0.55f));
-            Skew(cyan, -20f);
-            cyan.transform.localEulerAngles = new Vector3(0f, 0f, 8f);
-            Image orange = UiFactory.CreatePanel(root, "Paint Orange", new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f),
-                new Vector2(80f, -60f), new Vector2(520f, 150f), DriftPaintPalette.Orange.WithAlpha(0.55f));
-            Skew(orange, 20f);
-            orange.transform.localEulerAngles = new Vector3(0f, 0f, -8f);
         }
 
         static RawImage CreateLogo(Transform parent, string name, Vector2 anchor, Vector2 pivot, Vector2 position, float width)

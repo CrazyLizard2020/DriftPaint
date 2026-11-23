@@ -307,6 +307,8 @@ namespace DriftPaint.Net
         int ScoreB { get; }
         /// <summary>Ronda actual: 1 la partida normal, 2 en adelante los desempates. 0 fuera de partida.</summary>
         int Round { get; }
+        /// <summary>Dupla cromática que publicó la autoridad al iniciar la partida.</summary>
+        int PaletteIndex { get; }
         /// <summary>Equipo ganador publicado al cerrar la partida, o ninguno.</summary>
         byte Winner { get; }
 

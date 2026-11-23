@@ -13,6 +13,10 @@ MonoBehaviour:
   m_Name: CarCatalog
   m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarCatalogSO
   _entries:
+  - _id: Car_AE86
+    _displayName: AE-86
+    _previewTeamA: {fileID: 21300000, guid: 8cff5268383b0874b887c67c32cf5c65, type: 3}
+    _previewTeamB: {fileID: 21300000, guid: 40089d2b8be736e4da3d4ac771e05654, type: 3}
   - _id: Car_A_R7
     _displayName: A-R7
     _previewTeamA: {fileID: 21300000, guid: 0c63bd254d49dec42b3ed8bc65b135b8, type: 3}
@@ -25,3 +29,7 @@ MonoBehaviour:
     _displayName: GC-14
     _previewTeamA: {fileID: 21300000, guid: 8ba1e5b1952e0cd4b96e7d1ca32d3b27, type: 3}
     _previewTeamB: {fileID: 21300000, guid: 2cdc51ef8ce48aa41860ca145d6c26aa, type: 3}
+  - _id: Car_RX7
+    _displayName: RX-7
+    _previewTeamA: {fileID: 21300000, guid: 1ce48d24071a1054e8e85b2959b5b3cc, type: 3}
+    _previewTeamB: {fileID: 21300000, guid: 7b6f0e870e217cd4dbf2ed6889362ba9, type: 3}

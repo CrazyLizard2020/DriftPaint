@@ -13,6 +13,7 @@ namespace DriftPaint.Paint
     {
         [SerializeField] PaintSystem _paint;
         [SerializeField] TeamPaletteSO _palette;
+        [SerializeField] MeshRenderer[] _ramps;
 
         static readonly int BaseMapId = Shader.PropertyToID("_BaseMap");
         static readonly int MainTexId = Shader.PropertyToID("_MainTex");
@@ -44,6 +45,9 @@ namespace DriftPaint.Paint
             block.SetTexture(BaseMapId, _texture);
             block.SetTexture(MainTexId, _texture);
             meshRenderer.SetPropertyBlock(block);
+            if (_ramps != null)
+                foreach (var ramp in _ramps)
+                    if (ramp != null) ramp.SetPropertyBlock(block);
         }
 
         void OnEnable()

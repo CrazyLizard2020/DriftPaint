@@ -56,6 +56,8 @@ namespace DriftPaint.Combat
         readonly Dictionary<int, double> _lastFireByActor = new Dictionary<int, double>();
         readonly List<MatchCar> _cars = new List<MatchCar>();
         readonly RaycastHit[] _hits = new RaycastHit[8];
+        readonly List<ProjectileView> _projectilePool = new List<ProjectileView>(24);
+        readonly List<ImpactBurst> _impactPool = new List<ImpactBurst>(16);
 
         INetworkMediator _mediator;
         double _localLastFire = double.NegativeInfinity;
@@ -156,11 +158,13 @@ namespace DriftPaint.Combat
 
             if (_projectileTemplate != null)
             {
-                shot.View = Instantiate(_projectileTemplate, _projectileTemplate.transform.parent);
-                shot.View.name = $"Projectile {info.ShooterActorId}-{info.ShotId}";
-                shot.View.SetColor(TeamColor(shot.Team));
-                shot.View.transform.position = info.Origin;
-                shot.View.gameObject.SetActive(true);
+                shot.View = Take(_projectilePool, _projectileTemplate);
+                if (shot.View != null)
+                {
+                    shot.View.transform.position = info.Origin;
+                    shot.View.gameObject.SetActive(true);
+                    shot.View.SetColor(TeamColor(shot.Team));
+                }
             }
 
             long key = KeyOf(info.ShooterActorId, info.ShotId);
@@ -298,7 +302,7 @@ namespace DriftPaint.Combat
 
         static void DestroyView(Shot shot)
         {
-            if (shot.View != null) Destroy(shot.View.gameObject);
+            if (shot.View != null) shot.View.gameObject.SetActive(false);
             shot.View = null;
         }
 
@@ -325,9 +329,8 @@ namespace DriftPaint.Combat
 
             if (_burstTemplate != null)
             {
-                ImpactBurst burst = Instantiate(_burstTemplate, _burstTemplate.transform.parent);
-                burst.name = "Impact";
-                burst.Play(impact.Position, size, TeamColor(team));
+                ImpactBurst burst = Take(_impactPool, _burstTemplate);
+                if (burst != null) burst.Play(impact.Position, size, TeamColor(team), impact.Kind == ImpactKind.Barrel);
             }
 
             // La zona recién pintada no la tapan los rastros, tampoco la predicción local.
@@ -361,6 +364,16 @@ namespace DriftPaint.Combat
             _hud.SetAbilities(remaining, _settings.Cooldown, barrels);
         }
 
-        Color TeamColor(byte team) => _palette != null ? _palette.Get(team).Main : Color.white;
+        static T Take<T>(List<T> pool, T template) where T : Component
+        {
+            foreach (T item in pool)
+                if (!item.gameObject.activeSelf) return item;
+            if (pool.Count >= pool.Capacity) return null;
+            T next = Instantiate(template, template.transform.parent);
+            pool.Add(next);
+            return next;
+        }
+
+        Color TeamColor(byte team) => _palette != null ? _palette.Get(team).Glow : Color.white;
     }
 }

@@ -12,12 +12,18 @@ namespace DriftPaint.UI.Menu
         [SerializeField] Button _rejoinButton;
         [SerializeField] GameObject[] _rejoinPrefabs;
         [SerializeField] Button _quitButton;
+        Vector2 _quitWithReservation;
+        bool? _shownReservation;
 
         void Awake()
         {
             if (_roomsButton != null) _roomsButton.onClick.AddListener(OpenRooms);
             if (_rejoinButton != null) _rejoinButton.onClick.AddListener(Rejoin);
-            if (_quitButton != null) _quitButton.onClick.AddListener(Quit);
+            if (_quitButton != null)
+            {
+                _quitButton.onClick.AddListener(Quit);
+                _quitWithReservation = ((RectTransform)_quitButton.transform).anchoredPosition;
+            }
         }
 
         void OnEnable() => RefreshReservation();
@@ -26,8 +32,12 @@ namespace DriftPaint.UI.Menu
         void RefreshReservation()
         {
             bool show = NetworkServices.Mediator?.CanRejoinLastMatch == true;
-            if (_rejoinButton != null && _rejoinButton.gameObject.activeSelf != show)
-                _rejoinButton.gameObject.SetActive(show);
+            if (_shownReservation == show || _rejoinButton == null) return;
+            _shownReservation = show;
+            _rejoinButton.gameObject.SetActive(show);
+            if (_quitButton != null)
+                ((RectTransform)_quitButton.transform).anchoredPosition = show ? _quitWithReservation :
+                    ((RectTransform)_rejoinButton.transform).anchoredPosition;
         }
 
         void Rejoin()

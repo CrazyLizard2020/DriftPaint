@@ -53,8 +53,52 @@ namespace DriftPaint.Teams
             Detail = new Color(0.325f, 0.314f, 0.392f)
         };
 
-        public TeamColors Get(byte team)
+        /// <summary>Incluye la dupla base y las cinco alternativas de la arena.</summary>
+        public const int PairCount = 6;
+
+        [System.Serializable]
+        struct Pair
         {
+            public TeamColors A;
+            public TeamColors B;
+            public Pair(TeamColors a, TeamColors b) { A = a; B = b; }
+        }
+
+        [SerializeField] Pair[] _alternatives =
+        {
+            new Pair(Ink("LIMA", 0xA8E72E), Ink("PÚRPURA", 0x7A2BE2)),
+            new Pair(Ink("AMARILLO", 0xF4D21F), Ink("VIOLETA", 0x8A1EF2)),
+            new Pair(Ink("TURQUESA", 0x1FD4C9), Ink("ROSA", 0xE73F8B)),
+            new Pair(Ink("VERDE", 0x57D93B), Ink("FUCSIA", 0xC33DD6)),
+            new Pair(Ink("AGUA", 0x20CFC3), Ink("ROJO", 0xE94A3A))
+        };
+
+        static TeamColors Ink(string name, int rgb)
+        {
+            Color main = UI.DriftPaintPalette.Hex(rgb);
+            return new TeamColors { DisplayName = name, Main = main, Glow = Color.Lerp(main, Color.white, .32f),
+                Detail = Color.Lerp(main, UI.DriftPaintPalette.HudNavy, .32f) };
+        }
+
+        /// <summary>Devuelve los colores de la partida actual o los del menú antes del sorteo.</summary>
+        public TeamColors Get(byte team) => Get(team, ActiveIndex);
+
+        static int? _soloPair;
+        internal static int ActiveIndex => _soloPair ?? Net.NetworkServices.Mediator?.PaletteIndex ?? 0;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        internal static void ClearSoloPair() => _soloPair = null;
+
+        internal static void StartSoloMatch() => _soloPair = Random.Range(0, PairCount);
+
+        /// <summary>Resuelve una dupla guardada, incluso para salas creadas con versiones anteriores.</summary>
+        public TeamColors Get(byte team, int index)
+        {
+            if (index > 0 && index <= _alternatives.Length)
+            {
+                Pair pair = _alternatives[index - 1];
+                return team == TeamId.A ? pair.A : team == TeamId.B ? pair.B : _neutral;
+            }
             switch (team)
             {
                 case TeamId.A: return _teamA;

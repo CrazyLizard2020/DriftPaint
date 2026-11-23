@@ -8,11 +8,16 @@ namespace DriftPaint.Combat
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
         static readonly int LegacyColor = Shader.PropertyToID("_Color");
 
+        static MaterialPropertyBlock _block;
+
+        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
+        static void ResetBlock() => _block = null;
+
         public static void Apply(Renderer[] renderers, Color color)
         {
             if (renderers == null) return;
 
-            var block = new MaterialPropertyBlock();
+            var block = _block ??= new MaterialPropertyBlock();
             foreach (Renderer renderer in renderers)
             {
                 if (renderer == null) continue;

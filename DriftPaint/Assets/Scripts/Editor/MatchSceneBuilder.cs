@@ -93,6 +93,7 @@ namespace DriftPaint.EditorTools
 
             nameplate.gameObject.SetActive(false);
             OptionsMenuBuilder.Install(scene);
+            ArenaArtBuilder.Install(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -107,7 +108,7 @@ namespace DriftPaint.EditorTools
                 .Select(AssetDatabase.GUIDToAssetPath)
                 .Select(AssetDatabase.LoadAssetAtPath<GameObject>)
                 .Where(p => p != null && p.GetComponent<CarController>() != null)
-                .OrderBy(p => p.name)
+                .OrderBy(p => p.name, System.StringComparer.Ordinal)
                 .ToList();
             if (prefabs.Count > 0) return prefabs;
 
