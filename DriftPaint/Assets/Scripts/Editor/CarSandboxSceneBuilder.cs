@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Level;
@@ -86,7 +86,7 @@ namespace DriftPaint.EditorTools
             AddSceneToBuildSettings(ScenePath);
         }
 
-        static void ConfigureLighting()
+        internal static void ConfigureLighting()
         {
             var lightGo = new GameObject("Directional Light");
             var light = lightGo.AddComponent<Light>();
@@ -156,7 +156,7 @@ namespace DriftPaint.EditorTools
             spawnPoint.rotation = Quaternion.identity;
         }
 
-        static GameObject CreateBlock(Transform parent, string name, Vector3 position, Vector3 scale, Vector3 euler, Material material)
+        internal static GameObject CreateBlock(Transform parent, string name, Vector3 position, Vector3 scale, Vector3 euler, Material material)
         {
             GameObject block = GameObject.CreatePrimitive(PrimitiveType.Cube);
             block.name = name;
@@ -172,7 +172,7 @@ namespace DriftPaint.EditorTools
         /// Rampa de un bloque inclinado. El extremo bajo queda a ras del piso y sube hacia
         /// la dirección indicada por yaw.
         /// </summary>
-        static void CreateRamp(Transform parent, string name, Vector3 lowEndPosition, float yaw, float angle, float width, float length, Material material)
+        internal static void CreateRamp(Transform parent, string name, Vector3 lowEndPosition, float yaw, float angle, float width, float length, Material material)
         {
             const float thickness = 0.6f;
             Quaternion rotation = Quaternion.Euler(0f, yaw, 0f) * Quaternion.Euler(-angle, 0f, 0f);
@@ -184,7 +184,7 @@ namespace DriftPaint.EditorTools
             ramp.transform.rotation = rotation;
         }
 
-        static Texture2D CreateGridTexture()
+        internal static Texture2D CreateGridTexture()
         {
             const int size = 128;
             const int line = 3;
@@ -209,7 +209,7 @@ namespace DriftPaint.EditorTools
             return texture;
         }
 
-        static CarCameraRig BuildCamera()
+        internal static CarCameraRig BuildCamera()
         {
             var cameraGo = new GameObject("Main Camera");
             cameraGo.tag = "MainCamera";

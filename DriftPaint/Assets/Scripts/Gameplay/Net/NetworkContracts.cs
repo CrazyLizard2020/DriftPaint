@@ -152,6 +152,24 @@ namespace DriftPaint.Net
         }
     }
 
+    /// <summary>Objeto creado en red por un jugador, por ejemplo su auto.</summary>
+    public readonly struct NetworkObjectInfo
+    {
+        public readonly GameObject Instance;
+        public readonly int OwnerActorId;
+        /// <summary>True si lo controla este cliente.</summary>
+        public readonly bool IsLocal;
+        public readonly string PrefabId;
+
+        public NetworkObjectInfo(GameObject instance, int ownerActorId, bool isLocal, string prefabId)
+        {
+            Instance = instance;
+            OwnerActorId = ownerActorId;
+            IsLocal = isLocal;
+            PrefabId = prefabId;
+        }
+    }
+
     /// <summary>
     /// Contrato de red en el lenguaje del juego. Lo define Gameplay y lo implementa la capa de Red,
     /// así ningún sistema de juego conoce Photon, códigos de evento ni serialización.
@@ -199,6 +217,29 @@ namespace DriftPaint.Net
         void SendChat(string text);
         /// <summary>Solo el Master: pasa la sala a la cuenta regresiva.</summary>
         bool RequestStartMatch();
+        /// <summary>Solo el Master: cambia el estado de la partida. Volver a Lobby limpia el reloj y la ronda.</summary>
+        bool SetMatchPhase(MatchPhase phase);
+        /// <summary>Celdas pintadas por cada equipo, publicadas por el Master.</summary>
+        int ScoreA { get; }
+        int ScoreB { get; }
+
+        /// <summary>
+        /// Frena la entrega de mensajes mientras se carga una escena, para que nada llegue
+        /// a una escena que está por destruirse. Los mensajes quedan en cola.
+        /// </summary>
+        void SetIncomingPaused(bool paused);
+
+        // Objetos de red
+        /// <summary>Registra un prefab que se puede crear en red con ese identificador.</summary>
+        void RegisterPrefab(string prefabId, GameObject prefab);
+        /// <summary>Crea un objeto del jugador local en todos los clientes. Sin sala, lo crea solo localmente.</summary>
+        GameObject SpawnOwned(string prefabId, Vector3 position, Quaternion rotation);
+        /// <summary>Destruye un objeto propio en todos los clientes.</summary>
+        void Despawn(GameObject instance);
+        /// <summary>Objetos de red que existen ahora, propios y ajenos.</summary>
+        IReadOnlyList<NetworkObjectInfo> Objects { get; }
+        event Action<NetworkObjectInfo> ObjectSpawned;
+        event Action<GameObject> ObjectDespawned;
 
         // Partida
         void RequestFire(Vector3 origin, Vector3 direction);

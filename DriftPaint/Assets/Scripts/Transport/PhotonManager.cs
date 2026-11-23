@@ -24,11 +24,18 @@ namespace DriftPaint.Transport
         readonly List<NetRoomInfo> _roomList = new List<NetRoomInfo>();
         readonly List<NetPlayerInfo> _players = new List<NetPlayerInfo>();
 
+        PhotonPrefabPool _pool;
+
         void Awake()
         {
             PhotonNetwork.AutomaticallySyncScene = false;
             PhotonNetwork.SendRate = 30;
             PhotonNetwork.SerializationRate = 20;
+
+            _pool = new PhotonPrefabPool(
+                (instance, owner, isMine, prefabId) => ObjectInstantiated?.Invoke(instance, owner, isMine, prefabId),
+                instance => ObjectDestroyed?.Invoke(instance));
+            PhotonNetwork.PrefabPool = _pool;
         }
 
         #region Estado
@@ -120,6 +127,31 @@ namespace DriftPaint.Transport
             return PhotonNetwork.RaiseEvent(code, payload, options, reliable ? SendOptions.SendReliable : SendOptions.SendUnreliable);
         }
 
+        public void SetMessageQueuePaused(bool paused) => PhotonNetwork.IsMessageQueueRunning = !paused;
+
+        public void RegisterPrefab(string prefabId, GameObject prefab) => _pool.Register(prefabId, prefab);
+
+        public GameObject Instantiate(string prefabId, Vector3 position, Quaternion rotation)
+        {
+            if (!PhotonNetwork.InRoom || !_pool.Contains(prefabId)) return null;
+            return PhotonNetwork.Instantiate(prefabId, position, rotation);
+        }
+
+        public void Destroy(GameObject instance)
+        {
+            if (instance == null) return;
+
+            if (PhotonNetwork.InRoom && instance.TryGetComponent(out PhotonView view) && (view.IsMine || PhotonNetwork.IsMasterClient))
+            {
+                // También lo borra del caché de la sala, así no reaparece para quien entra después.
+                PhotonNetwork.Destroy(instance);
+                return;
+            }
+
+            ObjectDestroyed?.Invoke(instance);
+            UnityEngine.Object.Destroy(instance);
+        }
+
         public bool SetRoomProperties(IDictionary<string, object> properties)
         {
             Room room = PhotonNetwork.CurrentRoom;
@@ -151,6 +183,8 @@ namespace DriftPaint.Transport
         public event Action<IReadOnlyDictionary<string, object>> RoomPropertiesChanged;
         public event Action<int, IReadOnlyDictionary<string, object>> PlayerPropertiesChanged;
         public event Action<byte, int, object> EventReceived;
+        public event Action<GameObject, int, bool, string> ObjectInstantiated;
+        public event Action<GameObject> ObjectDestroyed;
 
         #endregion
 
@@ -199,7 +233,15 @@ namespace DriftPaint.Transport
 
         public override void OnPlayerEnteredRoom(Player newPlayer) => PlayerEntered?.Invoke(newPlayer.ActorNumber);
 
-        public override void OnPlayerLeftRoom(Player otherPlayer) => PlayerLeft?.Invoke(otherPlayer.ActorNumber);
+        public override void OnPlayerLeftRoom(Player otherPlayer)
+        {
+            // Con CleanupCacheOnLeave en false los objetos de quien se va quedan en la sala. Si se fue
+            // del todo (no está esperando reconectarse), el Master los borra para que no queden autos fantasma.
+            if (PhotonNetwork.IsMasterClient && !otherPlayer.IsInactive)
+                PhotonNetwork.DestroyPlayerObjects(otherPlayer);
+
+            PlayerLeft?.Invoke(otherPlayer.ActorNumber);
+        }
 
         public override void OnMasterClientSwitched(Player newMasterClient) => MasterSwitched?.Invoke(newMasterClient.ActorNumber);
 

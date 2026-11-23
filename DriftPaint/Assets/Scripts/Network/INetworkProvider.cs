@@ -95,6 +95,16 @@ namespace DriftPaint.Networking
         bool LeaveRoom();
 
         bool SendEvent(byte code, object payload, NetTarget target, bool reliable);
+        void SetMessageQueuePaused(bool paused);
+
+        void RegisterPrefab(string prefabId, UnityEngine.GameObject prefab);
+        /// <summary>Crea en red un objeto del jugador local. Devuelve null si no se pudo.</summary>
+        UnityEngine.GameObject Instantiate(string prefabId, UnityEngine.Vector3 position, UnityEngine.Quaternion rotation);
+        void Destroy(UnityEngine.GameObject instance);
+
+        /// <summary>Objeto de red creado en este cliente: instancia, dueño, si es propio y prefab.</summary>
+        event Action<UnityEngine.GameObject, int, bool, string> ObjectInstantiated;
+        event Action<UnityEngine.GameObject> ObjectDestroyed;
         bool SetRoomProperties(IDictionary<string, object> properties);
         bool SetPlayerProperties(int actorNumber, IDictionary<string, object> properties);
 

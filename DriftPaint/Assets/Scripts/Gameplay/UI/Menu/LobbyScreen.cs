@@ -205,14 +205,7 @@ namespace DriftPaint.UI.Menu
             _chatLog.text = _chatBuilder.ToString();
         }
 
-        static string MapDisplayName(string mapId)
-        {
-            switch (mapId)
-            {
-                case "drift_arena": return "Drift Arena";
-                default: return mapId;
-            }
-        }
+        static string MapDisplayName(string mapId) => DriftPaint.Match.MapCatalog.DisplayName(mapId);
 
         static void SetVisible(Component component, bool visible)
         {

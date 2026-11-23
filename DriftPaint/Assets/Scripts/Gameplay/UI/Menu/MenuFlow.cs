@@ -1,7 +1,7 @@
+using DriftPaint.Match;
 using DriftPaint.Net;
 using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace DriftPaint.UI.Menu
@@ -25,10 +25,6 @@ namespace DriftPaint.UI.Menu
         [SerializeField] GameObject _errorRoot;
         [SerializeField] TMP_Text _errorText;
         [SerializeField] Button _errorCloseButton;
-
-        [Header("Partida")]
-        [Tooltip("Escena que se carga cuando el host inicia la partida.")]
-        [SerializeField] string _matchScene = "Sandbox_Car";
 
         INetworkMediator _mediator;
         bool _loadingMatch;
@@ -102,15 +98,16 @@ namespace DriftPaint.UI.Menu
         {
             if (_loadingMatch || phase == MatchPhase.Lobby || phase == MatchPhase.Results) return;
 
-            if (!Application.CanStreamedLevelBeLoaded(_matchScene))
+            string scene = MapCatalog.SceneFor(_mediator.CurrentRoom.MapId);
+            if (!SceneLoader.CanLoad(scene))
             {
-                ShowError($"La escena \"{_matchScene}\" no está en la lista de escenas del build.");
+                ShowError($"La escena \"{scene}\" no está en la lista de escenas del build. Generala con DriftPaint > Generar escena de partida.");
                 return;
             }
 
             _loadingMatch = true;
             SetBusy("CARGANDO PARTIDA...");
-            SceneManager.LoadScene(_matchScene);
+            SceneLoader.Load(scene);
         }
 
         void ShowOnly(GameObject screen)

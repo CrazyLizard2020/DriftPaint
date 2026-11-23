@@ -626,7 +626,7 @@ namespace DriftPaint.EditorTools
             return screen;
         }
 
-        static TextMeshProUGUI CreateLabel(Transform parent, string name, TMP_FontAsset font, float size, TextAlignmentOptions alignment,
+        internal static TextMeshProUGUI CreateLabel(Transform parent, string name, TMP_FontAsset font, float size, TextAlignmentOptions alignment,
             Color color, FontStyles style, Vector2 anchor, Vector2 pivot, Vector2 position, Vector2 rectSize)
         {
             TextMeshProUGUI text = UiFactory.CreateText(parent, name, font, size, alignment, color, style);
@@ -741,7 +741,7 @@ namespace DriftPaint.EditorTools
             return view;
         }
 
-        static void Skew(Graphic graphic, float angle)
+        internal static void Skew(Graphic graphic, float angle)
         {
             var skew = graphic.gameObject.AddComponent<UISkew>();
             var so = new SerializedObject(skew);
@@ -749,7 +749,7 @@ namespace DriftPaint.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        static void Bind(Object target, params (string field, Object value)[] references)
+        internal static void Bind(Object target, params (string field, Object value)[] references)
         {
             var so = new SerializedObject(target);
             foreach ((string field, Object value) in references)
@@ -757,7 +757,7 @@ namespace DriftPaint.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        static void SetRef(SerializedObject so, string field, Object value)
+        internal static void SetRef(SerializedObject so, string field, Object value)
         {
             SerializedProperty property = so.FindProperty(field);
             if (property == null)

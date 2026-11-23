@@ -23,6 +23,10 @@ namespace DriftPaint.Networking
         readonly List<RoomSummary> _rooms = new List<RoomSummary>();
         readonly List<PlayerSummary> _players = new List<PlayerSummary>();
         readonly System.Random _random = new System.Random();
+        readonly Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
+        readonly List<NetworkObjectInfo> _objects = new List<NetworkObjectInfo>();
+        int _scoreA;
+        int _scoreB;
 
         ConnectionState _state = ConnectionState.Disconnected;
         string _nickname = "";
@@ -50,6 +54,8 @@ namespace DriftPaint.Networking
             _provider.RoomPropertiesChanged += OnRoomPropertiesChanged;
             _provider.PlayerPropertiesChanged += OnPlayerPropertiesChanged;
             _provider.EventReceived += OnEventReceived;
+            _provider.ObjectInstantiated += OnObjectInstantiated;
+            _provider.ObjectDestroyed += OnObjectDestroyed;
         }
 
         #region INetworkMediator: estado
@@ -65,6 +71,16 @@ namespace DriftPaint.Networking
         public IReadOnlyList<PlayerSummary> Players => _players;
         public MatchPhase Phase => _phase;
         public double MatchStartTime => _matchStartTime;
+        public int ScoreA => _scoreA;
+        public int ScoreB => _scoreB;
+        public IReadOnlyList<NetworkObjectInfo> Objects
+        {
+            get
+            {
+                _objects.RemoveAll(o => o.Instance == null);
+                return _objects;
+            }
+        }
 
         public event Action StateChanged;
         public event Action<string> ErrorRaised;
@@ -75,6 +91,8 @@ namespace DriftPaint.Networking
         public event Action<ChatMessage> ChatReceived;
         public event Action<FireInfo> FireReceived;
         public event Action<ImpactInfo> ImpactReceived;
+        public event Action<NetworkObjectInfo> ObjectSpawned;
+        public event Action<GameObject> ObjectDespawned;
 
         #endregion
 
@@ -190,6 +208,63 @@ namespace DriftPaint.Networking
                 { RoomKeys.StartTime, ServerTime + RoomRules.CountdownSeconds },
                 { RoomKeys.Round, 1 }
             });
+        }
+
+        public bool SetMatchPhase(MatchPhase phase)
+        {
+            if (!IsMaster || phase == _phase) return false;
+
+            var properties = new Dictionary<string, object> { { RoomKeys.State, (byte)phase } };
+            if (phase == MatchPhase.Lobby)
+            {
+                properties[RoomKeys.StartTime] = 0d;
+                properties[RoomKeys.Round] = 0;
+            }
+            return _provider.SetRoomProperties(properties);
+        }
+
+        public void SetIncomingPaused(bool paused) => _provider.SetMessageQueuePaused(paused);
+
+        #endregion
+
+        #region INetworkMediator: objetos de red
+
+        public void RegisterPrefab(string prefabId, GameObject prefab)
+        {
+            if (string.IsNullOrEmpty(prefabId) || prefab == null) return;
+            _prefabs[prefabId] = prefab;
+            _provider.RegisterPrefab(prefabId, prefab);
+        }
+
+        public GameObject SpawnOwned(string prefabId, Vector3 position, Quaternion rotation)
+        {
+            if (_provider.InRoom) return _provider.Instantiate(prefabId, position, rotation);
+
+            // Sin sala se juega solo: el objeto se crea localmente y se anuncia igual.
+            if (!_prefabs.TryGetValue(prefabId, out GameObject prefab))
+            {
+                RaiseError($"No hay un prefab registrado como \"{prefabId}\".");
+                return null;
+            }
+
+            GameObject instance = UnityEngine.Object.Instantiate(prefab, position, rotation);
+            instance.name = prefabId;
+            OnObjectInstantiated(instance, LocalActorId, true, prefabId);
+            return instance;
+        }
+
+        public void Despawn(GameObject instance)
+        {
+            if (instance == null) return;
+
+            if (_provider.InRoom)
+            {
+                _provider.Destroy(instance);
+                return;
+            }
+
+            OnObjectDestroyed(instance);
+            UnityEngine.Object.Destroy(instance);
         }
 
         #endregion
@@ -370,6 +445,20 @@ namespace DriftPaint.Networking
             }
         }
 
+        void OnObjectInstantiated(GameObject instance, int ownerActorId, bool isLocal, string prefabId)
+        {
+            var info = new NetworkObjectInfo(instance, ownerActorId, isLocal, prefabId);
+            _objects.RemoveAll(o => o.Instance == null || o.Instance == instance);
+            _objects.Add(info);
+            ObjectSpawned?.Invoke(info);
+        }
+
+        void OnObjectDestroyed(GameObject instance)
+        {
+            _objects.RemoveAll(o => o.Instance == null || o.Instance == instance);
+            ObjectDespawned?.Invoke(instance);
+        }
+
         #endregion
 
         #region Estado interno
@@ -393,6 +482,9 @@ namespace DriftPaint.Networking
             _players.Clear();
             _phase = MatchPhase.Lobby;
             _matchStartTime = 0;
+            _scoreA = 0;
+            _scoreB = 0;
+            _objects.Clear();
         }
 
         void RefreshRoom(bool notifyPhase)
@@ -402,6 +494,8 @@ namespace DriftPaint.Networking
             NetRoomInfo room = _provider.CurrentRoom;
             _currentRoom = ToRoomSummary(room);
             _matchStartTime = ToDouble(Get(room.Properties, RoomKeys.StartTime), 0);
+            _scoreA = ToInt(Get(room.Properties, RoomKeys.ScoreA), 0);
+            _scoreB = ToInt(Get(room.Properties, RoomKeys.ScoreB), 0);
 
             MatchPhase previous = _phase;
             _phase = _currentRoom.Phase;
