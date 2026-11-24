@@ -5,7 +5,8 @@
         "DriftPaint.Gameplay",
         "Unity.TextMeshPro",
         "Unity.InputSystem",
-        "UnityEngine.UI"
+        "UnityEngine.UI",
+        "ATG.VehicleNoiseSynthesizer"
     ],
     "includePlatforms": [
         "Editor"

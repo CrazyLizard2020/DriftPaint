@@ -4922,6 +4922,8 @@ GameObject:
   - component: {fileID: 2157155825309887869}
   - component: {fileID: 4205843170029042993}
   - component: {fileID: 8885009043976705264}
+  - component: {fileID: 1244754270351578357}
+  - component: {fileID: 8444904057836089714}
   m_Layer: 0
   m_Name: Car_A_R7
   m_TagString: Untagged
@@ -5088,7 +5090,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d00fd1dd3193be49ac801f79bac3fd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarController
-  _carData: {fileID: 11400000, guid: f1ac45cd2f996e9478d2dadeba913476, type: 2}
+  _carData: {fileID: 11400000, guid: 5e289fde2cc81484590e960a98ae0421, type: 2}
   _centerOfMassHeight: 0.25
   _respawnLift: 0.6
   _safePoseInterval: 0.5
@@ -5182,6 +5184,37 @@ MonoBehaviour:
   _fullFlowSpeed: 19
   _riseSeconds: 0.32
   _fallSeconds: 0.48
+--- !u!114 &1244754270351578357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2607641468622744200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47171a5c418e5844a9289a0b36cb741d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarEngineAudio
+  _volume: 1
+--- !u!114 &8444904057836089714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2607641468622744200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f368509b9e5d23c479a3e97cef3ead19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarTireAudio
+  _squeal: {fileID: 8300000, guid: de0c780f83c389344b4b8a47c9a68c31, type: 3}
+  _squealVolume: 0.55
+  _fullSlipAngle: 30
+  _fullSpeed: 14
+  _driftBoost: {fileID: 8300000, guid: c7a67731b7930804d988e39785d9384e, type: 3}
+  _driftBoostVolume: 0.6
 --- !u!1 &2723986022242442012
 GameObject:
   m_ObjectHideFlags: 0

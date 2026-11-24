@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f63ca316b3d52a43b7626457dfd2ef2, type: 3}
+  m_Name: EngineBank_V10_Mechanical
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.EngineSoundBankSO
+  _accelerating:
+  - _clip: {fileID: 8300000, guid: 5da8be7ebe22f8d4babd7b152607c641, type: 3}
+    _rpm: 900
+  - _clip: {fileID: 8300000, guid: 49a43a988a4e855478e145237466e476, type: 3}
+    _rpm: 1433
+  - _clip: {fileID: 8300000, guid: 8cdea70d49007d945b8509119372ee0f, type: 3}
+    _rpm: 2281
+  - _clip: {fileID: 8300000, guid: 8ba3b5e26a569444eae8f8c0f1f5475a, type: 3}
+    _rpm: 3630
+  - _clip: {fileID: 8300000, guid: 62480eb505e589c46ab73434e819cdc5, type: 3}
+    _rpm: 5779
+  - _clip: {fileID: 8300000, guid: 3b36380bc57f83c46a8550872b70f121, type: 3}
+    _rpm: 9200
+  _decelerating: []
+  _generatorVersion: 1

@@ -1,0 +1,147 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 960d286ed70572945915e3916ddb51ff, type: 3}
+  m_Name: EngineSound_CC96
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.EngineSoundProfileSO
+  _exhaust:
+    _bank: {fileID: 11400000, guid: eb0847cc9d87d3d4195cbc06455984c9, type: 2}
+    _volume: 1
+    _pitch: 1
+    _volumeByRpm:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.6
+        inSlope: 0
+        outSlope: 0.39999998
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.39999998
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _idleVolume: 0.55
+    _decelerationVolume: 0.65
+    _lowPass: 0.4
+    _highPass: 0
+    _resonance: 0.5
+    _distortion: 0.45
+    _chorus: 0.1
+  _intake:
+    _bank: {fileID: 11400000, guid: 2ae75d5243fb3934f8df102b9893c3ed, type: 2}
+    _volume: 0.35
+    _pitch: 1
+    _volumeByRpm:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.2
+        inSlope: 0
+        outSlope: 0.7
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 0.9
+        inSlope: 0.7
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _idleVolume: 0.3
+    _decelerationVolume: 0.5
+    _lowPass: 0.3
+    _highPass: 0
+    _resonance: 0
+    _distortion: 0
+    _chorus: 0
+  _mechanical:
+    _bank: {fileID: 11400000, guid: c796cd4c3b23c084cad18b10cf9c9c54, type: 2}
+    _volume: 0.3
+    _pitch: 1
+    _volumeByRpm:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.6
+        inSlope: 0
+        outSlope: 0.39999998
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.39999998
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _idleVolume: 0.5
+    _decelerationVolume: 0.8
+    _lowPass: 0
+    _highPass: 0
+    _resonance: 0
+    _distortion: 0
+    _chorus: 0
+  _cylinders: 8
+  _cycle: 0
+  _popClips:
+  - {fileID: 8300000, guid: 923303c70e18244489a793bddd026754, type: 3}
+  - {fileID: 8300000, guid: f74eb23b904249549afbe6a94b9d57e0, type: 3}
+  - {fileID: 8300000, guid: b3b8423ff4bc27a49a898d94d8d3a040, type: 3}
+  _popVolume: 0.6
+  _popProbability: 0.6
+  _popMinRpm: 2800
+  _tipInClips:
+  - {fileID: 8300000, guid: e5fe5e80f2c735147b7a7508dfe44f59, type: 3}
+  _tipOutClips:
+  - {fileID: 8300000, guid: 66be4a912b1de23498acd0eec22708e3, type: 3}
+  _tipInVolume: 0.35
+  _tipOutVolume: 0.25
+  _limiterClips:
+  - {fileID: 8300000, guid: 73d29633c97a71a48a7203bd136d9c17, type: 3}
+  - {fileID: 8300000, guid: b4ae8aa6a51c7ea4c8b7ab9d331448b5, type: 3}
+  _limiterVolume: 0.5
+  _shiftClip: {fileID: 0}
+  _shiftVolume: 0.65
+  _shiftWobble: 0.1
+  _autoBlip: 0
+  _launchControl: 0
+  _remoteVolume: 0.9
+  _remoteMinDistance: 8
+  _remoteMaxDistance: 120
+  _remoteDoppler: 0.4

@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Combat;
@@ -20,7 +20,7 @@ namespace DriftPaint.EditorTools
 {
     /// <summary>
     /// Genera la escena de partida de Drift Arena: arena de 128 x 128 m, spawns por equipo,
-    /// volumen de caída, cámara, HUD de partida, plantilla de nombres flotantes y el controlador de partida.
+    /// volumen de caÃ­da, cÃ¡mara, HUD de partida, plantilla de nombres flotantes y el controlador de partida.
     /// Todo queda como objetos de la escena para ajustarlo a mano.
     /// </summary>
     public static class MatchSceneBuilder
@@ -38,25 +38,85 @@ namespace DriftPaint.EditorTools
         static TMP_FontAsset _labelFont;
         static TMP_FontAsset _bodyFont;
 
+        /// <summary>Trazado de un mapa: lo que cambia entre escenas de partida. Todo lo demÃ¡s (HUD, sistemas, cÃ¡mara) es comÃºn.</summary>
+        public class MapLayout
+        {
+            public string ScenePath;
+            /// <summary>Arma piso, paredes, rampas y obstÃ¡culos bajo "Arena" y devuelve los spawns por equipo.</summary>
+            public System.Func<List<TeamSpawnPoint>> BuildArena;
+            /// <summary>Pickups de un lado del mapa; el otro lado se arma con su espejo (-x, -z).</summary>
+            public Vector2[] PickupHalf;
+        }
+
+        static readonly MapLayout DriftArena = new MapLayout
+        {
+            ScenePath = ScenePath,
+            BuildArena = BuildArena,
+            PickupHalf = new[] { new Vector2(-24f, -40f), new Vector2(-48f, 20f), new Vector2(-20f, -12f) }
+        };
+
         [MenuItem("DriftPaint/Generar escena de partida")]
         public static void BuildFromMenu()
         {
             if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            Build(DriftArena, NewSceneMode.Single);
+        }
 
+        [MenuItem("DriftPaint/Generar escena Royal Drift Road")]
+        public static void BuildRoyalDriftRoadFromMenu()
+        {
+            if (!EditorSceneManager.SaveCurrentModifiedScenesIfUserWantsTo()) return;
+            Build(RoyalDriftRoadMap.Layout, NewSceneMode.Single);
+        }
+
+        /// <summary>Falta la escena de Royal Drift Road.</summary>
+        public static bool RoyalDriftRoadMissing() => !System.IO.File.Exists(RoyalDriftRoadMap.Layout.ScenePath);
+
+        /// <summary>
+        /// Crea la escena de Royal Drift Road al lado de las abiertas, sin cerrarlas ni tocarlas, y la guarda.
+        /// Es la versiÃ³n que usa la puesta al dÃ­a automÃ¡tica.
+        /// </summary>
+        public static void BuildRoyalDriftRoad()
+        {
+            // Unity no deja crear una escena nueva al lado de otra sin título: en ese caso se reemplaza,
+            // salvo que tenga cambios sin guardar, que no se tiran.
+            Scene[] open = Enumerable.Range(0, SceneManager.sceneCount).Select(SceneManager.GetSceneAt).ToArray();
+            if (open.Any(s => string.IsNullOrEmpty(s.path)))
+            {
+                if (!Application.isBatchMode && open.Any(s => string.IsNullOrEmpty(s.path) && s.isDirty))
+                {
+                    Debug.LogWarning("Royal Drift Road se genera cuando no haya una escena sin título con cambios abierta.");
+                    return;
+                }
+                Build(RoyalDriftRoadMap.Layout, NewSceneMode.Single);
+                return;
+            }
+
+            Scene previous = SceneManager.GetActiveScene();
+            Scene scene = Build(RoyalDriftRoadMap.Layout, NewSceneMode.Additive);
+            if (!scene.IsValid()) return;
+            if (previous.IsValid() && previous.isLoaded) SceneManager.SetActiveScene(previous);
+            if (SceneManager.sceneCount > 1) EditorSceneManager.CloseScene(scene, true);
+        }
+
+        static Scene Build(MapLayout layout, NewSceneMode mode)
+        {
             TeamPaletteSO palette = EditorAssetUtility.LoadOrCreate(PalettePath, ScriptableObject.CreateInstance<TeamPaletteSO>);
             List<GameObject> prefabs = LoadCarPrefabs(palette);
             if (prefabs.Count == 0)
             {
-                EditorUtility.DisplayDialog("DriftPaint", "No se pudo armar ningún prefab de auto. Revisá la consola.", "OK");
-                return;
+                Debug.LogError("MatchSceneBuilder: no se pudo armar ningÃºn prefab de auto. RevisÃ¡ la consola.");
+                return default;
             }
 
             LoadUiAssets();
             MenuSceneBuilder.LoadAssets();
-            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+            Scene scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, mode);
+            // Los generadores crean los objetos en la escena activa.
+            SceneManager.SetActiveScene(scene);
 
             CarSandboxSceneBuilder.ConfigureLighting();
-            List<TeamSpawnPoint> spawns = BuildArena();
+            List<TeamSpawnPoint> spawns = layout.BuildArena();
             CarCameraRig cameraRig = CarSandboxSceneBuilder.BuildCamera();
 
             var matchGo = new GameObject("Match");
@@ -70,7 +130,7 @@ namespace DriftPaint.EditorTools
             MatchHUD hud = BuildHud(match, score, palette);
             BuildResults(match, score, palette);
             CarNameplate nameplate = BuildNameplateTemplate();
-            BuildCombat(matchGo, match, paint, hud, palette);
+            BuildCombat(matchGo, match, paint, hud, palette, layout.PickupHalf);
             MenuSceneBuilder.BuildEventSystem();
 
             var spawner = matchGo.AddComponent<MatchSpawner>();
@@ -95,12 +155,14 @@ namespace DriftPaint.EditorTools
             OptionsMenuBuilder.Install(scene);
             ArenaArtBuilder.Install(scene);
             PaintRingBuilder.Install(scene);
+            SfxBuilder.InstallMatch(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
-            EditorSceneManager.SaveScene(scene, ScenePath);
-            AddSceneToBuild(ScenePath);
+            EditorSceneManager.SaveScene(scene, layout.ScenePath);
+            AddSceneToBuild(layout.ScenePath);
             AssetDatabase.SaveAssets();
-            Debug.Log($"Escena de partida generada en {ScenePath}.");
+            Debug.Log($"Escena de partida generada en {layout.ScenePath}.");
+            return scene;
         }
 
         static List<GameObject> LoadCarPrefabs(TeamPaletteSO palette)
@@ -164,7 +226,7 @@ namespace DriftPaint.EditorTools
             CarSandboxSceneBuilder.CreateBlock(walls, "Wall_E", new Vector3(half + 0.5f, 1f, 0f), new Vector3(1f, 2f, ArenaSize + 2f), Vector3.zero, wallMat);
             CarSandboxSceneBuilder.CreateBlock(walls, "Wall_W", new Vector3(-half - 0.5f, 1f, 0f), new Vector3(1f, 2f, ArenaSize + 2f), Vector3.zero, wallMat);
 
-            // El mapa es simétrico respecto del centro: cada pieza de un lado tiene su espejo del otro.
+            // El mapa es simÃ©trico respecto del centro: cada pieza de un lado tiene su espejo del otro.
             var ramps = new GameObject("Ramps").transform;
             ramps.SetParent(arena);
             CarSandboxSceneBuilder.CreateRamp(ramps, "Ramp_Cyan", new Vector3(-36f, 0f, -12f), 0f, 14f, 8f, 13f, cyanMat);
@@ -190,7 +252,7 @@ namespace DriftPaint.EditorTools
 
             var spawnRoot = new GameObject("Spawns").transform;
             var spawns = new List<TeamSpawnPoint>();
-            // Primero los del medio, así con pocos jugadores arrancan centrados.
+            // Primero los del medio, asÃ­ con pocos jugadores arrancan centrados.
             float[] offsets = { -3f, 3f, -9f, 9f };
             for (int i = 0; i < offsets.Length; i++)
             {
@@ -202,7 +264,7 @@ namespace DriftPaint.EditorTools
 
         /// <summary>
         /// Plano apenas arriba del piso que muestra la textura de pintura. Usa recorte por alfa: las celdas
-        /// vacías son transparentes y las pintadas opacas, sin costo de transparencia.
+        /// vacÃ­as son transparentes y las pintadas opacas, sin costo de transparencia.
         /// </summary>
         static void BuildPaintSurface(PaintSystem paint, TeamPaletteSO palette)
         {
@@ -242,9 +304,10 @@ namespace DriftPaint.EditorTools
 
         /// <summary>
         /// Disparos y barriles: los sistemas en el objeto Match, el prefab del barril, las plantillas
-        /// inactivas de proyectil y explosión, y los pickups del mapa (simétricos respecto del centro).
+        /// inactivas de proyectil y explosiÃ³n, y los pickups del mapa (simÃ©tricos respecto del centro).
         /// </summary>
-        static void BuildCombat(GameObject matchGo, MatchController match, PaintSystem paint, MatchHUD hud, TeamPaletteSO palette)
+        static void BuildCombat(GameObject matchGo, MatchController match, PaintSystem paint, MatchHUD hud, TeamPaletteSO palette,
+            Vector2[] pickupHalf)
         {
             Material barrelMat = EditorAssetUtility.LoadOrCreateLitMaterial(MaterialFolder + "/M_Barrel.mat",
                 DriftPaintPalette.SunsetGold, smoothness: 0.5f);
@@ -271,7 +334,7 @@ namespace DriftPaint.EditorTools
             BindRenderers(burstView, "_tinted", burst.GetComponent<Renderer>());
             burst.SetActive(false);
 
-            List<BarrelPickup> pickups = BuildPickups(barrelMat, bandMat);
+            List<BarrelPickup> pickups = BuildPickups(barrelMat, bandMat, pickupHalf);
 
             BarrelSystem barrels = matchGo.AddComponent<BarrelSystem>();
             WeaponSystem weapons = matchGo.AddComponent<WeaponSystem>();
@@ -312,10 +375,9 @@ namespace DriftPaint.EditorTools
             return prefab;
         }
 
-        static List<BarrelPickup> BuildPickups(Material barrelMat, Material bandMat)
+        static List<BarrelPickup> BuildPickups(Material barrelMat, Material bandMat, Vector2[] half)
         {
             // Cada pickup tiene su espejo (-x, -z), igual que el resto del mapa.
-            Vector2[] half = { new Vector2(-24f, -40f), new Vector2(-48f, 20f), new Vector2(-20f, -12f) };
             var root = new GameObject("Barrel Pickups").transform;
             var pickups = new List<BarrelPickup>();
             int id = 1;
@@ -348,7 +410,7 @@ namespace DriftPaint.EditorTools
             return pickup;
         }
 
-        /// <summary>Primitiva solo visual: sin colisionador ni sombras, para que no afecte la física.</summary>
+        /// <summary>Primitiva solo visual: sin colisionador ni sombras, para que no afecte la fÃ­sica.</summary>
         static GameObject CreateVisual(Transform parent, string name, PrimitiveType type, Vector3 localPosition, Vector3 scale, Material material)
         {
             GameObject go = GameObject.CreatePrimitive(type);
@@ -373,7 +435,7 @@ namespace DriftPaint.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
         }
 
-        /// <summary>Material sin iluminación para efectos: blanco, el color lo pone cada objeto.</summary>
+        /// <summary>Material sin iluminaciÃ³n para efectos: blanco, el color lo pone cada objeto.</summary>
         static Material LoadOrCreateUnlitMaterial(string path)
         {
             Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
@@ -393,7 +455,7 @@ namespace DriftPaint.EditorTools
 
         #region Spawns
 
-        static TeamSpawnPoint CreateSpawn(Transform parent, byte team, int order, Vector3 position, float yaw)
+        internal static TeamSpawnPoint CreateSpawn(Transform parent, byte team, int order, Vector3 position, float yaw)
         {
             var go = new GameObject($"Spawn_{(team == TeamId.A ? "A" : "B")}{order + 1}");
             go.transform.SetParent(parent);
@@ -415,7 +477,7 @@ namespace DriftPaint.EditorTools
         {
             Button button = hud.transform.Find("Leave Match Button")?.GetComponent<Button>();
             if (button == null)
-                button = MenuSceneBuilder.CreateButton(hud.transform, "Leave Match Button", "SALIR AL MENÚ",
+                button = MenuSceneBuilder.CreateButton(hud.transform, "Leave Match Button", "SALIR AL MENÃš",
                     MenuSceneBuilder.ButtonStyle.Outline, 32f, new Vector2(1f, 1f), new Vector2(-154f, -54f),
                     new Vector2(244f, 60f));
             MenuSceneBuilder.Bind(hud, ("_leaveMatchButton", button));
@@ -472,13 +534,13 @@ namespace DriftPaint.EditorTools
             TextMeshProUGUI bannerTitle = MenuSceneBuilder.CreateLabel(banner.transform, "Title", _titleFont, 120f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -16f), new Vector2(900f, 130f));
-            bannerTitle.text = "¡TIEMPO!";
+            bannerTitle.text = "Â¡TIEMPO!";
             TextMeshProUGUI bannerSubtitle = MenuSceneBuilder.CreateLabel(banner.transform, "Subtitle", _labelFont, 36f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite.WithAlpha(0.75f), FontStyles.Italic, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 20f), new Vector2(900f, 50f));
             bannerSubtitle.text = "Contando celdas...";
 
-            // Velocímetro
+            // VelocÃ­metro
             Image speedPanel = UiFactory.CreatePanel(root, "Speedometer", new Vector2(1f, 0f), new Vector2(1f, 0f), new Vector2(1f, 0f),
                 new Vector2(-40f, 40f), new Vector2(300f, 180f), panel);
             MenuSceneBuilder.Skew(speedPanel, 8f);
@@ -574,7 +636,7 @@ namespace DriftPaint.EditorTools
             Image overlay = UiFactory.CreatePanel(canvas.transform, "Screen", Vector2.zero, Vector2.one, new Vector2(0.5f, 0.5f),
                 Vector2.zero, Vector2.zero, DriftPaintPalette.HudNavy.WithAlpha(0.93f));
             overlay.raycastTarget = true;
-            // El fondo cubre toda la pantalla; el contenido va en un área fija de 16:9 para que no se separe.
+            // El fondo cubre toda la pantalla; el contenido va en un Ã¡rea fija de 16:9 para que no se separe.
             Transform root = UiFactory.CreateContentRoot(overlay.transform);
             Vector2 top = new Vector2(0.5f, 1f);
             Vector2 bottom = new Vector2(0.5f, 0f);
@@ -584,7 +646,7 @@ namespace DriftPaint.EditorTools
 
             TextMeshProUGUI title = MenuSceneBuilder.CreateLabel(root, "Title", _titleFont, 150f, TextAlignmentOptions.Center,
                 DriftPaintPalette.SunsetGold, FontStyles.Bold | FontStyles.Italic, top, top, new Vector2(0f, -36f), new Vector2(1400f, 170f));
-            title.text = "¡VICTORIA!";
+            title.text = "Â¡VICTORIA!";
             TextMeshProUGUI winner = MenuSceneBuilder.CreateLabel(root, "Winner", _labelFont, 44f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, top, top, new Vector2(0f, -200f), new Vector2(1200f, 60f));
             winner.text = "GANA EL EQUIPO NARANJA";

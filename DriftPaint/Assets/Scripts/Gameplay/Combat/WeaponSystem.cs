@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DriftPaint.Match;
 using DriftPaint.Net;
@@ -68,6 +69,12 @@ namespace DriftPaint.Combat
         double Clock => _mediator.ServerTime;
 
         public ProjectileSettingsSO Settings => _settings;
+
+        /// <summary>Sale un proyectil (de cualquier auto) desde esta posición. Lo usan el sonido y otros efectos locales.</summary>
+        public event Action<Vector3> ShotFired;
+
+        /// <summary>Se mostró la explosión de un impacto en esta posición.</summary>
+        public event Action<Vector3, ImpactKind> ImpactShown;
 
         /// <summary>Segundos que faltan para que el auto local pueda volver a disparar.</summary>
         public float CooldownRemaining =>
@@ -166,6 +173,7 @@ namespace DriftPaint.Combat
                     shot.View.SetColor(TeamColor(shot.Team));
                 }
             }
+            ShotFired?.Invoke(info.Origin);
 
             long key = KeyOf(info.ShooterActorId, info.ShotId);
             if (_shots.TryGetValue(key, out Shot previous)) DestroyView(previous);
@@ -331,6 +339,7 @@ namespace DriftPaint.Combat
                 ImpactBurst burst = Take(_impactPool, _burstTemplate);
                 if (burst != null) burst.Play(impact.Position, size, TeamColor(team), impact.Kind == ImpactKind.Barrel);
             }
+            ImpactShown?.Invoke(impact.Position, impact.Kind);
 
             // La zona recién pintada no la tapan los rastros, tampoco la predicción local.
             if (_paint != null)

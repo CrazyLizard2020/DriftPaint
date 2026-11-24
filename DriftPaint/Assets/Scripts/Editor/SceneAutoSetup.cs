@@ -44,6 +44,7 @@ namespace DriftPaint.EditorTools
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(DriftPaint.Paint.PaintRingSystem) }, PaintRingBuilder.Install),
             new Step(MenuSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
+            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(MatchSfx) }, SfxBuilder.InstallMatch),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
@@ -64,6 +65,9 @@ namespace DriftPaint.EditorTools
         static readonly AssetStep[] AssetSteps =
         {
             new AssetStep("chorros de pintura de los autos", ArenaArtBuilder.ExhaustStreamsOutdated, ArenaArtBuilder.UpdateExhaustStreams),
+            new AssetStep("motores de los autos", EngineAudioBuilder.Outdated, EngineAudioBuilder.Apply),
+            new AssetStep("efectos de sonido", SfxBuilder.Outdated, SfxBuilder.Apply),
+            new AssetStep("escena de Royal Drift Road", MatchSceneBuilder.RoyalDriftRoadMissing, MatchSceneBuilder.BuildRoyalDriftRoad),
         };
 
         static SceneAutoSetup()
@@ -97,7 +101,7 @@ namespace DriftPaint.EditorTools
                 {
                     if (!step.Outdated()) continue;
                     step.Apply();
-                    Debug.Log($"Se actualizaron los {step.Name}.");
+                    Debug.Log($"Puesta al día aplicada: {step.Name}.");
                 }
                 catch (Exception exception)
                 {

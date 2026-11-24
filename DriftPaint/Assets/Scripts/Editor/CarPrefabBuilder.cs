@@ -162,9 +162,12 @@ namespace DriftPaint.EditorTools
                 root.AddComponent<CarBlinkEffect>();
                 root.AddComponent<CarFlipRecovery>();
                 var teamColor = root.AddComponent<CarTeamColor>();
+                root.AddComponent<CarEngineAudio>();
+                SfxBuilder.ConfigureTires(root);
 
+                // Cada modelo usa su propio CarData (física y motor) si ya existe; si no, el base.
                 var controllerSo = new SerializedObject(controller);
-                controllerSo.FindProperty("_carData").objectReferenceValue = carData;
+                controllerSo.FindProperty("_carData").objectReferenceValue = EngineAudioBuilder.CarDataFor(spec.Name, carData);
                 controllerSo.ApplyModifiedPropertiesWithoutUndo();
 
                 var teamColorSo = new SerializedObject(teamColor);

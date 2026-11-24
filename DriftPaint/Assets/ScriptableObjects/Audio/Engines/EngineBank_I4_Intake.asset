@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f63ca316b3d52a43b7626457dfd2ef2, type: 3}
+  m_Name: EngineBank_I4_Intake
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.EngineSoundBankSO
+  _accelerating:
+  - _clip: {fileID: 8300000, guid: 1bd6a36771f9fe64685a37949b7177f2, type: 3}
+    _rpm: 700
+  - _clip: {fileID: 8300000, guid: 84805a76034ec2d4c8cb4d1f95abae4b, type: 3}
+    _rpm: 1067
+  - _clip: {fileID: 8300000, guid: b2b7ed9447620524cb6400437d623399, type: 3}
+    _rpm: 1628
+  - _clip: {fileID: 8300000, guid: 8ad39e6bd0339294cb51b028a8717ed5, type: 3}
+    _rpm: 2482
+  - _clip: {fileID: 8300000, guid: 5148b3e6e5f712041a79e35c42a609b0, type: 3}
+    _rpm: 3785
+  - _clip: {fileID: 8300000, guid: 5b5238f5c2194cc4daea50152b0e7d37, type: 3}
+    _rpm: 5771
+  - _clip: {fileID: 8300000, guid: 6058695475ca96b4cb79937e262fb5cb, type: 3}
+    _rpm: 8800
+  _decelerating: []
+  _generatorVersion: 1

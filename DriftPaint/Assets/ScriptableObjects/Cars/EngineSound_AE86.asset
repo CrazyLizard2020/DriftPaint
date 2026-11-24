@@ -1,0 +1,156 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 960d286ed70572945915e3916ddb51ff, type: 3}
+  m_Name: EngineSound_AE86
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.EngineSoundProfileSO
+  _exhaust:
+    _bank: {fileID: 11400000, guid: 054e4d5349aa5b649bb6104eae0a4c68, type: 2}
+    _volume: 0.8
+    _pitch: 1
+    _volumeByRpm:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.5
+        inSlope: 0
+        outSlope: 0.5
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.5
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _idleVolume: 0.35
+    _decelerationVolume: 0.55
+    _lowPass: 0.25
+    _highPass: 0.15
+    _resonance: 0.2
+    _distortion: 0.25
+    _chorus: 0
+  _intake:
+    _bank: {fileID: 11400000, guid: 9aeaeb54cd49e1e4582d97bb26df29ce, type: 2}
+    _volume: 0.9
+    _pitch: 1
+    _volumeByRpm:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.15
+        inSlope: 0
+        outSlope: 0.59999996
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 0.5
+        value: 0.45
+        inSlope: 0.59999996
+        outSlope: 1.1
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 1.1
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _idleVolume: 0.2
+    _decelerationVolume: 0.5
+    _lowPass: 0.1
+    _highPass: 0
+    _resonance: 0
+    _distortion: 0.1
+    _chorus: 0
+  _mechanical:
+    _bank: {fileID: 11400000, guid: c793583ec3613444aa40378b7c632f95, type: 2}
+    _volume: 0.35
+    _pitch: 1
+    _volumeByRpm:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 0.6
+        inSlope: 0
+        outSlope: 0.39999998
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 1
+        value: 1
+        inSlope: 0.39999998
+        outSlope: 0
+        tangentMode: 69
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _idleVolume: 0.5
+    _decelerationVolume: 0.8
+    _lowPass: 0
+    _highPass: 0
+    _resonance: 0
+    _distortion: 0
+    _chorus: 0
+  _cylinders: 4
+  _cycle: 0
+  _popClips:
+  - {fileID: 8300000, guid: eabac3f1beccb884ebaaf945c4910bd4, type: 3}
+  - {fileID: 8300000, guid: 360e7be22e06162488412806eb8b273b, type: 3}
+  - {fileID: 8300000, guid: 7404647af478cd54683471bb246e887f, type: 3}
+  _popVolume: 0.4
+  _popProbability: 0.35
+  _popMinRpm: 3800
+  _tipInClips:
+  - {fileID: 8300000, guid: 26259432fe96e7643bd9f4598053939a, type: 3}
+  _tipOutClips:
+  - {fileID: 8300000, guid: 8b73b6f567ba89644a1236f2a3fc7215, type: 3}
+  _tipInVolume: 0.45
+  _tipOutVolume: 0.35
+  _limiterClips:
+  - {fileID: 8300000, guid: 13d7a6f73e470e54488a43b1a6035e93, type: 3}
+  - {fileID: 8300000, guid: 9838dddbfaa390f48b86b2db984b056b, type: 3}
+  _limiterVolume: 0.45
+  _shiftClip: {fileID: 0}
+  _shiftVolume: 0.65
+  _shiftWobble: 0.06
+  _autoBlip: 1
+  _launchControl: 0
+  _remoteVolume: 0.9
+  _remoteMinDistance: 6
+  _remoteMaxDistance: 120
+  _remoteDoppler: 0.4

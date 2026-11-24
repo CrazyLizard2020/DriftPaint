@@ -58,6 +58,9 @@ namespace DriftPaint.Combat
 
         public BarrelSettingsSO Settings => _settings;
 
+        /// <summary>Apareció un barril recién soltado en esta posición. Lo usan el sonido y otros efectos locales.</summary>
+        public event System.Action<Vector3> BarrelDropped;
+
         /// <summary>Barriles en el baúl del jugador local.</summary>
         public int LocalBarrels
         {
@@ -167,6 +170,9 @@ namespace DriftPaint.Combat
             foreach (LiveBarrel live in _live)
                 if (live.Instance == info.Instance) return;
             _live.Add(new LiveBarrel { Instance = info.Instance, Owner = owner, Team = team, SpawnTime = spawnTime });
+
+            // Los barriles que ya estaban al entrar a la partida no se anuncian como recién soltados.
+            if (Clock - spawnTime < 1.0) BarrelDropped?.Invoke(info.Instance.transform.position);
         }
 
         void OnObjectDespawned(GameObject instance)

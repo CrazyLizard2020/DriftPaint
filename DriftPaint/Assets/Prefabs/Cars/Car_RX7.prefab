@@ -15306,6 +15306,8 @@ GameObject:
   - component: {fileID: 7547071876960747730}
   - component: {fileID: 4382573420464048708}
   - component: {fileID: 6074114796540366322}
+  - component: {fileID: 4110867873047700760}
+  - component: {fileID: 2955623279183397427}
   m_Layer: 0
   m_Name: Car_RX7
   m_TagString: Untagged
@@ -15472,7 +15474,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5d00fd1dd3193be49ac801f79bac3fd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarController
-  _carData: {fileID: 11400000, guid: f1ac45cd2f996e9478d2dadeba913476, type: 2}
+  _carData: {fileID: 11400000, guid: bcf695cc9ef41ba40b8dc113b2d1c656, type: 2}
   _centerOfMassHeight: 0.25
   _respawnLift: 0.6
   _safePoseInterval: 0.5
@@ -15566,6 +15568,37 @@ MonoBehaviour:
   _fullFlowSpeed: 19
   _riseSeconds: 0.32
   _fallSeconds: 0.48
+--- !u!114 &4110867873047700760
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8827602135754473970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47171a5c418e5844a9289a0b36cb741d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarEngineAudio
+  _volume: 1
+--- !u!114 &2955623279183397427
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8827602135754473970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f368509b9e5d23c479a3e97cef3ead19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarTireAudio
+  _squeal: {fileID: 8300000, guid: de0c780f83c389344b4b8a47c9a68c31, type: 3}
+  _squealVolume: 0.55
+  _fullSlipAngle: 30
+  _fullSpeed: 14
+  _driftBoost: {fileID: 8300000, guid: c7a67731b7930804d988e39785d9384e, type: 3}
+  _driftBoostVolume: 0.6
 --- !u!1 &9010775881627573464
 GameObject:
   m_ObjectHideFlags: 0

@@ -99,6 +99,13 @@ namespace DriftPaint.Cars
         [Header("Controller")]
         [SerializeField, Min(0.1f)] float _respawnHoldTime = 1f;
 
+        [Header("Motor")]
+        [Tooltip("Revoluciones y caja automática del motor virtual. Solo afectan el sonido, no la física.")]
+        [SerializeField] EngineSettings _engine = new EngineSettings();
+
+        [Tooltip("Sonido del motor de este modelo. Vacío: el auto no suena.")]
+        [SerializeField] EngineSoundProfileSO _engineSound;
+
         [Header("PID")]
         [Tooltip("PI: la I compensa rozamiento y pendientes. OutputLimit > 16,7 m/s² o no frena en 2 s.")]
         [SerializeField] PidSettings _speedPid = new PidSettings(8f, 2f, 0f, 4f, 40f);
@@ -137,8 +144,17 @@ namespace DriftPaint.Cars
         public float DriftTurboMultiplier => _driftTurboMultiplier;
         public Vector2 DriftTurboDuration => _driftTurboDuration;
         public float RespawnHoldTime => _respawnHoldTime;
+        public EngineSettings Engine => _engine;
+        public EngineSoundProfileSO EngineSound => _engineSound;
         public PidSettings SpeedPid => _speedPid;
         public PidSettings YawRatePid => _yawRatePid;
         public PidSettings GripPid => _gripPid;
+
+        /// <summary>Los generadores de editor asignan el motor de cada modelo con este método.</summary>
+        public void SetEngine(EngineSettings engine, EngineSoundProfileSO sound)
+        {
+            _engine = engine;
+            _engineSound = sound;
+        }
     }
 }
