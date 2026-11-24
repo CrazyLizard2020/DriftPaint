@@ -13,6 +13,25 @@ namespace DriftPaint.Tests
     public class ArenaArtTests
     {
         [Test]
+        public void LaCurvaDeVelocidadRespetaElTopeElFrenoYElTurbo()
+        {
+            var art = ScriptableObject.CreateInstance<DrivingArtProfile>();
+            try
+            {
+                art.response = AnimationCurve.Linear(0, 0, 1, 1);
+                art.fullSpeedKmh = 120;
+                art.streakStartKmh = 90;
+                Assert.That(art.FovOffset(60, false, false), Is.EqualTo(art.speedFov / 2).Within(.001f));
+                Assert.That(art.FovOffset(160, false, true), Is.EqualTo(art.speedFov + art.turboFov));
+                Assert.That(art.FovOffset(120, true, true), Is.Zero);
+                Assert.That(art.StreakDensity(90), Is.Zero);
+                Assert.That(art.StreakDensity(105), Is.EqualTo(.5f).Within(.001f));
+                Assert.That(art.StreakDensity(160), Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(art); }
+        }
+
+        [Test]
         public void CadaDuplaTienePigmentosDistintosYUnaAlternativaParaSalasAntiguas()
         {
             var palette = AssetDatabase.LoadAssetAtPath<TeamPaletteSO>("Assets/ScriptableObjects/Teams/TeamPalette_Default.asset");

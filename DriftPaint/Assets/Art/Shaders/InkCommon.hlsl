@@ -39,4 +39,17 @@ float2 InkPlanar(float3 positionWS, float3 normalWS)
     return a.x >= a.z ? positionWS.zy : positionWS.xy;
 }
 
+// Trama rotada como una plancha de impresión. Las derivadas apagan el patrón antes del subpíxel.
+float InkDots(float2 plane, float frequency, float shade)
+{
+    float2 uv = float2(dot(plane, float2(.8944, .4472)), dot(plane, float2(-.4472, .8944))) * frequency;
+    float2 footprint = fwidth(uv);
+    float width = max(footprint.x, footprint.y);
+    float irregular = InkHash(floor(uv)) - .5;
+    float radius = lerp(.10, .43, saturate(shade)) * (1 + .45 * irregular);
+    float d = length(frac(uv) - .5 - float2(.11,-.14) * irregular);
+    float aa = max(.015, .5 * width);
+    return (1 - smoothstep(radius - aa, radius + aa, d)) * (1 - smoothstep(.29, .58, width));
+}
+
 #endif

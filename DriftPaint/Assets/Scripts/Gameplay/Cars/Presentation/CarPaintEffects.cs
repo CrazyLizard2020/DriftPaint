@@ -17,6 +17,7 @@ namespace DriftPaint.Cars
         static readonly int JetShape = Shader.PropertyToID("_ExhaustShape");
         static readonly int JetFlow = Shader.PropertyToID("_JetFlow");
         static readonly int TurboGlow = Shader.PropertyToID("_TurboGlow");
+        static readonly int StreamWidth = Shader.PropertyToID("_StreamWidth");
         // El brillo del turbo entra rápido al salir del drift y se apaga más despacio.
         const float TurboRiseSeconds = .08f, TurboFallSeconds = .35f;
         const float StreamLength = 1.38f;
@@ -42,6 +43,8 @@ namespace DriftPaint.Cars
         CarTeamColor _color;
         CarVisuals _wheels;
         CarGhostVisual _ghost;
+        DrivingArtProfile _art;
+        float _slide, _width = 1, _acceleration;
         float _nextProbe, _flow, _cycle, _turbo;
         byte _lastTeam = byte.MaxValue;
         int _lastPalette = -1;
@@ -52,6 +55,7 @@ namespace DriftPaint.Cars
             _color = GetComponent<CarTeamColor>();
             _wheels = GetComponent<CarVisuals>();
             _pigment = new MaterialPropertyBlock();
+            _art = DrivingArtProfile.Active;
         }
 
         void OnEnable()
@@ -68,7 +72,9 @@ namespace DriftPaint.Cars
 
         void Clear(Vector3 position, Quaternion rotation)
         {
-            _flow = _nextProbe = _turbo = 0f;
+            _flow = _nextProbe = _turbo = _slide = 0f;
+            _acceleration = 0;
+            _width = 1;
             _leftGround = _rightGround = default;
             _leftTrack.emitting = _rightTrack.emitting = false;
             _leftTrack.Clear();
@@ -106,21 +112,48 @@ namespace DriftPaint.Cars
 
             bool canPaint = _color.Team != TeamId.None && !_car.StatusEffects.IsStunned && (_ghost == null || !_ghost.IsGhost);
             float demand = canPaint ? Mathf.InverseLerp(.18f, _fullFlowSpeed, _car.Speed) : 0f;
+            bool braking = DrivingArtProfile.IsBraking(_car);
+            if (_art != null && braking) demand *= _art.brakeFlow;
             _flow = Mathf.MoveTowards(_flow, demand, Time.deltaTime / (demand > _flow ? _riseSeconds : _fallSeconds));
             float reach = Mathf.Sqrt(_flow);
             // Los autos remotos no simulan estados, así que el turbo solo brilla en el auto propio.
-            float turbo = canPaint && _car.StatusEffects.IsTurboActive ? 1f : 0f;
+            float turbo = canPaint && !braking && _car.StatusEffects.IsTurboActive ? 1f : 0f;
             _turbo = Mathf.MoveTowards(_turbo, turbo, Time.deltaTime / (turbo > _turbo ? TurboRiseSeconds : TurboFallSeconds));
-            _pigment.SetFloat(TurboGlow, _turbo);
+            float glow = _turbo;
+            if (_art != null)
+            {
+                float throttle = _car.Mode == CarSimulationMode.Local ? Mathf.Abs(_car.MovementInput.CurrentInput.Throttle) : 0;
+                _acceleration = Mathf.MoveTowards(_acceleration, canPaint && !braking ? throttle : 0, Time.deltaTime / _art.responseSeconds);
+                glow = _turbo * _art.turboEmission + _acceleration * _flow * _art.accelerationEmission;
+                float kmh = _car.Speed * 3.6f;
+                float width = _wheels.IsSliding || _car.StatusEffects.IsDrifting || kmh > 90 ? _art.streamWidths.z
+                    : kmh > 40 ? _art.streamWidths.y : _art.streamWidths.x;
+                _width = Mathf.MoveTowards(_width, Mathf.Max(.05f, width), Time.deltaTime / _art.responseSeconds);
+                _pigment.SetFloat(StreamWidth, _width);
+            }
+            _pigment.SetFloat(TurboGlow, glow);
             // Ciclo de las ondas del chorro: gira más rápido con más caudal. Vuelve a 0 en cada vuelta
             // y el shader solo usa múltiplos enteros, así que el salto no se nota.
             _cycle = Mathf.Repeat(_cycle + Time.deltaTime * Mathf.Lerp(1.2f, 4.5f, _flow), 1f);
             bool left = UpdateOutlet(_leftStream, _leftJet, ref _leftGround, probe, reach, canPaint, 0f);
             bool right = UpdateOutlet(_rightStream, _rightJet, ref _rightGround, probe, reach, canPaint, .37f);
-            bool slide = (left || right) && (_wheels.IsSliding || _car.StatusEffects.IsDrifting);
-            SetEmission(_drift, slide);
-            _leftTrack.emitting = slide && left;
-            _rightTrack.emitting = slide && right;
+            bool grounded = _car.Mode == CarSimulationMode.Remote || _car.GroundSensor.IsGrounded;
+            bool contact = grounded && (left || right);
+            bool slide = _wheels.IsSliding || _car.StatusEffects.IsDrifting;
+            _slide = contact ? Mathf.MoveTowards(_slide, slide ? 1 : 0, Time.deltaTime / .18f) : 0;
+            if (_art != null && _slide > 0)
+            {
+                var emission = _drift.emission;
+                emission.rateOverTime = _art.driftSprayRate * _slide;
+                float lateral = Vector3.Dot(_car.Velocity, transform.right);
+                _drift.transform.localRotation = Quaternion.Euler(-30, 180 + Mathf.Clamp(lateral * 5f, -55f, 55f), 0);
+                _leftTrack.time = _rightTrack.time = _art.driftTrackSeconds;
+                _leftTrack.startWidth = _rightTrack.startWidth = _art.driftTrackWidth * _slide;
+                _leftTrack.endWidth = _rightTrack.endWidth = _art.driftTrackWidth * .25f * _slide;
+            }
+            SetEmission(_drift, _slide > .01f);
+            _leftTrack.emitting = _slide > .1f && left;
+            _rightTrack.emitting = _slide > .1f && right;
         }
 
         bool UpdateOutlet(MeshRenderer stream, ParticleSystem drops, ref GroundContact contact, bool probe, float reach,
@@ -128,7 +161,7 @@ namespace DriftPaint.Cars
         {
             bool flowing = canPaint && _flow > .0001f && stream != null;
             Transform nozzle = flowing ? stream.transform : null;
-            float length = StreamLength * reach;
+            float length = StreamLength * reach * (_art != null ? Mathf.Lerp(1f, _art.turboLength, _turbo) : 1f);
             Vector3 end = flowing ? nozzle.TransformPoint(Vector3.forward * length) : default;
             if (!flowing) contact.Valid = false;
             else if (probe) Probe(end, ref contact);
@@ -143,7 +176,7 @@ namespace DriftPaint.Cars
             }
 
             var emission = drops.emission;
-            emission.rateOverTime = 30f * _flow;
+            emission.rateOverTime = 30f * _flow * (1f + _turbo * .5f);
             Vector3 landing = OnGround(contact.Plane, end) + contact.Plane.normal * GroundLift;
             // Con poco caudal el chorro todavía no llega al piso y la punta cuelga en el aire.
             float attached = Mathf.SmoothStep(0f, 1f, _flow / .15f);

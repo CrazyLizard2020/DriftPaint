@@ -7,6 +7,7 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
     {
         _InkColor("Color de la línea", Color) = (.08, .07, .14, 1)
         _Strength("Opacidad", Range(0, 1)) = .85
+        _Width("Grosor cercano a 1080p (px)", Range(.5,3)) = 2.3
         _DepthThreshold("Umbral de profundidad", Range(.005, .5)) = .06
         _NormalThreshold("Umbral de normales", Range(0, 1)) = .5
         _FadeDistance("Desvanecido: inicio y fin (m)", Vector) = (25, 120, 0, 0)
@@ -21,6 +22,7 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
         Pass
         {
             Name "Contorno"
+            Stencil { Ref 0 ReadMask 1 Comp Equal }
 
             HLSLPROGRAM
             #pragma vertex Vert
@@ -32,6 +34,7 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
 
             half4 _InkColor;
             half _Strength;
+            float _Width;
             float _DepthThreshold;
             half _NormalThreshold;
             float4 _FadeDistance;
@@ -51,10 +54,12 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
                 half4 color = SAMPLE_TEXTURE2D_X(_BlitTexture, sampler_PointClamp, uv);
 
                 // Un píxel de grosor a 1080p; a más resolución la línea crece en la misma proporción.
-                float2 texel = _ScreenSize.zw * max(1.0, round(_ScreenSize.y / 1080.0));
+                float center = InverseDepth(uv);
+                if (center < 1.001 / _ProjectionParams.z) return color;
+                float distanceFade = smoothstep(_FadeDistance.x, _FadeDistance.y, 1.0 / center);
+                float2 texel = _ScreenSize.zw * max(1.0, lerp(_Width, 1, distanceFade) * _ScreenSize.y / 1080.0);
                 float2 offsets[4] = { float2(texel.x, 0), float2(-texel.x, 0), float2(0, texel.y), float2(0, -texel.y) };
 
-                float center = InverseDepth(uv);
                 half3 normal = SampleSceneNormals(uv);
                 float depthSum = 0;
                 half normalEdge = 0;
@@ -75,11 +80,24 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
                 normalEdge = saturate((normalEdge - _NormalThreshold) / max(1e-3, 1 - _NormalThreshold) * 3);
                 half edge = max(depthEdge, normalEdge);
 
-                float eye = 1.0 / center;
-                half fade = lerp(1, _FarStrength, smoothstep(_FadeDistance.x, _FadeDistance.y, eye));
+                half fade = lerp(1, _FarStrength, distanceFade);
                 color.rgb = lerp(color.rgb, _InkColor.rgb, edge * _Strength * fade);
                 return color;
             }
+            ENDHLSL
+        }
+        Pass
+        {
+            Name "Excluir del contorno"
+            Tags { "LightMode"="InkOutlineMask" }
+            ZTest Equal ZWrite Off ColorMask 0 Cull Off
+            Stencil { Ref 1 WriteMask 1 Comp Always Pass Replace }
+            HLSLPROGRAM
+            #pragma vertex MaskVert
+            #pragma fragment MaskFrag
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            float4 MaskVert(float4 vertex : POSITION) : SV_POSITION { return TransformObjectToHClip(vertex.xyz); }
+            half4 MaskFrag() : SV_Target { return 0; }
             ENDHLSL
         }
     }

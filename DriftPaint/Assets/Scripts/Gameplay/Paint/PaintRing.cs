@@ -1,4 +1,5 @@
 using DriftPaint.Teams;
+using DriftPaint.Cars;
 using UnityEngine;
 
 namespace DriftPaint.Paint
@@ -13,6 +14,7 @@ namespace DriftPaint.Paint
         [SerializeField] ParticleSystem _spray;
         MaterialPropertyBlock _block;
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
+        static readonly int Emission = Shader.PropertyToID("_EmissionColor");
         internal int Id => _id;
         internal float Radius { get; private set; }
         internal Vector2 Center => new Vector2(transform.position.x, transform.position.z);
@@ -50,12 +52,14 @@ namespace DriftPaint.Paint
             _spray.transform.localRotation = _rotor.localRotation;
             if (_lastCount != count || _lastGoal != goal || _lastColor != color || _lastCooling != cooling || _lastSpinning != spinning)
             {
-                Tint(_rim, cooling ? Color.gray : spinning ? color : Color.white);
+                Tint(_rim, cooling ? Color.gray : spinning ? color : Color.white, cooling ? 0 : spinning ? .65f : .15f);
+                var art = DrivingArtProfile.Active;
                 for (int i = 0; i < _lamps.Length; i++)
                 {
                     _lamps[i].enabled = i < goal;
                     _lamps[i].transform.localPosition = new Vector3((i - (goal - 1) * .5f) * .078f, .56f, 0);
-                    Tint(_lamps[i], cooling ? Color.gray : i < count ? color : Color.white);
+                    Tint(_lamps[i], cooling ? Color.gray : i < count ? color : Color.white,
+                         !cooling && i < count && art != null ? art.ringScreenEmission : 0);
                 }
                 var main = _spray.main;
                 main.startColor = color;
@@ -74,9 +78,10 @@ namespace DriftPaint.Paint
             if (!spinning && _spray.isPlaying) _spray.Stop(true, ParticleSystemStopBehavior.StopEmitting);
         }
 
-        void Tint(Renderer target, Color color)
+        void Tint(Renderer target, Color color, float emission)
         {
             _block.SetColor(BaseColor, color);
+            _block.SetColor(Emission, color * emission);
             target.SetPropertyBlock(_block);
         }
     }

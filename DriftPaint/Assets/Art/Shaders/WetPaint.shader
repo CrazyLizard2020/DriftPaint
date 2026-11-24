@@ -1,11 +1,17 @@
 Shader "DriftPaint/Pintura húmeda"
 {
-    Properties { _BaseMap("Grilla de pintura", 2D) = "black" {} }
+    Properties
+    {
+        _BaseMap("Grilla de pintura", 2D) = "black" {}
+        _Pigment("Intensidad del pigmento", Range(.7,1.8)) = 1.16
+        _PrintStrength("Trama dentro de la pintura", Range(0,.25)) = .075
+    }
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "Queue"="AlphaTest" "RenderType"="TransparentCutout" }
         Pass
         {
+            Stencil { Ref 1 WriteMask 1 Comp Always Pass Replace }
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
@@ -13,6 +19,10 @@ Shader "DriftPaint/Pintura húmeda"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "InkCommon.hlsl"
+            CBUFFER_START(UnityPerMaterial)
+            half _Pigment, _PrintStrength;
+            CBUFFER_END
             TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
             // La sombra tiñe hacia violeta sin apagar el matiz del equipo.
             #define PAINT_SHADOW half3(.60, .58, .76)
@@ -46,7 +56,8 @@ Shader "DriftPaint/Pintura húmeda"
                 half shadow=MainLightRealtimeShadow(TransformWorldToShadowCoord(i.world));
                 AmbientOcclusionFactor ao=GetScreenSpaceAmbientOcclusion(GetNormalizedScreenSpaceUV(i.clip));
                 half3 shade=lerp(PAINT_SHADOW,1,shadow)*lerp(.8,1,ao.directAmbientOcclusion);
-                return half4((color*(.95+.035*waves)+rim*.14)*shade+spec*.70*shadow,1);
+                half grain = InkDots(i.world.xz, 35, .45) * _PrintStrength * (1-rim);
+                return half4(color * _Pigment * (1 - grain + .025*waves + .15*rim) * shade + spec*.30*shadow,1);
             }
             ENDHLSL
         }

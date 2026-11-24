@@ -55,6 +55,10 @@ namespace DriftPaint.Cars
         [SerializeField, Min(0f)] float _obstructionPadding = 0.2f;
 
         Camera _camera;
+        DrivingArtProfile _art;
+        CameraSpeedLines _lines;
+        CarController _car;
+        float _lineStrength;
         ICarState _target;
         Transform _targetTransform;
         ICarCameraControls _controls;
@@ -81,12 +85,17 @@ namespace DriftPaint.Cars
         void Awake()
         {
             _camera = GetComponent<Camera>();
+            _art = DrivingArtProfile.Active;
+            _lines = new CameraSpeedLines(_camera);
             _distance = _distanceAtRest;
         }
 
         public void SetTarget(ICarState target, Transform targetTransform, ICarCameraControls controls)
         {
+            if (_car != null) _car.Teleported -= OnTeleported;
             _target = target;
+            _car = target as CarController;
+            if (_car != null) _car.Teleported += OnTeleported;
             _targetTransform = targetTransform;
             _controls = controls;
             SnapToTarget();
@@ -94,6 +103,9 @@ namespace DriftPaint.Cars
 
         public void SnapToTarget()
         {
+            _lines?.Clear();
+            _lineStrength = _fovVelocity = 0f;
+            if (_camera != null) _camera.fieldOfView = _fovAtRest;
             if (_targetTransform == null) return;
             _yaw = _targetTransform.eulerAngles.y;
             _yawVelocity = 0f;
@@ -131,7 +143,30 @@ namespace DriftPaint.Cars
             _distance = Mathf.SmoothDamp(_distance, targetDistance, ref _distanceVelocity, _zoomSmoothTime);
 
             float targetFov = Mathf.Lerp(_fovAtRest, _fovAtMaxSpeed, speedRatio);
-            _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFov, ref _fovVelocity, _zoomSmoothTime);
+            float responseSeconds = _zoomSmoothTime;
+            if (_art != null)
+            {
+                float kmh = _target.Speed * 3.6f;
+                viewYaw += _art.restYaw * (1 - Mathf.SmoothStep(0, 1, Mathf.Clamp01(kmh / 40f)))
+                           * (1 - Mathf.Clamp01(Mathf.Abs(_lookBackYaw) / 180f));
+                bool blocked = _car != null && (_car.StatusEffects.IsStunned || !_car.MovementInput.DrivingAllowed);
+                bool braking = DrivingArtProfile.IsBraking(_car);
+                bool turbo = _car != null && _car.StatusEffects.IsTurboActive;
+                targetFov = _fovAtRest + _art.FovOffset(kmh, blocked || braking, turbo);
+                responseSeconds = _art.responseSeconds;
+                float density = braking ? 0f : _art.StreakDensity(kmh);
+                if (blocked)
+                {
+                    _lineStrength = 0;
+                    _lines.Clear();
+                }
+                else
+                {
+                    _lineStrength = Mathf.MoveTowards(_lineStrength, density, dt / responseSeconds);
+                    _lines.Draw(_art, _lineStrength, dt);
+                }
+            }
+            _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, targetFov, ref _fovVelocity, responseSeconds);
 
             _followPosition = _followSmoothTime > 0f
                 ? Vector3.SmoothDamp(_followPosition, _targetTransform.position, ref _followVelocity, _followSmoothTime)
@@ -144,6 +179,15 @@ namespace DriftPaint.Cars
             desired = ResolveObstruction(lookPoint, desired);
 
             transform.SetPositionAndRotation(desired, Quaternion.LookRotation(lookPoint - desired, Vector3.up));
+        }
+
+        void OnDisable() => _lines?.Clear();
+
+        void OnTeleported(Vector3 position, Quaternion rotation) => SnapToTarget();
+
+        void OnDestroy()
+        {
+            if (_car != null) _car.Teleported -= OnTeleported;
         }
 
         void UpdatePan(float dt)

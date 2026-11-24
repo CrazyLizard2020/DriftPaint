@@ -73,6 +73,7 @@ namespace DriftPaint.Match
         int _lastCellsA = -1;
         int _lastCellsB = -1;
         float _timeUpSince = -1f;
+        int _artRevision = -1;
 
         public void SetTarget(CarController car) => _car = car;
 
@@ -92,6 +93,26 @@ namespace DriftPaint.Match
         void Awake()
         {
             if (_fireCooldownSlot != null) _fireCooldownSlotWidth = _fireCooldownSlot.minWidth;
+            ApplyArt();
+        }
+
+        public void ApplyArt()
+        {
+            var art = DrivingArtProfile.Active;
+            if (art == null || _artRevision == art.Revision) return;
+            _artRevision = art.Revision;
+            foreach (string path in new[] { "Score Bar/Background", "Abilities" })
+                if (transform.Find(path) is Transform panel && panel.TryGetComponent<Image>(out var image))
+                    image.color = art.hudPanel;
+            foreach (TMP_Text label in new[] { _clockText, _speedText, _fireCooldownText, _barrelsText })
+                if (label != null) label.color = art.hudText;
+            if (_clockText != null) _clockText.fontStyle |= FontStyles.Italic;
+            if (_fireCooldownText != null) _fireCooldownText.fontStyle |= FontStyles.Italic;
+            if (transform.Find("Speedometer/Unit") is RectTransform unit)
+            {
+                unit.GetComponent<TMP_Text>().color = art.hudText;
+                unit.offsetMin = new Vector2(unit.offsetMin.x, 43f);
+            }
         }
 
         void OnEnable() => GameLanguage.Changed += RefreshLanguage;
@@ -120,6 +141,7 @@ namespace DriftPaint.Match
 
         void Update()
         {
+            ApplyArt();
             if (_match == null) return;
             // Con las opciones abiertas, la salida la ofrece el propio menú.
             bool showLeave = _match.IsOnline && _match.Phase != MatchPhase.Results && Cursor.lockState != CursorLockMode.Locked

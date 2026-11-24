@@ -4,7 +4,8 @@ Shader "DriftPaint/Chorro de escape"
         _BaseColor("Pigmento",Color)=(0,1,1,1)
         _ExhaustShape("Alcance y punto de llegada",Vector)=(1,0,-.3,1.38)
         _JetFlow("Caudal, ciclo, semilla y apoyo",Vector)=(1,0,0,1)
-        _TurboGlow("Brillo del turbo",Range(0,1))=0
+        _TurboGlow("Brillo de aceleración y turbo",Range(0,4))=0
+        _StreamWidth("Ancho visual",Range(.05,3))=1
     }
     SubShader {
         // Va en la cola de transparentes, aunque es opaco, para que el contorno de pantalla no lo cruce.
@@ -26,7 +27,7 @@ Shader "DriftPaint/Chorro de escape"
             half4 _BaseColor;
             float4 _ExhaustShape; // x: alcance de 0 a 1; yzw: punto de llegada en el espacio del escape
             float4 _JetFlow;      // x: caudal de 0 a 1; y: ciclo de 0 a 1; z: semilla de cada escape; w: apoyo en el piso
-            half _TurboGlow;      // 0 sin turbo, 1 turbo de drift en curso
+            half _TurboGlow, _StreamWidth;
             CBUFFER_END
 
             struct Link {
@@ -69,7 +70,7 @@ Shader "DriftPaint/Chorro de escape"
                 float rough = flow * sqrt(flow) * smoothstep(.05, .45, d) * (1 - .45 * foot);
                 float crest = rough * (.75 * tooth * tooth * tooth + .4 * ripple * ripple);
 
-                float radius = (.075 + .06 * d) * lerp(.55, 1, reach) * (1 + crest);
+                float radius = (.075 + .06 * d) * lerp(.55, 1, reach) * (1 + crest) * lerp(1, _StreamWidth, d);
                 // Al apoyarse se ensancha y se aplana hasta quedar al ras del piso.
                 float2 ellipse = radius * float2(1 + 1.4 * foot, lerp(1, .12, foot));
                 float3 pos = center + float3(ring.xy * ellipse, 0);

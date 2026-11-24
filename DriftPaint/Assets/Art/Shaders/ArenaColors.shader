@@ -7,7 +7,9 @@ Shader "DriftPaint/Tribunas"
     {
         _Haze("Bruma del horizonte", Color) = (0.66, 0.50, 0.68, 1)
         _HazeDistance("Bruma: inicio y fin (m)", Vector) = (60, 190, 0, 0)
-        _LampGlow("Brillo de los focos", Float) = 2.4
+        _LampGlow("Brillo de los focos", Float) = 4.5
+        _PrintScale("Puntos por metro", Range(.5,12)) = 2.7
+        _PrintStrength("Trama de tribunas", Range(0,1)) = .76
     }
 
     SubShader
@@ -19,7 +21,7 @@ Shader "DriftPaint/Tribunas"
         CBUFFER_START(UnityPerMaterial)
         half4 _Haze;
         float4 _HazeDistance;
-        half _LampGlow;
+        half _LampGlow, _PrintScale, _PrintStrength;
         CBUFFER_END
         ENDHLSL
 
@@ -54,7 +56,7 @@ Shader "DriftPaint/Tribunas"
             half4 Frag(Link i) : SV_Target
             {
                 half3 n = normalize(i.normal);
-                half lamp = step(.97, min(i.color.r, min(i.color.g, i.color.b)));
+                half lamp = step(.96, i.color.r) * step(.93, i.color.g) * step(.58, i.color.b);
                 half light = .62 + .38 * saturate(dot(n, normalize(half3(-.4, .8, .3))));
                 float2 p = InkPlanar(i.world, n);
                 half pigment = InkFbm(p * .12);
@@ -62,7 +64,10 @@ Shader "DriftPaint/Tribunas"
                 float distance = length(GetCameraPositionWS() - i.world);
                 half haze = smoothstep(_HazeDistance.x, _HazeDistance.y, distance) * .35;
                 color = lerp(color, _Haze.rgb, haze * (1 - lamp));
-                return half4(lerp(color, i.color.rgb * _LampGlow, lamp), 1);
+                half shade = saturate(1 - light + .65 - dot(color, half3(.21,.72,.07)));
+                color *= 1 - InkDots(p, _PrintScale, shade) * _PrintStrength * shade;
+                half3 emission = lerp(half3(1,.38,.045), half3(1,.86,.62), step(.96,i.color.b));
+                return half4(lerp(color, emission * _LampGlow, lamp), 1);
             }
             ENDHLSL
         }

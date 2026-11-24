@@ -2,6 +2,13 @@ Shader "DriftPaint/Rampa de pista"
 {
     // Rampa con losetas y bandas de seguridad en los bordes, dibujadas en el espacio del objeto para que
     // acompañen el tamaño de cada rampa. Recibe la luz y la tinta de las demás superficies del escenario.
+    Properties
+    {
+        _PrintScale("Puntos por metro", Range(1,48)) = 8
+        _PrintStrength("Trama en sombra", Range(0,1)) = .85
+        _StripeLight("Banda clara", Color) = (1,.75,.12,1)
+        _StripeDark("Banda oscura", Color) = (.22,.17,.28,1)
+    }
     SubShader
     {
         Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Geometry" "DisableBatching"="True" }
@@ -18,6 +25,10 @@ Shader "DriftPaint/Rampa de pista"
             #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
             #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
             #include "InkLighting.hlsl"
+            CBUFFER_START(UnityPerMaterial)
+            half _PrintScale, _PrintStrength;
+            half4 _StripeLight, _StripeDark;
+            CBUFFER_END
 
             struct Link
             {
@@ -48,11 +59,14 @@ Shader "DriftPaint/Rampa de pista"
                 float outside = abs(i.local.x);
                 float stripes = step(.40, frac(uv.y * 5 - outside * 5));
                 float edge = step(.34, outside);
-                half3 hazard = lerp(half3(.32, .24, .18), half3(.98, .59, .055), stripes);
+                half3 hazard = lerp(_StripeDark.rgb, _StripeLight.rgb, stripes);
                 half3 albedo = lerp(base, hazard, edge);
+                // Filete continuo sobre la cara superior para leer la rampa desde el piso.
+                albedo = lerp(albedo, _StripeLight.rgb, step(.474, outside) * saturate(i.normal.y));
                 // Las bandas de seguridad llevan menos tinta para que se lean desde lejos.
                 half ink = lerp(1, .45, edge);
-                return half4(InkShade(albedo, i.world, NormalizeNormalPerPixel(i.normalWS), i.clip, ink), 1);
+                half3 shaded = InkShade(albedo, i.world, NormalizeNormalPerPixel(i.normalWS), i.clip, ink, _PrintScale, _PrintStrength);
+                return half4(shaded + _StripeLight.rgb * edge * stripes * .33, 1);
             }
             ENDHLSL
         }

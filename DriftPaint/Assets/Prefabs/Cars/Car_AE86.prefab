@@ -10106,6 +10106,8 @@ MonoBehaviour:
   _detailSlots:
   - Hood
   - Hood2
+  _glassSlots:
+  - Material.005
 --- !u!114 &5159324783541506116
 MonoBehaviour:
   m_ObjectHideFlags: 0

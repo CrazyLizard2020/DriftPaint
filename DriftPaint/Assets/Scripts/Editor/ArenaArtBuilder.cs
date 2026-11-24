@@ -113,9 +113,9 @@ namespace DriftPaint.EditorTools
                 }
                 if (root.TryGetComponent<Light>(out var light) && light.type == LightType.Directional)
                 {
-                    light.color = new Color(1f, .80f, .56f);
-                    light.intensity = 1.25f;
-                    light.transform.rotation = Quaternion.Euler(29, -135, 0);
+                    if (!light.TryGetComponent<ArenaLighting>(out var lighting))
+                        lighting = light.gameObject.AddComponent<ArenaLighting>();
+                    lighting.Apply();
                 }
                 if (root.TryGetComponent<Paint.PaintSurfaceView>(out var paint))
                     ConnectPaint(scene, paint);

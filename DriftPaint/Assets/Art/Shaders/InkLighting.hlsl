@@ -10,7 +10,7 @@
 
 // Iluminación de las superficies entintadas: luz del sol con sombras, ambiente del cielo y SSAO, más una capa
 // de tinta anclada al mundo. ink va de 0 (superficie limpia) a 1 (tinta completa).
-half3 InkShade(half3 albedo, float3 positionWS, half3 normalWS, float4 positionCS, half ink)
+half3 InkShade(half3 albedo, float3 positionWS, half3 normalWS, float4 positionCS, half ink, float frequency, half strength)
 {
     float distanceToCamera = length(GetCameraPositionWS() - positionWS);
     half near = 1.0 - smoothstep(INK_DETAIL_NEAR, INK_DETAIL_FAR, distanceToCamera);
@@ -23,6 +23,10 @@ half3 InkShade(half3 albedo, float3 positionWS, half3 normalWS, float4 positionC
     half3 color = albedo * (1.0 + (pigment - 0.5) * 0.24 * ink);
     color *= 1.0 - stain * 0.22 * ink;
     color *= 1.0 + grain * 0.10 * ink * near;
+    float2 paperUV = p * 28;
+    float2 paperFootprint = fwidth(paperUV);
+    half paper = (InkNoise(paperUV) - .5) * (1 - smoothstep(.32, 1, max(paperFootprint.x, paperFootprint.y)));
+    color *= 1 + paper * .54 * ink;
 
     float4 shadowCoord = TransformWorldToShadowCoord(positionWS);
     Light sun = GetMainLight(shadowCoord);
@@ -37,7 +41,9 @@ half3 InkShade(half3 albedo, float3 positionWS, half3 normalWS, float4 positionC
     AmbientOcclusionFactor ao = GetScreenSpaceAmbientOcclusion(GetNormalizedScreenSpaceUV(positionCS));
     half3 ambient = SampleSH(normalWS) * ao.indirectAmbientOcclusion;
     half3 direct = sun.color * (facing * shadow * ao.directAmbientOcclusion);
-    return color * (ambient + direct) * (1.0 - hatch);
+    half shade = saturate(1 - facing * shadow);
+    half dots = InkDots(p, frequency, shade) * strength * (.22 + .78 * shade) * near;
+    return color * (ambient + direct) * (1.0 - hatch) * lerp(1, half3(.25, .20, .38), dots);
 }
 
 #endif

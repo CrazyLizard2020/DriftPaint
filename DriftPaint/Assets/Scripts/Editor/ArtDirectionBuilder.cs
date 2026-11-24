@@ -29,6 +29,7 @@ namespace DriftPaint.EditorTools
         const string OutlineShader = "Hidden/DriftPaint/Contorno a tinta";
         const string InkShader = "DriftPaint/Concreto entintado";
         const string OutlineFeatureName = "Contorno a tinta";
+        const string MaskFeatureName = "Excluir del contorno";
 
         /// <summary>
         /// Materiales del escenario que pasan al concreto entintado, con cuánta tinta lleva cada uno. Las
@@ -42,10 +43,6 @@ namespace DriftPaint.EditorTools
             ("Assets/Art/Materials/M_Hedge.mat", .7f, null),
         };
 
-        // Luz de atardecer: dorado cálido del sol y ambiente lavanda, así las sombras quedan violetas.
-        static readonly Color SunColor = new Color(1f, .80f, .56f);
-        const float SunIntensity = 1.25f;
-
         #region Recursos
 
         /// <summary>Falta alguno de los recursos que crea este paso.</summary>
@@ -54,7 +51,8 @@ namespace DriftPaint.EditorTools
             if (Shader.Find(OutlineShader) == null || Shader.Find(InkShader) == null) return false;
             if (!AssetExists(GameplayProfilePath) || !AssetExists(MenuProfilePath) || !AssetExists(ResultsProfilePath))
                 return true;
-            if (FindOutline(AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath)) == null) return true;
+            var renderer = AssetDatabase.LoadAssetAtPath<UniversalRendererData>(RendererPath);
+            if (FindOutline(renderer) == null || !renderer.rendererFeatures.Any(f => f != null && f.name == MaskFeatureName)) return true;
             return InkMaterials.Any(entry =>
             {
                 var material = AssetDatabase.LoadAssetAtPath<Material>(entry.Path);
@@ -71,6 +69,17 @@ namespace DriftPaint.EditorTools
                 TuneRenderBudget();
                 TuneAmbientOcclusion(renderer);
                 AddOutline(renderer);
+            }
+            if (renderer != null && !renderer.rendererFeatures.Any(f => f != null && f.name == MaskFeatureName))
+            {
+                var mask = ScriptableObject.CreateInstance<RenderObjects>();
+                mask.name = MaskFeatureName;
+                mask.settings.passTag = MaskFeatureName;
+                mask.settings.Event = RenderPassEvent.AfterRenderingOpaques;
+                mask.settings.filterSettings.LayerMask = LayerMask.GetMask("SinContorno");
+                mask.settings.overrideMaterial = AssetDatabase.LoadAssetAtPath<Material>(OutlineMaterialPath);
+                mask.settings.overrideMaterialPassIndex = 1;
+                RegisterFeature(renderer, mask);
             }
             CreateProfiles();
             foreach ((string path, float ink, string color) in InkMaterials) ConvertToInk(path, ink, color);
@@ -109,8 +118,8 @@ namespace DriftPaint.EditorTools
                 so.FindProperty("m_Settings.Downsample").boolValue = true;
                 // 1 es la calidad media del desenfoque.
                 so.FindProperty("m_Settings.BlurQuality").intValue = 1;
-                so.FindProperty("m_Settings.Intensity").floatValue = .5f;
-                so.FindProperty("m_Settings.Radius").floatValue = .35f;
+                so.FindProperty("m_Settings.Intensity").floatValue = .48f;
+                so.FindProperty("m_Settings.Radius").floatValue = .28f;
                 so.ApplyModifiedPropertiesWithoutUndo();
                 EditorUtility.SetDirty(feature);
             }
@@ -131,9 +140,15 @@ namespace DriftPaint.EditorTools
             feature.name = OutlineFeatureName;
             feature.injectionPoint = FullScreenPassRendererFeature.InjectionPoint.BeforeRenderingTransparents;
             feature.fetchColorBuffer = true;
+            feature.bindDepthStencilAttachment = true;
             feature.requirements = ScriptableRenderPassInput.Depth | ScriptableRenderPassInput.Normal;
             feature.passMaterial = material;
             feature.passIndex = 0;
+            RegisterFeature(renderer, feature);
+        }
+
+        static void RegisterFeature(UniversalRendererData renderer, ScriptableRendererFeature feature)
+        {
             AssetDatabase.AddObjectToAsset(feature, renderer);
             AssetDatabase.TryGetGUIDAndLocalFileIdentifier(feature, out string _, out long localId);
 
@@ -170,7 +185,7 @@ namespace DriftPaint.EditorTools
         static void CreateProfiles()
         {
             EditorAssetUtility.EnsureFolder(VolumesFolder);
-            CreateProfile(GameplayProfilePath, contrast: 10f, saturation: 7f, bloom: .2f, vignette: .10f);
+            CreateProfile(GameplayProfilePath, contrast: 13f, saturation: 9f, bloom: .2f, vignette: .10f);
             CreateProfile(MenuProfilePath, contrast: 8f, saturation: 5f, bloom: .3f, vignette: .22f);
             CreateProfile(ResultsProfilePath, contrast: 12f, saturation: 12f, bloom: .25f, vignette: .25f);
         }
@@ -291,14 +306,9 @@ namespace DriftPaint.EditorTools
             foreach (Light light in Components<Light>(scene))
             {
                 if (light.type != LightType.Directional) continue;
-                light.color = SunColor;
-                light.intensity = SunIntensity;
                 light.shadows = LightShadows.Soft;
+                if (!light.TryGetComponent<Match.ArenaLighting>(out _)) light.gameObject.AddComponent<Match.ArenaLighting>();
             }
-            RenderSettings.ambientMode = AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor = DriftPaintPalette.Hex(0xB28FD8) * .95f;
-            RenderSettings.ambientEquatorColor = DriftPaintPalette.Hex(0xC9939B) * .8f;
-            RenderSettings.ambientGroundColor = DriftPaintPalette.Hex(0x535064);
         }
 
         static T[] Components<T>(Scene scene) where T : Component =>

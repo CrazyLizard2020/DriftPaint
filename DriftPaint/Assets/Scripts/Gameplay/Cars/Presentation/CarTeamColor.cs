@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DriftPaint.Teams;
 using UnityEngine;
 
@@ -24,12 +25,13 @@ namespace DriftPaint.Cars
 
         [Tooltip("Slots de material que toman el color de detalle del equipo.")]
         [SerializeField] string[] _detailSlots = { "Hood", "Hood2" };
+        [SerializeField] string[] _glassSlots = { "Glass", "Glass.002" };
 
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         static readonly int ColorId = Shader.PropertyToID("_Color");
 
         MaterialPropertyBlock _block;
-        Renderer[] _renderers;
+        readonly List<(Renderer Renderer, int Index, bool Main)> _slots = new();
 
         public byte Team => _team;
         /// <summary>Pigmento y reflejos que comparten la carrocería y los escapes.</summary>
@@ -45,13 +47,52 @@ namespace DriftPaint.Cars
             Apply();
         }
 
+        /// <summary>Usa una dupla concreta para la captura de referencia del editor.</summary>
+        public void PreviewTeam(byte team, int pair)
+        {
+            CollectRenderers();
+            if (_palette != null) ApplyColors(_palette.Get(team, pair));
+        }
+
         void CollectRenderers()
         {
-            if (_renderers != null) return;
+            if (_block != null) return;
             if (_visualRoot == null) _visualRoot = transform.Find("Visual");
             if (_visualRoot == null) _visualRoot = transform;
-            _renderers = _visualRoot.GetComponentsInChildren<Renderer>(true);
             _block = new MaterialPropertyBlock();
+            var art = DrivingArtProfile.Active;
+            foreach (Renderer renderer in _visualRoot.GetComponentsInChildren<Renderer>(true))
+            {
+                var materials = renderer.sharedMaterials;
+                bool changed = false;
+                for (int i = 0; i < materials.Length; i++)
+                {
+                    var original = materials[i];
+                    if (original == null) continue;
+                    string slot = original.name.Replace(" (Instance)", "");
+                    if (art != null && art.glassMaterial != null && Matches(slot, _glassSlots))
+                    {
+                        materials[i] = art.glassMaterial;
+                        changed = true;
+                        continue;
+                    }
+                    bool main = Matches(slot, _mainSlots);
+                    if (!main && !Matches(slot, _detailSlots)) continue;
+                    _slots.Add((renderer, i, main));
+                    if (art == null || art.bodyMaterial == null) continue;
+                    renderer.GetPropertyBlock(_block, i);
+                    if (original.mainTexture != null)
+                    {
+                        _block.SetTexture("_BaseMap", original.mainTexture);
+                        Vector2 scale = original.mainTextureScale, offset = original.mainTextureOffset;
+                        _block.SetVector("_BaseMap_ST", new Vector4(scale.x, scale.y, offset.x, offset.y));
+                        renderer.SetPropertyBlock(_block, i);
+                    }
+                    materials[i] = art.bodyMaterial;
+                    changed = true;
+                }
+                if (changed) renderer.sharedMaterials = materials;
+            }
         }
 
         void Apply()
@@ -59,19 +100,13 @@ namespace DriftPaint.Cars
             CollectRenderers();
             if (_palette == null) return;
 
-            TeamPaletteSO.TeamColors colors = _palette.Get(_team);
-            foreach (Renderer r in _renderers)
-            {
-                Material[] materials = r.sharedMaterials;
-                for (int i = 0; i < materials.Length; i++)
-                {
-                    if (materials[i] == null) continue;
+            ApplyColors(_palette.Get(_team));
+        }
 
-                    string slot = materials[i].name.Replace(" (Instance)", "");
-                    if (Matches(slot, _mainSlots)) SetColor(r, i, colors.Main);
-                    else if (Matches(slot, _detailSlots)) SetColor(r, i, colors.Detail);
-                }
-            }
+        void ApplyColors(TeamPaletteSO.TeamColors colors)
+        {
+            foreach (var slot in _slots)
+                SetColor(slot.Renderer, slot.Index, slot.Main ? colors.Main : colors.Detail);
         }
 
         void SetColor(Renderer r, int materialIndex, Color color)
@@ -91,7 +126,7 @@ namespace DriftPaint.Cars
 
         void OnValidate()
         {
-            if (Application.isPlaying && _renderers != null) Apply();
+            if (Application.isPlaying && _block != null) Apply();
         }
     }
 }

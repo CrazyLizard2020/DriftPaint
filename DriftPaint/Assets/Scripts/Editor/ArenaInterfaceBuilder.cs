@@ -187,11 +187,11 @@ namespace DriftPaint.EditorTools
             MenuSceneBuilder.Bind(results, ("_winnerBrush", brush));
         }
 
-        static Sprite SpriteFor(string name)
+        static Sprite SpriteFor(string name, bool rebuild = false)
         {
             string path = "Assets/Art/Generated/T_" + name + ".png";
             var sprite = AssetDatabase.LoadAssetAtPath<Sprite>(path);
-            if (sprite != null)
+            if (sprite != null && !rebuild)
                 return sprite;
             const int size = 128;
             var texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
@@ -243,10 +243,16 @@ namespace DriftPaint.EditorTools
             }
             if (name == "Gauge" || name == "Dial")
             {
-                if (r > .98f || y < -.62f)
+                if (r > .98f || y < -.70f)
                     return Color.clear;
                 if (name == "Gauge")
-                    return new Color(.075f, .086f, .15f, .86f);
+                {
+                    if (r > .95f || y < -.67f) return new Color(.05f, .04f, .10f);
+                    float u = (x + .45f * y) * 19f, v = (y - .45f * x) * 19f;
+                    float d = new Vector2(Mathf.Repeat(u, 1f) - .5f, Mathf.Repeat(v, 1f) - .5f).magnitude;
+                    float dots = Mathf.Clamp01((.38f - d) * 8f) * Mathf.SmoothStep(0, 1, r * r);
+                    return Color.Lerp(new Color(.093f, .094f, .16f, .98f), new Color(.32f, .25f, .37f, .98f), dots);
+                }
                 if (r < .80f || (Mathf.Atan2(y, x) * 18 / Mathf.PI + 18) % 1 < .045f)
                     return Color.clear;
                 return Color.white;
@@ -255,20 +261,36 @@ namespace DriftPaint.EditorTools
             {
                 float u = (x + y) * .707f, v = (y - x) * .707f;
                 float cap = Mathf.Max(0, Mathf.Abs(u) - .38f);
-                if (cap * cap + v * v > .095f)
-                    return Color.clear;
-                return u < -.12f || v > .17f ? Color.white : DriftPaintPalette.Cyan;
+                float radius = Mathf.Sqrt(cap * cap + v * v);
+                if (radius > .33f) return Color.clear;
+                if (radius > .275f) return DriftPaintPalette.HudNavy;
+                if (v > .13f && v < .20f && u > .03f && u < .42f) return Color.white;
+                Color pigment = u < -.12f ? Color.white : DriftPaintPalette.Cyan;
+                return v < -.16f ? pigment * .76f + new Color(0, 0, 0, .24f) : pigment;
             }
-            if (Mathf.Abs(x) > .60f || Mathf.Abs(y) > .69f + .15f * (1 - x * x / .36f))
-                return Color.clear;
-            if (Mathf.Abs(y) > .56f)
-                return DriftPaintPalette.SunsetGold;
-            if (Mathf.Abs(y) > .48f)
-                return DriftPaintPalette.Orange;
+            float side = Mathf.Abs(x);
+            float crown = Mathf.Sqrt(Mathf.Clamp01(1 - x * x / .36f));
+            float barrelHeight = .64f + .19f * crown;
+            if (side > .60f || Mathf.Abs(y) > barrelHeight) return Color.clear;
+            if (side > .54f || Mathf.Abs(y) > barrelHeight - .055f) return DriftPaintPalette.HudNavy;
+            float ring = y - .14f * crown;
+            if (ring > .39f || ring < -.55f)
+            {
+                if (Mathf.Abs(ring - .42f) < .035f || Mathf.Abs(ring + .57f) < .035f)
+                    return DriftPaintPalette.HudNavy;
+                return x < -.24f || x > .33f ? DriftPaintPalette.Orange : DriftPaintPalette.SunsetGold;
+            }
             float a = Mathf.Atan2(y, x);
             if (r < .24f + .11f * Mathf.Cos(a * 7))
                 return Color.white;
-            return new Color(.69f + .15f * (1 - Mathf.Abs(x)), .16f, .12f);
+            return Color.Lerp(new Color(.48f, .04f, .09f), new Color(1, .19f, .06f),
+                              Mathf.Clamp01(1 - Mathf.Abs(x + .16f) * 1.5f));
+        }
+
+        [MenuItem("DriftPaint/Arte/Regenerar iconos y velocímetro")]
+        public static void RebuildHudSprites()
+        {
+            foreach (string name in new[] { "Gauge", "Shot", "Barrel" }) SpriteFor(name, true);
         }
     }
 }

@@ -69,7 +69,7 @@ namespace DriftPaint.Teams
             new Pair(Ink("LIMA", 0xA8E72E), Ink("PÚRPURA", 0x7A2BE2)),
             new Pair(Ink("AMARILLO", 0xF4D21F), Ink("VIOLETA", 0x8A1EF2)),
             new Pair(Ink("TURQUESA", 0x1FD4C9), Ink("ROSA", 0xE73F8B)),
-            new Pair(Ink("VERDE", 0x57D93B), Ink("FUCSIA", 0xC33DD6)),
+            new Pair(Ink("VERDE", 0x69F51A), Ink("FUCSIA", 0xCD24EF)),
             new Pair(Ink("AGUA", 0x20CFC3), Ink("ROJO", 0xE94A3A))
         };
 

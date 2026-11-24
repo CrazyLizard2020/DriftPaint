@@ -172,6 +172,12 @@ namespace DriftPaint.EditorTools
 
                 var teamColorSo = new SerializedObject(teamColor);
                 teamColorSo.FindProperty("_palette").objectReferenceValue = palette;
+                if (spec.Name == "AE86")
+                {
+                    var glass = teamColorSo.FindProperty("_glassSlots");
+                    glass.arraySize = 1;
+                    glass.GetArrayElementAtIndex(0).stringValue = "Material.005";
+                }
                 teamColorSo.ApplyModifiedPropertiesWithoutUndo();
 
                 var groundSo = new SerializedObject(ground);
