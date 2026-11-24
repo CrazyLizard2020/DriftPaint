@@ -9,6 +9,12 @@ namespace DriftPaint.UI.Menu
         public enum Shape { Play, Back, Crown, Check, Refresh }
         [SerializeField] Shape _shape;
 
+        public void SetShape(Shape shape)
+        {
+            _shape = shape;
+            SetVerticesDirty();
+        }
+
         protected override void OnPopulateMesh(VertexHelper mesh)
         {
             mesh.Clear();

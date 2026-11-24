@@ -55,6 +55,7 @@ namespace DriftPaint.Teams
 
         /// <summary>Incluye la dupla base y las cinco alternativas de la arena.</summary>
         public const int PairCount = 6;
+        public const int GreenFuchsiaPair = 4;
 
         [System.Serializable]
         struct Pair

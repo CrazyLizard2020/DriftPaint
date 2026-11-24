@@ -443,9 +443,40 @@ namespace DriftPaint.Networking
                 ChatReceived?.Invoke(new ChatMessage(false, _nickname, LocalTeam(), clean));
         }
 
+        // El primer lobby usa el ID de sala. Cada revancha usa el ID de la partida que acaba de terminar.
+        string ReadyToken => _currentMatchId ?? _currentRoom.Id;
+        public bool LocalReady => TryGetPlayer(LocalActorId, out var player) && player.IsReady;
+
+        public (int ready, int required) ClientReadiness
+        {
+            get
+            {
+                int ready = 0, required = 0;
+                foreach (var player in _players)
+                {
+                    if (player.IsMaster || player.IsInactive) continue;
+                    required++;
+                    if (player.IsReady) ready++;
+                }
+                return (ready, required);
+            }
+        }
+
+        public void SetLocalReady(bool ready)
+        {
+            if (_state != ConnectionState.InRoom || !_provider.InRoom || IsMaster ||
+                !_phase.IsBetweenMatches() || !_currentRoom.IsValid) return;
+            _provider.SetPlayerProperties(LocalActorId, new Dictionary<string, object>
+            {
+                { PlayerKeys.Ready, ready ? ReadyToken : null }
+            });
+        }
+
         public bool RequestStartMatch()
         {
-            if (!IsMaster || !_phase.IsBetweenMatches()) return false;
+            if (_state != ConnectionState.InRoom || !IsMaster || !_phase.IsBetweenMatches()) return false;
+            var (ready, required) = ClientReadiness;
+            if (ready != required) return false;
 
             // Los puntajes de la partida anterior se limpian antes del cambio de estado: llegan en ese orden.
             ResetSentScores();
@@ -927,6 +958,8 @@ namespace DriftPaint.Networking
             string name = NameOf(actorId);
             RefreshPlayers();
             bool stillReserved = TryGetPlayer(actorId, out PlayerSummary player) && player.IsInactive;
+            if (stillReserved && IsMaster && _phase.IsBetweenMatches())
+                _provider.SetPlayerProperties(actorId, new Dictionary<string, object> { { PlayerKeys.Ready, null } });
             if (IsMaster) EnsureTeams();
 
             PlayersChanged?.Invoke();
@@ -936,6 +969,8 @@ namespace DriftPaint.Networking
         void OnMasterSwitched(int newMasterActorId)
         {
             ResetSentScores();
+            if (IsMaster && _phase.IsBetweenMatches())
+                _provider.SetPlayerProperties(LocalActorId, new Dictionary<string, object> { { PlayerKeys.Ready, null } });
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
@@ -947,7 +982,13 @@ namespace DriftPaint.Networking
         void OnRoomPropertiesChanged(IReadOnlyDictionary<string, object> changed)
         {
             MatchPhase previous = _phase;
+            string previousToken = ReadyToken;
             RefreshRoom(true);
+            if (previousToken != ReadyToken || previous.IsBetweenMatches() != _phase.IsBetweenMatches())
+            {
+                RefreshPlayers();
+                PlayersChanged?.Invoke();
+            }
             // Al volver al lobby se empareja lo que se desarmó durante la partida (gente que salió o entró).
             if (IsMaster && _phase.IsBetweenMatches() && !previous.IsBetweenMatches()) EnsureTeams();
             RoomChanged?.Invoke();
@@ -1125,8 +1166,10 @@ namespace DriftPaint.Networking
                 }
                 int barrels = ToInt(Get(player.Properties, PlayerKeys.Barrels), -1);
                 string car = Get(player.Properties, PlayerKeys.Car) as string;
+                bool ready = _phase.IsBetweenMatches() && !player.IsMaster && !player.IsInactive &&
+                    Get(player.Properties, PlayerKeys.Ready) is string token && token == ReadyToken;
                 _players.Add(new PlayerSummary(player.ActorNumber, name, team, player.IsMaster, player.IsLocal, player.IsInactive,
-                    points, standing, barrels, car));
+                    points, standing, barrels, car, ready));
             }
             _players.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
         }
@@ -1152,7 +1195,7 @@ namespace DriftPaint.Networking
                 PlayerSummary p = _players[i];
                 if (p.ActorId != actorId) continue;
                 _players[i] = new PlayerSummary(p.ActorId, p.Nickname, team, p.IsMaster, p.IsLocal, p.IsInactive,
-                    p.Points, p.Standing, p.Barrels, p.CarId);
+                    p.Points, p.Standing, p.Barrels, p.CarId, p.IsReady);
                 break;
             }
             _provider.SetPlayerProperties(actorId, new Dictionary<string, object> { { PlayerKeys.Team, team } });

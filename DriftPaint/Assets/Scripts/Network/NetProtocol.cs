@@ -55,9 +55,10 @@ namespace DriftPaint.Networking
         public const string Barrels = "brl";
         public const string LastPosition = "lastPos";
         public const string Points = "pts";
+        public const string Ready = "readyFor";
 
         /// <summary>Propiedades que valen solo para una sala. El auto elegido sí se conserva entre salas.</summary>
-        public static readonly string[] RoomScoped = { Team, Barrels, LastPosition, Points };
+        public static readonly string[] RoomScoped = { Team, Barrels, LastPosition, Points, Ready };
     }
 
     /// <summary>Valores fijos de las salas.</summary>

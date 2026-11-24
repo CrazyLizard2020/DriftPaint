@@ -92,6 +92,7 @@ namespace DriftPaint.Net
         public readonly bool IsLocal;
         /// <summary>Desconectado, pero con el lugar reservado hasta que venza el tiempo de reconexión.</summary>
         public readonly bool IsInactive;
+        public readonly bool IsReady;
         /// <summary>Puntaje publicado por el Master: celdas en pie más robos.</summary>
         public readonly int Points;
         /// <summary>Celdas en pie publicadas por el Master, para desempatar el orden de la tabla.</summary>
@@ -102,8 +103,9 @@ namespace DriftPaint.Net
         public readonly string CarId;
 
         public PlayerSummary(int actorId, string nickname, byte team, bool isMaster, bool isLocal, bool isInactive,
-            int points = 0, int standing = 0, int barrels = -1, string carId = null)
+            int points = 0, int standing = 0, int barrels = -1, string carId = null, bool isReady = false)
         {
+            IsReady = isReady;
             Barrels = barrels;
             CarId = carId;
             ActorId = actorId;
@@ -307,6 +309,9 @@ namespace DriftPaint.Net
         void RequestTeamChange();
         /// <summary>Guarda el auto elegido por el jugador local. Se conserva al cambiar de sala.</summary>
         void SetLocalCar(string carId);
+        bool LocalReady { get; }
+        (int ready, int required) ClientReadiness { get; }
+        void SetLocalReady(bool ready);
         void SendChat(string text);
         /// <summary>Solo el Master, en el lobby o en resultados: pasa la sala a la cuenta regresiva y limpia los puntajes.</summary>
         bool RequestStartMatch();

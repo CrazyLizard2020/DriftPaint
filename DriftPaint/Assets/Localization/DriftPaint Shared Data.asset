@@ -742,6 +742,18 @@ MonoBehaviour:
     m_Key: LENTO  {0:0.0} s
     m_Metadata:
       m_Items: []
+  - m_Id: 1067372875787
+    m_Key: "CANCELAR LISTO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875788
+    m_Key: "ESPERANDO · {0}/{1} LISTOS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875789
+    m_Key: "{0} · Preparándose"
+    m_Metadata:
+      m_Items: []
   m_Metadata:
     m_Items: []
   m_KeyGenerator:

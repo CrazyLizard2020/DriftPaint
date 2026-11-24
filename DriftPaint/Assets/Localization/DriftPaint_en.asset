@@ -770,6 +770,18 @@ MonoBehaviour:
     m_Localized: "SLOWED  {0:0.0} s"
     m_Metadata:
       m_Items: []
+  - m_Id: 1067372875787
+    m_Localized: "CANCEL READY"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875788
+    m_Localized: "WAITING · {0}/{1} READY"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875789
+    m_Localized: "{0} · Getting ready"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

@@ -749,6 +749,18 @@ MonoBehaviour:
     m_Localized: "\u30B9\u30ED\u30FC  {0:0.0}\u79D2"
     m_Metadata:
       m_Items: []
+  - m_Id: 1067372875787
+    m_Localized: "準備を取り消す"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875788
+    m_Localized: "待機中 · 準備完了 {0}/{1}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875789
+    m_Localized: "{0} · 準備中"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

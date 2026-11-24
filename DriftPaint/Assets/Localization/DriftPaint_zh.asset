@@ -747,6 +747,18 @@ MonoBehaviour:
     m_Localized: "\u51CF\u901F  {0:0.0} \u79D2"
     m_Metadata:
       m_Items: []
+  - m_Id: 1067372875787
+    m_Localized: "取消准备"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875788
+    m_Localized: "等待中 · {0}/{1} 已就绪"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875789
+    m_Localized: "{0} · 准备中"
+    m_Metadata:
+      m_Items: []
   references:
     version: 2
     RefIds: []

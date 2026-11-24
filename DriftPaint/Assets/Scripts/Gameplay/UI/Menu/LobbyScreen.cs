@@ -79,7 +79,7 @@ namespace DriftPaint.UI.Menu
             _chatSendButton?.onClick.AddListener(SendChat);
             _chatInput?.onSubmit.AddListener(_ => SendChat());
             _backButton?.onClick.AddListener(() => _mediator?.LeaveRoom());
-            _startButton?.onClick.AddListener(() => _mediator?.RequestStartMatch());
+            _startButton?.onClick.AddListener(OnStartOrReady);
             _switchTeamButton?.onClick.AddListener(() => _mediator?.RequestTeamChange());
             _changeCarButton?.onClick.AddListener(() => _carPanel?.Open());
         }
@@ -142,8 +142,7 @@ namespace DriftPaint.UI.Menu
             SetVisible(_mapPrevious, canPickMap);
             SetVisible(_mapNext, canPickMap);
 
-            if (_startButton != null) _startButton.interactable = canEdit;
-            if (_startLabel != null) _startLabel.text = GameLanguage.Text(_mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST");
+            RefreshStartButton();
 
             RefreshPlayersHeader();
             RefreshTeamAndCarButtons();
@@ -177,10 +176,30 @@ namespace DriftPaint.UI.Menu
             }
 
             RefreshPlayersHeader();
-            // El host puede cambiar de manos cuando alguien se va.
-            if (_startLabel != null) _startLabel.text = GameLanguage.Text(_mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST");
-            if (_startButton != null) _startButton.interactable = _mediator.IsMaster && _mediator.Phase.IsBetweenMatches();
+            RefreshStartButton();
             RefreshTeamAndCarButtons();
+        }
+
+        void OnStartOrReady()
+        {
+            if (_mediator == null) return;
+            if (_mediator.IsMaster) _mediator.RequestStartMatch();
+            else _mediator.SetLocalReady(!_mediator.LocalReady);
+        }
+
+        void RefreshStartButton()
+        {
+            var (ready, required) = _mediator.ClientReadiness;
+            bool waiting = _mediator.IsMaster && ready < required;
+            if (_startButton != null)
+                _startButton.interactable = _mediator.Phase.IsBetweenMatches() && !waiting;
+            if (_startLabel == null) return;
+            if (waiting)
+                _startLabel.text = string.Format(GameLanguage.Text("ESPERANDO · {0}/{1} LISTOS"), ready, required);
+            else if (_mediator.IsMaster)
+                _startLabel.text = GameLanguage.Text("INICIAR PARTIDA");
+            else
+                _startLabel.text = GameLanguage.Text(_mediator.LocalReady ? "CANCELAR LISTO" : "LISTO");
         }
 
         void AddTeam(byte team)
