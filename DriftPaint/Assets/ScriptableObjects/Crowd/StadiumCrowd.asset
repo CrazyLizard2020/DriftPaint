@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Level.CrowdProfile
   palette: {fileID: 11400000, guid: fd67b0af40d4086448c638f70bb67243, type: 2}
   material: {fileID: 2100000, guid: b72708035cafa724aaee915da491e677, type: 2}
-  density: 0.55
+  density: 1
   spacing: 1.75
   height: 1.7
-  sizeVariation: 0.1
+  sizeVariation: 0.129
   seatJitter: 0.18
   homeShare: 0.7
   celebrationShare: 0.5
@@ -28,7 +28,7 @@ MonoBehaviour:
   cheers:
   - {fileID: 8300000, guid: f17c3fc16ec2158409a5adfbb23161ec, type: 3}
   - {fileID: 8300000, guid: df6b2656c65ae354681dfdb628b51dd9, type: 3}
-  volume: 0.16
+  volume: 0.5
   nearDistance: 12
   farDistance: 170
   rolloff:
@@ -44,8 +44,8 @@ MonoBehaviour:
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.35
-      value: 0.18
+      time: 0.7133347
+      value: 0.19797486
       inSlope: -0.55
       outSlope: -0.55
       tangentMode: 0
