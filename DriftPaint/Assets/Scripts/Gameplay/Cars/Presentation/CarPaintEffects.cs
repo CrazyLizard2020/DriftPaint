@@ -15,15 +15,21 @@ namespace DriftPaint.Cars
 
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
         static readonly int JetShape = Shader.PropertyToID("_ExhaustShape");
+        static readonly int JetFlow = Shader.PropertyToID("_JetFlow");
         const float StreamLength = 1.38f;
-        const float StreamDrop = .30f;
+        // Parte del largo en la que el chorro termina de caer; tiene que coincidir con LANDING del shader.
+        const float LandingFraction = .8f;
+        // La punta queda apenas sobre el piso para que no parpadee contra la pintura.
+        const float GroundLift = .012f;
         const float ProbeInterval = .055f;
+        const int MaxSprayPerFrame = 3;
 
         struct GroundContact
         {
             public bool Valid;
             public Plane Plane;
             public float StampTime;
+            public float SprayTime;
         }
 
         readonly RaycastHit[] _hits = new RaycastHit[8];
@@ -33,7 +39,7 @@ namespace DriftPaint.Cars
         CarTeamColor _color;
         CarVisuals _wheels;
         CarGhostVisual _ghost;
-        float _nextProbe, _flow;
+        float _nextProbe, _flow, _cycle;
         byte _lastTeam = byte.MaxValue;
         int _lastPalette = -1;
 
@@ -99,18 +105,24 @@ namespace DriftPaint.Cars
             float demand = canPaint ? Mathf.InverseLerp(.18f, _fullFlowSpeed, _car.Speed) : 0f;
             _flow = Mathf.MoveTowards(_flow, demand, Time.deltaTime / (demand > _flow ? _riseSeconds : _fallSeconds));
             float reach = Mathf.Sqrt(_flow);
-            bool left = UpdateOutlet(_leftStream, _leftJet, ref _leftGround, probe, reach, canPaint);
-            bool right = UpdateOutlet(_rightStream, _rightJet, ref _rightGround, probe, reach, canPaint);
+            // Ciclo de las ondas del chorro: gira más rápido con más caudal. Vuelve a 0 en cada vuelta
+            // y el shader solo usa múltiplos enteros, así que el salto no se nota.
+            _cycle = Mathf.Repeat(_cycle + Time.deltaTime * Mathf.Lerp(1.2f, 4.5f, _flow), 1f);
+            bool left = UpdateOutlet(_leftStream, _leftJet, ref _leftGround, probe, reach, canPaint, 0f);
+            bool right = UpdateOutlet(_rightStream, _rightJet, ref _rightGround, probe, reach, canPaint, .37f);
             bool slide = (left || right) && (_wheels.IsSliding || _car.StatusEffects.IsDrifting);
             SetEmission(_drift, slide);
             _leftTrack.emitting = slide && left;
             _rightTrack.emitting = slide && right;
         }
 
-        bool UpdateOutlet(MeshRenderer stream, ParticleSystem drops, ref GroundContact contact, bool probe, float reach, bool canPaint)
+        bool UpdateOutlet(MeshRenderer stream, ParticleSystem drops, ref GroundContact contact, bool probe, float reach,
+                          bool canPaint, float seed)
         {
             bool flowing = canPaint && _flow > .0001f && stream != null;
-            Vector3 end = flowing ? stream.transform.TransformPoint(Vector3.forward * (StreamLength * reach)) : default;
+            Transform nozzle = flowing ? stream.transform : null;
+            float length = StreamLength * reach;
+            Vector3 end = flowing ? nozzle.TransformPoint(Vector3.forward * length) : default;
             if (!flowing) contact.Valid = false;
             else if (probe) Probe(end, ref contact);
 
@@ -119,39 +131,74 @@ namespace DriftPaint.Cars
             SetEmission(drops, visible);
             if (!visible)
             {
-                contact.StampTime = 0f;
+                contact.StampTime = contact.SprayTime = 0f;
                 return false;
             }
 
             var emission = drops.emission;
-            emission.rateOverTime = 45f * _flow;
-            float width = reach;
-            // El plano del último contacto permite seguir una rampa entre consultas de física.
-            end.y -= contact.Plane.GetDistanceToPoint(end) / contact.Plane.normal.y;
-            Vector3 landing = end + contact.Plane.normal * .035f;
+            emission.rateOverTime = 30f * _flow;
+            Vector3 landing = OnGround(contact.Plane, end) + contact.Plane.normal * GroundLift;
+            // Con poco caudal el chorro todavía no llega al piso y la punta cuelga en el aire.
             float attached = Mathf.SmoothStep(0f, 1f, _flow / .15f);
-            Vector3 tip = stream.transform.InverseTransformPoint(Vector3.Lerp(
-                stream.transform.TransformPoint(Vector3.forward * (StreamLength * reach)), landing, attached));
-            _pigment.SetVector(JetShape, new Vector4(width, tip.z / StreamLength, tip.y + StreamDrop * width, tip.x));
+            Vector3 tip = nozzle.InverseTransformPoint(Vector3.Lerp(end, landing, attached));
+            _pigment.SetVector(JetShape, new Vector4(reach, tip.x, tip.y, tip.z));
+            _pigment.SetVector(JetFlow, new Vector4(_flow, _cycle, seed, attached));
             stream.SetPropertyBlock(_pigment);
 
-            if (_contactSplash != null && attached > .85f)
+            if (attached > .85f)
             {
-                contact.StampTime += Time.deltaTime * Mathf.Lerp(5f, 28f, _flow);
-                if (contact.StampTime >= 1f)
-                {
-                    contact.StampTime %= 1f;
-                    var stamp = new ParticleSystem.EmitParams
-                    {
-                        position = landing + contact.Plane.normal * .009f,
-                        rotation3D = (Quaternion.FromToRotation(Vector3.up, contact.Plane.normal)
-                            * Quaternion.Euler(0f, Random.Range(0f, 360f), 0f)).eulerAngles,
-                        startSize = Mathf.Lerp(.21f, .64f, reach)
-                    };
-                    _contactSplash.Emit(stamp, 1);
-                }
+                // El golpe contra el piso está donde el chorro termina de caer y empieza a correr acostado.
+                Vector3 impact = OnGround(contact.Plane, nozzle.TransformPoint(Vector3.forward * (length * LandingFraction)));
+                Stamp(ref contact, impact, reach);
+                Spray(drops, ref contact, impact, nozzle);
             }
             return true;
+        }
+
+        /// <summary>Deja una mancha que crece y se asienta, tapando la unión entre el chorro y la pintura del piso.</summary>
+        void Stamp(ref GroundContact contact, Vector3 impact, float reach)
+        {
+            if (_contactSplash == null) return;
+            contact.StampTime += Time.deltaTime * Mathf.Lerp(5f, 28f, _flow);
+            if (contact.StampTime < 1f) return;
+            contact.StampTime %= 1f;
+            var stamp = new ParticleSystem.EmitParams
+            {
+                position = impact + contact.Plane.normal * .009f,
+                rotation3D = (Quaternion.FromToRotation(Vector3.up, contact.Plane.normal)
+                    * Quaternion.Euler(0f, Random.Range(0f, 360f), 0f)).eulerAngles,
+                startSize = Mathf.Lerp(.26f, .7f, reach)
+            };
+            _contactSplash.Emit(stamp, 1);
+        }
+
+        /// <summary>Gotas que saltan del golpe hacia atrás y a los costados; con más caudal salen más y más lejos.</summary>
+        void Spray(ParticleSystem drops, ref GroundContact contact, Vector3 impact, Transform nozzle)
+        {
+            contact.SprayTime += Time.deltaTime * 26f * _flow;
+            int count = Mathf.Min((int)contact.SprayTime, MaxSprayPerFrame);
+            contact.SprayTime -= (int)contact.SprayTime;
+            Vector3 up = contact.Plane.normal;
+            for (int i = 0; i < count; i++)
+            {
+                var drop = new ParticleSystem.EmitParams
+                {
+                    position = impact + up * .02f,
+                    velocity = nozzle.forward * (Random.Range(1.2f, 3.4f) * (.5f + _flow))
+                               + up * (Random.Range(.9f, 2.4f) * (.4f + _flow))
+                               + nozzle.right * (Random.Range(-1.6f, 1.6f) * _flow),
+                    startLifetime = Random.Range(.16f, .3f),
+                    startSize = Random.Range(.04f, .085f) * (.6f + .6f * _flow)
+                };
+                drops.Emit(drop, 1);
+            }
+        }
+
+        /// <summary>Baja el punto en vertical hasta el plano del último contacto, que sigue una rampa entre consultas de física.</summary>
+        static Vector3 OnGround(Plane plane, Vector3 point)
+        {
+            point.y -= plane.GetDistanceToPoint(point) / plane.normal.y;
+            return point;
         }
 
         void Probe(Vector3 end, ref GroundContact contact)

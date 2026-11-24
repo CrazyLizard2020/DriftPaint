@@ -11,14 +11,15 @@ using UnityEngine.SceneManagement;
 namespace DriftPaint.EditorTools
 {
     /// <summary>
-    /// Mantiene las escenas del juego al día sin pasos manuales. Cada vez que Unity recarga los scripts
-    /// revisa si a alguna escena le falta un componente que el código ya espera y, si falta, aplica el
-    /// paso que lo agrega y guarda la escena. La revisión lee el archivo de la escena, así que solo se abre
-    /// una escena cuando de verdad hay algo que agregar.
+    /// Mantiene las escenas y los recursos del juego al día sin pasos manuales. Cada vez que Unity recarga
+    /// los scripts revisa si a alguna escena le falta un componente que el código ya espera y, si falta,
+    /// aplica el paso que lo agrega y guarda la escena. La revisión lee el archivo de la escena, así que
+    /// solo se abre una escena cuando de verdad hay algo que agregar.
     /// <para>
     /// Para un cambio nuevo en una escena existente, se agrega un paso a <see cref="Steps"/> con los
-    /// componentes que deben existir y la función que los crea. La función tiene que poder correr
-    /// más de una vez sin duplicar nada.
+    /// componentes que deben existir y la función que los crea. Para prefabs o recursos generados, se agrega
+    /// un paso a <see cref="AssetSteps"/> con una revisión barata y la función que los actualiza. Las funciones
+    /// tienen que poder correr más de una vez sin duplicar nada.
     /// </para>
     /// </summary>
     [InitializeOnLoad]
@@ -44,6 +45,26 @@ namespace DriftPaint.EditorTools
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
         };
 
+        /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
+        readonly struct AssetStep
+        {
+            public readonly string Name;
+            public readonly Func<bool> Outdated;
+            public readonly Action Apply;
+
+            public AssetStep(string name, Func<bool> outdated, Action apply)
+            {
+                Name = name;
+                Outdated = outdated;
+                Apply = apply;
+            }
+        }
+
+        static readonly AssetStep[] AssetSteps =
+        {
+            new AssetStep("chorros de pintura de los autos", ArenaArtBuilder.ExhaustStreamsOutdated, ArenaArtBuilder.UpdateExhaustStreams),
+        };
+
         static SceneAutoSetup()
         {
             if (Application.isBatchMode) return;
@@ -66,6 +87,21 @@ namespace DriftPaint.EditorTools
             {
                 EditorApplication.delayCall += Run;
                 return;
+            }
+
+            // Primero los recursos, así las escenas que se abran después ya los ven actualizados.
+            foreach (AssetStep step in AssetSteps)
+            {
+                try
+                {
+                    if (!step.Outdated()) continue;
+                    step.Apply();
+                    Debug.Log($"Se actualizaron los {step.Name}.");
+                }
+                catch (Exception exception)
+                {
+                    Debug.LogException(exception);
+                }
             }
 
             foreach (Step step in Steps)

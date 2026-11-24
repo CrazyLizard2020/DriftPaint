@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Combat;
@@ -336,7 +337,8 @@ namespace DriftPaint.EditorTools
 
         static ParticleSystem ExhaustDrops(Transform exhaust)
         {
-            var drops = Drops(exhaust, "Chorro", Vector3.zero, 45, 14);
+            // Además de la salida del escape, el mismo sistema recibe las gotas que saltan del golpe contra el piso.
+            var drops = Drops(exhaust, JetDropsName, Vector3.zero, 30, JetDropCap);
             var main = drops.main;
             // Las gotas se funden con el charco antes de alcanzar la cámara de seguimiento.
             main.startSize = new ParticleSystem.MinMaxCurve(.045f, .105f);
@@ -352,51 +354,141 @@ namespace DriftPaint.EditorTools
 
         static MeshRenderer Stream(Transform exhaust)
         {
-            Transform t = Child(exhaust, "Tinta continua", Vector3.zero);
+            Transform t = Child(exhaust, StreamName, Vector3.zero);
             t.localRotation = Quaternion.Euler(0, 180, 0);
             if (!t.TryGetComponent(out MeshFilter filter))
                 filter = t.gameObject.AddComponent<MeshFilter>();
-            filter.sharedMesh =
-                EditorAssetUtility.LoadOrCreate("Assets/Art/Generated/InkStream.asset", BakeStream);
+            filter.sharedMesh = StreamMesh();
             if (!t.TryGetComponent(out MeshRenderer renderer))
                 renderer = t.gameObject.AddComponent<MeshRenderer>();
-            renderer.sharedMaterial = MaterialFor("Chorro", "DriftPaint/Chorro viscoso");
+            renderer.sharedMaterial = MaterialFor("ChorroEscape", ExhaustJetShader);
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
             renderer.enabled = false;
             return renderer;
         }
 
+        // El shader arma la forma del chorro sobre esta malla; StreamSides tiene que coincidir con SIDES del shader.
+        const string StreamMeshPath = "Assets/Art/Generated/InkStream.asset";
+        const string StreamName = "Tinta continua";
+        const string JetDropsName = "Chorro";
+        const string ExhaustJetShader = "DriftPaint/Chorro de escape";
+        const int StreamSides = 12, StreamRings = 33, JetDropCap = 24;
+        static readonly string[] Exhausts = { "Exhaust_L", "Exhaust_R" };
+
+        static Mesh StreamMesh()
+        {
+            var mesh = EditorAssetUtility.LoadOrCreate(StreamMeshPath, BakeStream);
+            if (!StreamMeshOutdated(mesh))
+                return mesh;
+            var updated = BakeStream();
+            EditorUtility.CopySerialized(updated, mesh);
+            Object.DestroyImmediate(updated);
+            EditorUtility.SetDirty(mesh);
+            return mesh;
+        }
+
+        static bool StreamMeshOutdated(Mesh mesh) => mesh.vertexCount != (StreamSides + 1) * StreamRings;
+
+        /// <summary>
+        /// Tubo de radio 1 y largo 1 con muchos anillos, para que el shader pueda doblarlo hasta el piso y
+        /// dibujar los dientes del borde. La costura repite la primera columna para que la vuelta no salte.
+        /// </summary>
         static Mesh BakeStream()
         {
-            const int sides = 9, rings = 6;
-            var vertices = new Vector3[sides * rings];
-            var triangles = new int[sides * (rings - 1) * 6];
-            for (int row = 0; row < rings; row++)
+            const int columns = StreamSides + 1;
+            var vertices = new Vector3[columns * StreamRings];
+            var normals = new Vector3[vertices.Length];
+            var uv = new Vector2[vertices.Length];
+            var triangles = new int[StreamSides * (StreamRings - 1) * 6];
+            for (int row = 0; row < StreamRings; row++)
             {
-                float d = row / (rings - 1f);
-                for (int j = 0; j < sides; j++)
+                float d = row / (StreamRings - 1f);
+                for (int j = 0; j < columns; j++)
                 {
-                    float a = j * 2 * Mathf.PI / sides;
-                    float radius = (.085f + .074f * d) * (1 + .12f * Mathf.Sin(a * 3 + d * 11));
-                    int p = row * sides + j, next = row * sides + (j + 1) % sides;
-                    vertices[p] = new Vector3(Mathf.Cos(a) * radius,
-                                              Mathf.Sin(a) * radius * (1 - .65f * d) - .30f * d * d, 1.38f * d);
-                    if (row == rings - 1)
+                    float a = j * 2 * Mathf.PI / StreamSides;
+                    int p = row * columns + j;
+                    normals[p] = new Vector3(Mathf.Cos(a), Mathf.Sin(a), 0f);
+                    vertices[p] = normals[p] + Vector3.forward * d;
+                    uv[p] = new Vector2(j / (float)StreamSides, d);
+                    if (row == StreamRings - 1 || j == StreamSides)
                         continue;
-                    int k = p * 6;
+                    int k = (row * StreamSides + j) * 6;
                     triangles[k] = p;
-                    triangles[k + 1] = next;
-                    triangles[k + 2] = p + sides;
-                    triangles[k + 3] = p + sides;
-                    triangles[k + 4] = next;
-                    triangles[k + 5] = next + sides;
+                    triangles[k + 1] = p + 1;
+                    triangles[k + 2] = p + columns;
+                    triangles[k + 3] = p + columns;
+                    triangles[k + 4] = p + 1;
+                    triangles[k + 5] = p + columns + 1;
                 }
             }
-            var mesh = new Mesh { name = "Chorro de escape", vertices = vertices, triangles = triangles };
-            mesh.RecalculateNormals();
-            mesh.RecalculateBounds();
+            var mesh = new Mesh { name = "Chorro de escape", vertices = vertices, normals = normals, uv = uv, triangles = triangles };
+            // La forma final la decide el shader: los límites cubren el chorro más largo y una caída hasta un piso en rampa.
+            mesh.bounds = new Bounds(new Vector3(0f, -.4f, .75f), new Vector3(2f, 1.6f, 1.9f));
             return mesh;
+        }
+
+        static IEnumerable<string> CarPrefabPaths() =>
+            CarPrefabBuilder.Models.Select(spec => CarPrefabBuilder.PrefabFolder + "/Car_" + spec.Name + ".prefab");
+
+        /// <summary>Algún auto todavía usa la malla o el material anteriores del chorro.</summary>
+        internal static bool ExhaustStreamsOutdated()
+        {
+            if (Shader.Find(ExhaustJetShader) == null)
+                return false;
+            var mesh = AssetDatabase.LoadAssetAtPath<Mesh>(StreamMeshPath);
+            if (mesh == null || StreamMeshOutdated(mesh))
+                return true;
+            foreach (string path in CarPrefabPaths())
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab == null || prefab.GetComponent<CarPaintEffects>() == null)
+                    continue;
+                foreach (string exhaust in Exhausts)
+                {
+                    Transform outlet = prefab.transform.Find(exhaust);
+                    Transform stream = outlet != null ? outlet.Find(StreamName) : null;
+                    if (stream != null && stream.TryGetComponent(out MeshRenderer renderer) &&
+                        (renderer.sharedMaterial == null || renderer.sharedMaterial.shader.name != ExhaustJetShader))
+                        return true;
+                    Transform jet = outlet != null ? outlet.Find(JetDropsName) : null;
+                    if (jet != null && jet.TryGetComponent(out ParticleSystem drops) && drops.main.maxParticles < JetDropCap)
+                        return true;
+                }
+            }
+            return false;
+        }
+
+        /// <summary>Pasa los chorros de los autos a la malla y el material nuevos sin tocar el resto del prefab.</summary>
+        internal static void UpdateExhaustStreams()
+        {
+            if (Shader.Find(ExhaustJetShader) == null)
+                return;
+            StreamMesh();
+            foreach (string path in CarPrefabPaths())
+            {
+                var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+                if (prefab == null || prefab.GetComponent<CarPaintEffects>() == null)
+                    continue;
+                using (var contents = new PrefabUtility.EditPrefabContentsScope(path))
+                    foreach (string exhaust in Exhausts)
+                    {
+                        Transform outlet = contents.prefabContentsRoot.transform.Find(exhaust);
+                        if (outlet == null)
+                            continue;
+                        if (outlet.Find(StreamName) != null)
+                            Stream(outlet);
+                        Transform jet = outlet.Find(JetDropsName);
+                        if (jet != null && jet.TryGetComponent(out ParticleSystem drops))
+                        {
+                            var main = drops.main;
+                            main.maxParticles = JetDropCap;
+                            var emission = drops.emission;
+                            emission.rateOverTime = 30;
+                        }
+                    }
+            }
+            AssetDatabase.SaveAssets();
         }
 
         static Transform Child(Transform parent, string name, Vector3 pos)
