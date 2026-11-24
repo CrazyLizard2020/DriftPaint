@@ -30,8 +30,8 @@ namespace DriftPaint.Tests
         [TearDown]
         public void RestoreReservation()
         {
-            if (savedReservation == null) return;
-            PlayerPrefs.SetString(reservationKey, savedReservation);
+            if (savedReservation == null) PlayerPrefs.DeleteKey(reservationKey);
+            else PlayerPrefs.SetString(reservationKey, savedReservation);
             PlayerPrefs.Save();
         }
 
@@ -158,6 +158,61 @@ namespace DriftPaint.Tests
             finally { EditorSceneManager.ClosePreviewScene(scene); }
         }
 
+        [TestCase(JoinFailure.InactiveSeat)]
+        [TestCase(JoinFailure.Full)]
+        public void UnirseRecuperaUnActorInactivoAunqueElEditorHayaPerdidoLaReservaLocal(JoinFailure firstFailure)
+        {
+            PlayerPrefs.DeleteKey(reservationKey);
+            var room = new LobbyTransport();
+            var manager = new NetworkManager(room);
+            var errors = new List<string>();
+            manager.ErrorRaised += errors.Add;
+            room.ShowLobby();
+            Assert.IsTrue(manager.JoinRoom(" test "));
+            room.RejectJoin(firstFailure);
+            Assert.AreEqual(new[] { "join TEST", "rejoin TEST" }, room.JoinAttempts);
+            room.Join();
+            Assert.AreEqual(ConnectionState.InRoom, manager.State);
+            Assert.IsEmpty(errors);
+        }
+
+        [Test]
+        public void SalaLlenaSinAsientoPropioVuelveAlListadoConElErrorOriginal()
+        {
+            PlayerPrefs.DeleteKey(reservationKey);
+            var room = new LobbyTransport();
+            var manager = new NetworkManager(room);
+            var errors = new List<string>();
+            manager.ErrorRaised += errors.Add;
+            room.ShowLobby();
+            manager.JoinRoom("TEST");
+            room.RejectJoin(JoinFailure.Full, "La sala está llena.");
+            room.RejectJoin(JoinFailure.NoReservedSeat);
+            Assert.AreEqual(ConnectionState.InLobby, manager.State);
+            Assert.AreEqual(new[] { "join TEST", "rejoin TEST" }, room.JoinAttempts);
+            Assert.AreEqual(new[] { "No se pudo entrar a la sala. La sala está llena." }, errors);
+        }
+
+        [Test]
+        public void AlReabrirElEditorSeRecuperaElAsientoYSiVencioSePruebaIngresoNormalUnaVez()
+        {
+            var originalRoom = new LobbyTransport();
+            var original = new NetworkManager(originalRoom);
+            originalRoom.Join();
+            original.OnApplicationClosing();
+            var room = new LobbyTransport();
+            var manager = new NetworkManager(room);
+            Assert.IsTrue(manager.HasLobbySeat("TEST"));
+            Assert.IsFalse(manager.CanRejoinLastMatch);
+            room.ShowLobby();
+            Assert.IsTrue(manager.JoinRoom("TEST"));
+            room.RejectJoin(JoinFailure.NoReservedSeat);
+            room.RejectJoin(JoinFailure.Other);
+            Assert.AreEqual(new[] { "rejoin TEST", "join TEST" }, room.JoinAttempts);
+            Assert.AreEqual(ConnectionState.InLobby, manager.State);
+            Assert.IsFalse(manager.HasLobbySeat("TEST"));
+        }
+
         // Las propiedades y los callbacks entran por el mismo contrato que implementa Photon.
         sealed class LobbyTransport : INetworkProvider
         {
@@ -169,6 +224,9 @@ namespace DriftPaint.Tests
                 [3] = new() { [PlayerKeys.Team] = (byte)1 }
             };
             int master = 1;
+            public readonly List<string> JoinAttempts = new();
+            public void ShowLobby() { InLobby = true; JoinedLobby?.Invoke(); }
+            public void RejectJoin(JoinFailure reason, string message = "Sala no disponible") => JoinRoomFailed?.Invoke(reason, message);
             public int LocalActorNumber { get; set; } = 1;
             public bool IsMaster => master == LocalActorNumber;
             public bool InRoom => true;
@@ -209,7 +267,7 @@ namespace DriftPaint.Tests
             public event Action<int, IReadOnlyDictionary<string, object>> PlayerPropertiesChanged;
 
             public bool IsConnected => true;
-            public bool InLobby => false;
+            public bool InLobby { get; private set; }
             public double ServerTime => 1;
             public int Ping => 0;
             public string NickName { get; set; }
@@ -218,23 +276,24 @@ namespace DriftPaint.Tests
             public bool Connect() => throw new NotSupportedException();
             public void Disconnect() => throw new NotSupportedException();
             public bool ReconnectAndRejoin() => throw new NotSupportedException();
-            public bool JoinLobby() => throw new NotSupportedException();
+            public bool JoinLobby() { ShowLobby(); return true; }
             public bool CreateRoom(string name, NetRoomOptions options) => throw new NotSupportedException();
-            public bool JoinRoom(string name) => throw new NotSupportedException();
-            public bool RejoinRoom(string name) => throw new NotSupportedException();
+            public bool JoinRoom(string name) { InLobby = false; JoinAttempts.Add("join " + name); return true; }
+            public bool RejoinRoom(string name) { InLobby = false; JoinAttempts.Add("rejoin " + name); return true; }
             public bool LeaveRoom(bool reserveSeat = false) => throw new NotSupportedException();
             public bool SendEvent(byte code, object payload, NetTarget target, bool reliable) => throw new NotSupportedException();
             public bool SendEventTo(byte code, object payload, int actorNumber, bool reliable) => throw new NotSupportedException();
-            public void SetMessageQueuePaused(bool paused) => throw new NotSupportedException();
+            public void SetMessageQueuePaused(bool paused) { }
             public void RegisterPrefab(string id, GameObject prefab) => throw new NotSupportedException();
             public GameObject Instantiate(string id, Vector3 position, Quaternion rotation) => throw new NotSupportedException();
             public GameObject InstantiateRoomObject(string id, Vector3 position, Quaternion rotation, object[] data) => throw new NotSupportedException();
             public void Destroy(GameObject instance) => throw new NotSupportedException();
-            public void ClearLocalPlayerProperties(IReadOnlyList<string> keys) => throw new NotSupportedException();
+            public void ClearLocalPlayerProperties(IReadOnlyList<string> keys) { }
+            public event Action<JoinFailure, string> JoinRoomFailed;
 
 #pragma warning disable CS0067 // Eventos del transporte que no intervienen en el lobby de prueba.
             public event Action ConnectedToServer, JoinedLobby, RoomListUpdated, LeftRoom;
-            public event Action<string> Disconnected, CreateRoomFailed, JoinRoomFailed;
+            public event Action<string> Disconnected, CreateRoomFailed;
             public event Action<byte, int, object> EventReceived;
             public event Action<GameObject, int, bool, string, object[]> ObjectInstantiated;
             public event Action<GameObject> ObjectDestroyed;

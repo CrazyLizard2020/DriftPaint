@@ -4,6 +4,8 @@ using DriftPaint.Match;
 using DriftPaint.Net;
 using DriftPaint.UI.Menu;
 using NUnit.Framework;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -32,6 +34,45 @@ namespace DriftPaint.Tests
 
         [UnityTest]
         public IEnumerator NoEntraSiLaSalaVuelveAlLobbyDuranteElRegreso() => ReturnThroughMenu(false);
+
+        [UnityTest]
+        public IEnumerator ElDestroyDelDuenoEncuentraSuVistaDespuesDeVolverAlLobby()
+        {
+            var mediator = NetworkServices.Mediator;
+            const BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic;
+            var state = mediator.GetType().GetField("_state", flags);
+            var original = mediator.State;
+            var car = new GameObject("Auto remoto");
+            try
+            {
+                state.SetValue(mediator, ConnectionState.InRoom);
+                var view = car.AddComponent<PhotonView>();
+                view.InstantiationId = view.ViewID = 3001;
+                mediator.GetType().GetMethod("OnObjectInstantiated", flags)
+                    .Invoke(mediator, new object[] { car, 3, false, "Auto remoto", null });
+
+                Assert.IsTrue(SceneLoader.Load(MapCatalog.MenuScene));
+                while (SceneLoader.IsLoading) yield return null;
+                Assert.IsNotNull(PhotonView.Find(3001));
+                Assert.IsFalse(car.activeInHierarchy);
+                Assert.IsFalse(System.Linq.Enumerable.Any(mediator.Objects, o => o.Instance == car));
+
+                // Mismo evento fiable que recibe PUN del actor 3 en una partida.
+                var destroy = new ExitGames.Client.Photon.EventData { Code = 204 };
+                destroy.Parameters[ParameterCode.ActorNr] = 3;
+                destroy.Parameters[ParameterCode.Data] = new ExitGames.Client.Photon.Hashtable { [(byte)0] = 3001 };
+                typeof(PhotonNetwork).GetMethod("OnEvent", BindingFlags.Static | BindingFlags.NonPublic)
+                    .Invoke(null, new object[] { destroy });
+                yield return null;
+                Assert.IsTrue(car == null);
+                Assert.IsNull(PhotonView.Find(3001));
+            }
+            finally
+            {
+                state.SetValue(mediator, original);
+                if (car != null) Object.Destroy(car);
+            }
+        }
 
         static IEnumerator ReturnThroughMenu(bool roundActive)
         {

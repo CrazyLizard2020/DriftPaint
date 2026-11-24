@@ -3,6 +3,8 @@ using System.Collections.Generic;
 
 namespace DriftPaint.Networking
 {
+    public enum JoinFailure { Other, Full, InactiveSeat, NoReservedSeat }
+
     /// <summary>A quién va un evento de red.</summary>
     public enum NetTarget
     {
@@ -140,7 +142,7 @@ namespace DriftPaint.Networking
         event Action JoinedRoom;
         event Action LeftRoom;
         event Action<string> CreateRoomFailed;
-        event Action<string> JoinRoomFailed;
+        event Action<JoinFailure, string> JoinRoomFailed;
         event Action<int> PlayerEntered;
         event Action<int> PlayerLeft;
         event Action<int> MasterSwitched;

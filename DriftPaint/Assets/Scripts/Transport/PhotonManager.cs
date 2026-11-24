@@ -282,7 +282,7 @@ namespace DriftPaint.Transport
         public event Action JoinedRoom;
         public event Action LeftRoom;
         public event Action<string> CreateRoomFailed;
-        public event Action<string> JoinRoomFailed;
+        public event Action<JoinFailure, string> JoinRoomFailed;
         public event Action<int> PlayerEntered;
         public event Action<int> PlayerLeft;
         public event Action<int> MasterSwitched;
@@ -307,6 +307,7 @@ namespace DriftPaint.Transport
         {
             ClearRoomCache();
             Disconnected?.Invoke(cause == DisconnectCause.DisconnectByClientLogic ? null : cause.ToString());
+            DestroyLocalNetworkObjects();
         }
 
         public override void OnJoinedLobby()
@@ -340,7 +341,17 @@ namespace DriftPaint.Transport
 
         public override void OnCreateRoomFailed(short returnCode, string message) => CreateRoomFailed?.Invoke(message);
 
-        public override void OnJoinRoomFailed(short returnCode, string message) => JoinRoomFailed?.Invoke(DescribeJoinFailure(returnCode, message));
+        public override void OnJoinRoomFailed(short returnCode, string message)
+        {
+            var reason = returnCode switch
+            {
+                ErrorCode.GameFull => JoinFailure.Full,
+                ErrorCode.JoinFailedFoundInactiveJoiner => JoinFailure.InactiveSeat,
+                ErrorCode.JoinFailedWithRejoinerNotFound => JoinFailure.NoReservedSeat,
+                _ => JoinFailure.Other
+            };
+            JoinRoomFailed?.Invoke(reason, DescribeJoinFailure(returnCode, message));
+        }
 
         public override void OnPlayerEnteredRoom(Player newPlayer) => PlayerEntered?.Invoke(newPlayer.ActorNumber);
 

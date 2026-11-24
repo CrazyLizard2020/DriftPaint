@@ -26,7 +26,15 @@ namespace DriftPaint.UI.Menu
             }
         }
 
-        void OnEnable() => RefreshReservation();
+        void OnEnable()
+        {
+            RefreshReservation();
+            // La caché también puede reproducirse al recuperar un asiento desde la lista de salas.
+            var mediator = NetworkServices.Mediator;
+            if (mediator != null && _rejoinPrefabs != null)
+                foreach (GameObject prefab in _rejoinPrefabs)
+                    if (prefab != null) mediator.RegisterPrefab(prefab.name, prefab);
+        }
         void Update() => RefreshReservation();
 
         void RefreshReservation()
@@ -42,13 +50,7 @@ namespace DriftPaint.UI.Menu
 
         void Rejoin()
         {
-            INetworkMediator mediator = NetworkServices.Mediator;
-            if (mediator == null) return;
-            // Al reiniciar, la caché de la sala puede llegar antes de que se cargue la pista.
-            if (_rejoinPrefabs != null)
-                foreach (GameObject prefab in _rejoinPrefabs)
-                    if (prefab != null) mediator.RegisterPrefab(prefab.name, prefab);
-            mediator.RejoinLastMatch();
+            NetworkServices.Mediator?.RejoinLastMatch();
         }
 
         void OpenRooms()

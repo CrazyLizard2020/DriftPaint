@@ -46,9 +46,10 @@ namespace DriftPaint.UI.Menu
             SetPing(ping);
 
             bool playing = !room.IsOpen || !room.Phase.IsBetweenMatches();
-            bool canJoin = !playing && !room.IsFull;
+            bool full = room.IsFull && NetworkServices.Mediator?.HasLobbySeat(room.Id) != true;
+            bool canJoin = !playing && !full;
             if (_joinButton != null) _joinButton.interactable = canJoin;
-            if (_joinLabel != null) _joinLabel.text = GameLanguage.Text(playing ? "EN JUEGO" : room.IsFull ? "LLENA" : "UNIRSE");
+            if (_joinLabel != null) _joinLabel.text = GameLanguage.Text(playing ? "EN JUEGO" : full ? "LLENA" : "UNIRSE");
         }
     }
 }

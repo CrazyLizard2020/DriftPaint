@@ -28,6 +28,7 @@ namespace DriftPaint.Networking
         readonly System.Random _random = new System.Random();
         readonly Dictionary<string, GameObject> _prefabs = new Dictionary<string, GameObject>();
         readonly List<NetworkObjectInfo> _objects = new List<NetworkObjectInfo>();
+        bool _waitingInRoomMenu;
         int _scoreA;
         int _scoreB;
         int _round;
@@ -55,6 +56,7 @@ namespace DriftPaint.Networking
         sealed class Reservation
         {
             public string Room;
+            public bool InLobby;
             public string Match;
             public double StartTime;
             public int Round;
@@ -68,6 +70,9 @@ namespace DriftPaint.Networking
         Pose? _reservedCarPose;
         float _reservationDeadline;
         bool _manualRejoin;
+        string _joinRetryRoom;
+        bool _recoveringLobbySeat;
+        string _fullRoomError;
 
         public NetworkManager(INetworkProvider provider)
         {
@@ -132,7 +137,8 @@ namespace DriftPaint.Networking
         }
         public byte Winner => _winner;
         /// <summary>La sala decide al recibir el pedido si todavía conserva al actor.</summary>
-        public bool CanRejoinLastMatch => _state == ConnectionState.Disconnected && HasReservation;
+        public bool CanRejoinLastMatch => _state == ConnectionState.Disconnected && HasReservation && !_reservation.InLobby;
+        public bool HasLobbySeat(string roomId) => HasReservation && _reservation.InLobby && _reservation.Room == roomId;
         bool HasReservation => _reservation != null && Time.realtimeSinceStartup < _reservationDeadline;
         /// <summary>La escena que se abre debe esperar el auto que repone la caché de la sala.</summary>
         public bool ReturningFromMenu { get; private set; }
@@ -287,7 +293,13 @@ namespace DriftPaint.Networking
             if (_state != ConnectionState.InLobby || string.IsNullOrWhiteSpace(roomId)) return false;
             // Sin esto, el equipo y el puntaje de la sala anterior llegan a la nueva y el Master no reparte.
             _provider.ClearLocalPlayerProperties(PlayerKeys.RoomScoped);
-            if (!_provider.JoinRoom(roomId.Trim().ToUpperInvariant())) return false;
+            string room = roomId.Trim().ToUpperInvariant();
+            bool reclaim = HasLobbySeat(room);
+            if (!(reclaim ? _provider.RejoinRoom(room) : _provider.JoinRoom(room))) return false;
+            _reservedCarPose = null;
+            _joinRetryRoom = room;
+            _recoveringLobbySeat = reclaim;
+            _fullRoomError = null;
 
             SetState(ConnectionState.JoiningRoom);
             return true;
@@ -325,7 +337,7 @@ namespace DriftPaint.Networking
         void RememberMatch()
         {
             // La sala se cierra al quedar vacía. Hace falta otro jugador activo para que siga la partida.
-            if (_phase.IsBetweenMatches() || !_players.Exists(player => !player.IsLocal && !player.IsInactive))
+            if (!_players.Exists(player => !player.IsLocal && !player.IsInactive))
             {
                 ForgetReservation();
                 return;
@@ -340,6 +352,7 @@ namespace DriftPaint.Networking
             _reservation = new Reservation
             {
                 Room = _currentRoom.Id,
+                InLobby = _phase.IsBetweenMatches(),
                 Match = _currentMatchId,
                 StartTime = _matchStartTime,
                 Round = _round,
@@ -625,6 +638,22 @@ namespace DriftPaint.Networking
             UnityEngine.Object.Destroy(instance);
         }
 
+        public void RetireMatchObjects()
+        {
+            _waitingInRoomMenu = true;
+            foreach (var info in _objects)
+                if (info.Instance != null) RetireObject(info.Instance);
+            _objects.Clear();
+        }
+
+        // El dueño todavía puede estar en resultados. PUN necesita encontrar su vista cuando
+        // llegue el Destroy, aunque este cliente ya esté en el menú o en la siguiente pista.
+        static void RetireObject(GameObject instance)
+        {
+            UnityEngine.Object.DontDestroyOnLoad(instance);
+            instance.SetActive(false);
+        }
+
         #endregion
 
         #region INetworkMediator: partida
@@ -863,13 +892,19 @@ namespace DriftPaint.Networking
                 if (!_provider.LeaveRoom()) Disconnect();
                 return;
             }
-            ReturningFromMenu = manual;
+            ReturningFromMenu = (manual || _recoveringLobbySeat) && !_phase.IsBetweenMatches();
+            bool returningToLobby = (rejoined || _recoveringLobbySeat) && _phase.IsBetweenMatches();
+            if (!rejoined && _phase.IsBetweenMatches()) RetireMatchObjects();
+            _joinRetryRoom = null;
+            _fullRoomError = null;
+            _recoveringLobbySeat = false;
             _manualRejoin = false;
             ForgetReservation();
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
             SetState(ConnectionState.InRoom);
+            if (returningToLobby && LocalReady) SetLocalReady(false);
             RoomChanged?.Invoke();
             PlayersChanged?.Invoke();
             if (rejoined)
@@ -903,8 +938,31 @@ namespace DriftPaint.Networking
             RaiseError(string.Format(GameLanguage.Text("No se pudo crear la sala. {0}"), GameLanguage.Text(message)));
         }
 
-        void OnJoinRoomFailed(string message)
+        void OnJoinRoomFailed(JoinFailure reason, string message)
         {
+            // Photon entrega el rechazo del GameServer al regresar al MasterServer.
+            // Se permite un solo cambio de modalidad para la misma solicitud de la lista.
+            string room = _joinRetryRoom;
+            _joinRetryRoom = null;
+            if (reason == JoinFailure.NoReservedSeat && _fullRoomError != null) message = _fullRoomError;
+            _fullRoomError = null;
+            if (room != null && _state == ConnectionState.JoiningRoom && !_disconnectRequested)
+            {
+                // Una sala llena puede informar GameFull antes de comprobar el UserId.
+                if (!_recoveringLobbySeat && (reason == JoinFailure.InactiveSeat || reason == JoinFailure.Full))
+                {
+                    _recoveringLobbySeat = true;
+                    if (reason == JoinFailure.Full) _fullRoomError = message;
+                    if (_provider.RejoinRoom(room)) return;
+                }
+                else if (_recoveringLobbySeat && reason == JoinFailure.NoReservedSeat)
+                {
+                    _recoveringLobbySeat = false;
+                    ForgetReservation();
+                    if (_provider.JoinRoom(room)) return;
+                }
+            }
+            _recoveringLobbySeat = false;
             if (_manualRejoin)
             {
                 RejectManualRejoin();
@@ -918,6 +976,7 @@ namespace DriftPaint.Networking
                 return;
             }
             SetState(_provider.InLobby ? ConnectionState.InLobby : ConnectionState.Connecting);
+            if (!_provider.InLobby && !_disconnectRequested) EnterLobby();
             RaiseError(string.Format(GameLanguage.Text("No se pudo entrar a la sala. {0}"), GameLanguage.Text(message)));
         }
 
@@ -1073,6 +1132,11 @@ namespace DriftPaint.Networking
 
         void OnObjectInstantiated(GameObject instance, int ownerActorId, bool isLocal, string prefabId, object[] data)
         {
+            if (_waitingInRoomMenu && _phase.IsBetweenMatches() && _provider.InRoom)
+            {
+                RetireObject(instance);
+                return;
+            }
             var info = new NetworkObjectInfo(instance, ownerActorId, isLocal, prefabId, data);
             _objects.RemoveAll(o => o.Instance == null || o.Instance == instance);
             _objects.Add(info);
@@ -1104,6 +1168,10 @@ namespace DriftPaint.Networking
 
         void ClearRoom()
         {
+            _waitingInRoomMenu = false;
+            _joinRetryRoom = null;
+            _fullRoomError = null;
+            _recoveringLobbySeat = false;
             ReturningFromMenu = false;
             _currentMatchId = null;
             RingSnapshot = null;
@@ -1146,6 +1214,7 @@ namespace DriftPaint.Networking
 
             MatchPhase previous = _phase;
             _phase = _currentRoom.Phase;
+            if (!_phase.IsBetweenMatches()) _waitingInRoomMenu = false;
             if (_phase.IsBetweenMatches()) ReturningFromMenu = false;
             if (notifyPhase && previous != _phase) PhaseChanged?.Invoke(_phase);
         }

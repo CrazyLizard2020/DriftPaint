@@ -122,7 +122,7 @@ namespace DriftPaint.UI.Menu
                 return;
             }
 
-            _loadingMatch = SceneLoader.Load(scene, _mediator.ReturningFromMenu);
+            _loadingMatch = SceneLoader.Load(scene, keepReceivedObjects: true);
             if (_loadingMatch) SetBusy("CARGANDO PARTIDA...");
         }
 

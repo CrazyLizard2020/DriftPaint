@@ -25,6 +25,8 @@ namespace DriftPaint.Match
             IsLoading = true;
             INetworkMediator mediator = NetworkServices.Mediator;
             mediator?.SetIncomingPaused(true);
+            if (scene == MapCatalog.MenuScene && mediator?.State == ConnectionState.InRoom)
+                mediator.RetireMatchObjects();
 
             var received = new System.Collections.Generic.List<GameObject>();
             if (keepReceivedObjects && mediator != null)

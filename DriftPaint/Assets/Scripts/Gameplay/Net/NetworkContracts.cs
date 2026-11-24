@@ -266,6 +266,7 @@ namespace DriftPaint.Net
         float ReconnectTimeRemaining { get; }
         /// <summary>Hay una reserva vigente que se puede solicitar desde el menú principal.</summary>
         bool CanRejoinLastMatch { get; }
+        bool HasLobbySeat(string roomId);
         /// <summary>La escena de partida debe recuperar los objetos del actor que volvió desde el menú.</summary>
         bool ReturningFromMenu { get; }
         /// <summary>Pose anterior del auto cuando se recupera desde otra escena.</summary>
@@ -364,6 +365,7 @@ namespace DriftPaint.Net
         GameObject SpawnShared(string prefabId, Vector3 position, Quaternion rotation, object[] data = null);
         /// <summary>Destruye un objeto propio (o de la sala, si es el Master) en todos los clientes.</summary>
         void Despawn(GameObject instance);
+        void RetireMatchObjects();
         /// <summary>Objetos de red que existen ahora, propios y ajenos.</summary>
         IReadOnlyList<NetworkObjectInfo> Objects { get; }
         event Action<NetworkObjectInfo> ObjectSpawned;
