@@ -63,6 +63,11 @@ namespace DriftPaint.EditorTools
             new Step(RoyalDriftRoadMap.ScenePath, new[] { typeof(DriftPaint.Combat.BarrelLook) }, BarrelArtBuilder.InstallPickups),
             new Step(MatchSceneBuilder.ScenePath, "nombres centrados sobre los autos", NameplateBuilder.Pending, NameplateBuilder.Install),
             new Step(RoyalDriftRoadMap.ScenePath, "nombres centrados sobre los autos", NameplateBuilder.Pending, NameplateBuilder.Install),
+            new Step(MenuSceneBuilder.ScenePath, new[] { typeof(LanguageOptions) }, LanguageMenuBuilder.Install),
+            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(LanguageOptions) }, LanguageMenuBuilder.Install),
+            new Step(RoyalDriftRoadMap.ScenePath, new[] { typeof(LanguageOptions) }, LanguageMenuBuilder.Install),
+            new Step(MatchSceneBuilder.ScenePath, "panel de habilidades que se adapta al idioma", AbilitiesLayoutBuilder.Pending, AbilitiesLayoutBuilder.Install),
+            new Step(RoyalDriftRoadMap.ScenePath, "panel de habilidades que se adapta al idioma", AbilitiesLayoutBuilder.Pending, AbilitiesLayoutBuilder.Install),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
@@ -87,6 +92,7 @@ namespace DriftPaint.EditorTools
             new AssetStep("efectos de sonido", SfxBuilder.Outdated, SfxBuilder.Apply),
             new AssetStep("escena de Royal Drift Road", MatchSceneBuilder.RoyalDriftRoadMissing, MatchSceneBuilder.BuildRoyalDriftRoad),
             new AssetStep("modelo del barril", BarrelArtBuilder.Outdated, BarrelArtBuilder.Apply),
+            new AssetStep("japonés y chino", CjkLanguageBuilder.Outdated, CjkLanguageBuilder.Apply),
         };
 
         static SceneAutoSetup()

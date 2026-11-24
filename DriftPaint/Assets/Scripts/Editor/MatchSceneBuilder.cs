@@ -590,6 +590,7 @@ namespace DriftPaint.EditorTools
                 ("_bannerRoot", banner.gameObject), ("_bannerTitle", bannerTitle), ("_bannerSubtitle", bannerSubtitle),
                 ("_speedText", speedText), ("_speedFill", speedFill),
                 ("_fireCooldownText", fireText), ("_fireCooldownFill", fireFill), ("_barrelsText", barrels));
+            AbilitiesLayoutBuilder.Connect(hud);
 
             BuildScoreboard(canvas, match, score, palette);
 

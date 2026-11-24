@@ -321,6 +321,18 @@ namespace DriftPaint.EditorTools
 
         static TMP_Dropdown ResolutionDropdown(Transform panel)
         {
+            TMP_Dropdown list = CreateDropdown(panel, "Resolution");
+            var rect = (RectTransform)list.transform;
+            rect.anchorMin = rect.anchorMax = rect.pivot = TopLeft;
+            rect.anchoredPosition = new Vector2(169f, -75f);
+            rect.sizeDelta = new Vector2(360f, 50f);
+            list.captionText.text = "Resolución";
+            return list;
+        }
+
+        /// <summary>Desplegable con el estilo del menú de opciones, sin opciones: las carga su componente al abrirse.</summary>
+        internal static TMP_Dropdown CreateDropdown(Transform parent, string name)
+        {
             var white = MenuSceneBuilder.WhiteSprite;
             var root = TMP_DefaultControls.CreateDropdown(new TMP_DefaultControls.Resources
             {
@@ -328,16 +340,12 @@ namespace DriftPaint.EditorTools
                 dropdown = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/DropdownArrow.psd"),
                 checkmark = AssetDatabase.GetBuiltinExtraResource<Sprite>("UI/Skin/Checkmark.psd")
             });
-            root.name = "Resolution";
-            var rect = (RectTransform)root.transform;
-            rect.SetParent(panel, false);
-            rect.anchorMin = rect.anchorMax = rect.pivot = TopLeft;
-            rect.anchoredPosition = new Vector2(169f, -75f);
-            rect.sizeDelta = new Vector2(360f, 50f);
+            root.name = name;
+            root.transform.SetParent(parent, false);
 
             var list = root.GetComponent<TMP_Dropdown>();
             list.ClearOptions();
-            list.captionText.text = "Resolución";
+            list.captionText.text = "";
             list.itemText.text = "";
             foreach (var label in new[] { list.captionText, list.itemText })
             {

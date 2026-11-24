@@ -145,10 +145,7 @@ namespace DriftPaint.EditorTools
             if (box == null) return;
             var hint = (RectTransform)box.Find("Hint");
             hint.anchoredPosition = new Vector2(-60f, -103f);
-            var button = box.Find("Language Button")?.GetComponent<Button>() ??
-                MenuSceneBuilder.CreateButton(box, "Language Button", "Idioma: Español", MenuSceneBuilder.ButtonStyle.Outline,
-                    34f, Vector2.one, new Vector2(-60f, -28f), new Vector2(300f, 64f), Vector2.one);
-            MenuSceneBuilder.Bind(options, ("_languageButton", button));
+            LanguageMenuBuilder.Install(options);
         }
 
         static void InstallSignal(RoomRowView row)

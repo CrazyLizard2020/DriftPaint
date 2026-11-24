@@ -58,8 +58,5 @@ namespace DriftPaint
             PlayerPrefs.DeleteKey(Preference);
             PlayerPrefs.Save();
         }
-
-        /// <summary>Permite alternar los dos idiomas desde un botón de teclado, mouse o joystick.</summary>
-        public static void Toggle() => Select(LocalizationSettings.SelectedLocale?.Identifier.Code == "en" ? "es" : "en");
     }
 }

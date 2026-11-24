@@ -55,11 +55,19 @@ namespace DriftPaint.Match
 
         [Header("Habilidades")]
         [SerializeField] TMP_Text _fireCooldownText;
+        [Tooltip("Lugar del cooldown dentro del panel de habilidades. Se ensancha si la palabra LISTO del idioma elegido " +
+                 "no entra, así el panel no cambia de tamaño entre la cuenta y el disparo listo.")]
+        [SerializeField] LayoutElement _fireCooldownSlot;
         [Tooltip("Image en modo Filled: llena cuando el disparo está listo.")]
         [SerializeField] Image _fireCooldownFill;
         [SerializeField] TMP_Text _barrelsText;
 
         CarController _car;
+        float _fireCooldownSlotWidth;
+        // Último estado recibido: el arma solo avisa cuando cambia, así que al cambiar de idioma se reescribe desde acá.
+        float _fireRemaining;
+        float _fireTotal = 1f;
+        int _barrels;
         int _lastClockSeconds = -1;
         int _lastSpeed = -1;
         int _lastCellsA = -1;
@@ -71,6 +79,9 @@ namespace DriftPaint.Match
         /// <summary>Estado del disparo y del inventario de barriles del auto local.</summary>
         public void SetAbilities(float fireCooldownRemaining, float fireCooldownTotal, int barrels)
         {
+            _fireRemaining = fireCooldownRemaining;
+            _fireTotal = fireCooldownTotal;
+            _barrels = barrels;
             if (_fireCooldownText != null)
                 _fireCooldownText.text = fireCooldownRemaining > 0f ? $"{fireCooldownRemaining:0.0} s" : GameLanguage.Text("LISTO");
             if (_fireCooldownFill != null)
@@ -78,10 +89,33 @@ namespace DriftPaint.Match
             if (_barrelsText != null) _barrelsText.text = $"x{barrels}";
         }
 
+        void Awake()
+        {
+            if (_fireCooldownSlot != null) _fireCooldownSlotWidth = _fireCooldownSlot.minWidth;
+        }
+
+        void OnEnable() => GameLanguage.Changed += RefreshLanguage;
+        void OnDisable() => GameLanguage.Changed -= RefreshLanguage;
+
         void Start()
         {
+            FitFireCooldown();
             SetAbilities(0f, 1f, 0);
             if (_leaveMatchButton != null && _match != null) _leaveMatchButton.onClick.AddListener(_match.Leave);
+        }
+
+        void RefreshLanguage()
+        {
+            FitFireCooldown();
+            SetAbilities(_fireRemaining, _fireTotal, _barrels);
+        }
+
+        /// <summary>Reserva el ancho de la palabra LISTO en el idioma actual, sin bajar del ancho elegido en la escena.</summary>
+        void FitFireCooldown()
+        {
+            if (_fireCooldownSlot == null || _fireCooldownText == null) return;
+            float ready = _fireCooldownText.GetPreferredValues(GameLanguage.Text("LISTO")).x;
+            _fireCooldownSlot.minWidth = Mathf.Max(_fireCooldownSlotWidth, Mathf.Ceil(ready));
         }
 
         void Update()
