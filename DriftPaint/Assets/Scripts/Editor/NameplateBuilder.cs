@@ -37,30 +37,35 @@ namespace DriftPaint.EditorTools
             if (plate == null) return;
             var rect = (RectTransform)plate.transform;
 
+            // Los valores de diseño se ponen solo al crear el contenedor: después se ajustan a mano en la
+            // escena y volver a llamar a esta función no los pisa.
             var content = rect.Find(ContentName) as RectTransform;
-            if (content == null)
+            bool created = content == null;
+            if (created)
             {
                 content = (RectTransform)new GameObject(ContentName, typeof(RectTransform)).transform;
                 content.SetParent(rect, false);
+                content.anchorMin = Vector2.zero;
+                content.anchorMax = Vector2.one;
+                content.pivot = new Vector2(0.5f, 0.5f);
+                content.offsetMin = Vector2.zero;
+                content.offsetMax = Vector2.zero;
             }
-            content.anchorMin = Vector2.zero;
-            content.anchorMax = Vector2.one;
-            content.pivot = new Vector2(0.5f, 0.5f);
-            content.offsetMin = Vector2.zero;
-            content.offsetMax = Vector2.zero;
 
             // Todo lo que cuelga del cartel pasa al contenedor.
             foreach (Transform child in rect.Cast<Transform>().Where(c => c != content).ToList())
                 child.SetParent(content, false);
 
             if (!content.TryGetComponent(out HorizontalLayoutGroup layout))
+            {
                 layout = content.gameObject.AddComponent<HorizontalLayoutGroup>();
-            layout.childAlignment = TextAnchor.MiddleCenter;
-            layout.spacing = Spacing;
-            layout.childControlWidth = true;
-            layout.childControlHeight = false;
-            layout.childForceExpandWidth = false;
-            layout.childForceExpandHeight = false;
+                layout.childAlignment = TextAnchor.MiddleCenter;
+                layout.spacing = Spacing;
+                layout.childControlWidth = true;
+                layout.childControlHeight = false;
+                layout.childForceExpandWidth = false;
+                layout.childForceExpandHeight = false;
+            }
 
             var serialized = new SerializedObject(plate);
             var icon = serialized.FindProperty("_disconnectedIcon").objectReferenceValue as GameObject;
@@ -71,9 +76,9 @@ namespace DriftPaint.EditorTools
             int index = 0;
             if (icon != null) Place(icon.transform, content, ref index);
             if (marker != null) Place(marker.transform, content, ref index);
-            if (name != null)
+            if (name != null) Place(name.transform, content, ref index);
+            if (name != null && created)
             {
-                Place(name.transform, content, ref index);
                 var nameRect = (RectTransform)name.transform;
                 nameRect.anchorMin = nameRect.anchorMax = new Vector2(0.5f, 0.5f);
                 nameRect.sizeDelta = new Vector2(nameRect.sizeDelta.x, NameHeight);

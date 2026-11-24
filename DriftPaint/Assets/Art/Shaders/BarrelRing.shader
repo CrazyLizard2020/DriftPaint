@@ -2,7 +2,11 @@ Shader "DriftPaint/Aro de barril"
 {
     Properties {
         _BaseColor("Color del equipo (alfa: opacidad)",Color)=(0,1,1,1)
-        _Pulse("Período, ancho de la onda, radio del halo e intensidad",Vector)=(1.5,.07,.3,2.4)
+        _Period("Segundos entre pulsos",Range(.2,5))=1.5
+        _WaveWidth("Ancho de la onda",Range(.01,.3))=.07
+        _HaloRadius("Radio del halo fijo (fracción del aro)",Range(.05,.9))=.3
+        _HaloWidth("Grosor del halo fijo",Range(.01,.2))=.045
+        _Intensity("Intensidad del brillo",Range(0,6))=2.4
     }
     SubShader {
         Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Transparent" "Queue"="Transparent" "IgnoreProjector"="True" }
@@ -18,7 +22,11 @@ Shader "DriftPaint/Aro de barril"
 
             CBUFFER_START(UnityPerMaterial)
             half4 _BaseColor;
-            float4 _Pulse; // x: segundos por pulso; y: ancho de la onda; z: radio del halo fijo (0 a 1); w: intensidad
+            float _Period;
+            float _WaveWidth;
+            float _HaloRadius;
+            float _HaloWidth;
+            float _Intensity;
             CBUFFER_END
 
             struct Link {
@@ -44,14 +52,14 @@ Shader "DriftPaint/Aro de barril"
                 float r = length(i.disc);
                 clip(1 - r);
 
-                float period = max(_Pulse.x, .05);
-                float halo = _Pulse.z;
+                float period = max(_Period, .05);
+                float halo = _HaloRadius;
                 float t = frac(_Time.y / period + i.seed);
 
                 // La onda nace en el halo, se expande frenando y se apaga al llegar al borde.
                 float grow = 1 - (1 - t) * (1 - t);
                 float front = lerp(halo, .96, grow);
-                float width = _Pulse.y * (.7 + .9 * t);
+                float width = _WaveWidth * (.7 + .9 * t);
                 float life = pow(1 - t, 1.5);
                 float wave = exp(-pow((r - front) / width, 2)) * life;
 
@@ -60,12 +68,12 @@ Shader "DriftPaint/Aro de barril"
 
                 // Halo fijo bajo el barril que destella cada vez que sale una onda.
                 float flash = .55 + .45 * pow(1 - t, 6);
-                float ring = exp(-pow((r - halo) / .045, 2)) * flash;
+                float ring = exp(-pow((r - halo) / max(_HaloWidth, .005), 2)) * flash;
                 float core = exp(-pow(r / max(halo, .01), 2)) * .18;
 
                 float glow = (wave + wake + ring + core) * saturate((1 - r) / .05);
                 half3 color = _BaseColor.rgb * glow + (wave * wave + ring * ring) * .35;
-                return half4(color * _Pulse.w * _BaseColor.a, 1);
+                return half4(color * _Intensity * _BaseColor.a, 1);
             }
             ENDHLSL
         }
