@@ -106,10 +106,14 @@ MonoBehaviour:
     m_RotationOrder: 4
   _maxGrip: 30
   _extraGravity: 10
+  _suspensionStiffness: 70
+  _suspensionDamping: 7
+  _suspensionReboundRatio: 2.5
+  _suspensionTravel: 0.3
+  _flippedAngle: 75
+  _flipDetectTime: 1.5
+  _flipBlinkTime: 1.5
   _paintBoostMultiplier: 1.5
-  _stunSpeedFactor: 0.2
-  _statusDuration: 2
-  _slowDeceleration: 8
   _driftMinSpeed: 11.11
   _driftGripFactor: 0.3
   _driftYawMultiplier: 1.5
@@ -118,6 +122,24 @@ MonoBehaviour:
   _driftTurboMultiplier: 2
   _driftTurboDuration: {x: 0.5, y: 1}
   _respawnHoldTime: 1
+  _engine:
+    _idleRpm: 850
+    _redlineRpm: 7000
+    _limiterRpm: 7200
+    _gearTopSpeeds:
+    - 0.2
+    - 0.36
+    - 0.54
+    - 0.76
+    - 1.08
+    _reverseTopSpeed: 1.3
+    _shiftTime: 0.18
+    _downshiftFraction: 0.45
+    _launchRpm: 3000
+    _revRiseRate: 14000
+    _revDropRate: 6000
+    _wheelspinBoost: 0.15
+  _engineSound: {fileID: 0}
   _speedPid:
     _proportional: 8
     _integral: 2

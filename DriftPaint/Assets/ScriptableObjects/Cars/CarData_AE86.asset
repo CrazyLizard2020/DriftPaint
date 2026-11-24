@@ -111,8 +111,8 @@ MonoBehaviour:
   _suspensionReboundRatio: 2.5
   _suspensionTravel: 0.3
   _flippedAngle: 75
-  _flipDetectTime: 2
-  _flipBlinkTime: 2
+  _flipDetectTime: 1.5
+  _flipBlinkTime: 1.5
   _paintBoostMultiplier: 1.5
   _driftMinSpeed: 11.11
   _driftGripFactor: 0.3
