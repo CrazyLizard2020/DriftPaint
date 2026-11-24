@@ -7,7 +7,15 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
     {
         _InkColor("Color de la línea", Color) = (.08, .07, .14, 1)
         _Strength("Opacidad", Range(0, 1)) = .85
-        _Width("Grosor cercano a 1080p (px)", Range(.5,3)) = 2.3
+        [Enum(Continuo,0,Pincelada,1)] _BrushMode("Estilo de línea", Float) = 1
+        _BrushPressure("Variación de presión", Range(0,1)) = .55
+        _DryBrush("Pincel seco", Range(0,1)) = .48
+        _BrushLength("Longitud de pincelada (px a 1080p)", Range(8,100)) = 40
+        _CarWidth("Carrocería y cristales (px a 1080p)", Range(0,12)) = 3.6
+        _RampWidth("Rampas (px)", Range(0,12)) = 3
+        _ConcreteWidth("Piso, muros y bloques de concreto (px)", Range(0,12)) = 2
+        _ArenaWidth("Tribunas y ciudad (px)", Range(0,12)) = 1.8
+        _Width("Otros opacos, ruedas y props (px)", Range(0,12)) = 2.3
         _DepthThreshold("Umbral de profundidad", Range(.005, .5)) = .06
         _NormalThreshold("Umbral de normales", Range(0, 1)) = .5
         _FadeDistance("Desvanecido: inicio y fin (m)", Vector) = (25, 120, 0, 0)
@@ -35,6 +43,8 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
             half4 _InkColor;
             half _Strength;
             float _Width;
+            float _CarWidth, _RampWidth, _ConcreteWidth, _ArenaWidth;
+            float _BrushMode, _BrushPressure, _DryBrush, _BrushLength;
             float _DepthThreshold;
             half _NormalThreshold;
             float4 _FadeDistance;
@@ -47,6 +57,31 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
                 return 1.0 / LinearEyeDepth(SampleSceneDepth(uv), _ZBufferParams);
             }
 
+            float GroupWidth(float2 uv)
+            {
+                float2 normalUv = ClampAndScaleUVForBilinear(UnityStereoTransformScreenSpaceTex(uv), _CameraNormalsTexture_TexelSize.xy);
+                float group = SAMPLE_TEXTURE2D_X(_CameraNormalsTexture, sampler_PointClamp, normalUv).a;
+                if (group < .125) return _Width;
+                if (group < .375) return _CarWidth;
+                if (group < .625) return _RampWidth;
+                if (group < .875) return _ConcreteWidth;
+                return _ArenaWidth;
+            }
+
+            // Papel fijo en pantalla. Los cambios de presión son anchos y las fibras son alargadas.
+            // Las frecuencias más finas se atenúan a resoluciones pequeñas.
+            float2 Brush(float2 uv)
+            {
+                float2 paper = uv * _ScreenSize.xy * (1080.0 / _ScreenSize.y);
+                float2 axis = float2(dot(paper, float2(.94,.34)), dot(paper, float2(-.34,.94)));
+                float phase = axis.x / max(1, _BrushLength);
+                float pressure = sin(phase * 3.1 + sin(axis.y * .06)) * cos(phase * 1.3 + axis.y * .034);
+                float fibers = sin(axis.y * 1.53 + sin(phase * 2.3)) * cos(phase * 3.7 + axis.y * .23);
+                float filter = saturate(_ScreenSize.y / 1080.0);
+                return float2(1 + .72 * _BrushPressure * pressure,
+                              1 - _DryBrush * smoothstep(-.2, .78, fibers) * filter);
+            }
+
             half4 Frag(Varyings input) : SV_Target
             {
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(input);
@@ -57,7 +92,12 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
                 float center = InverseDepth(uv);
                 if (center < 1.001 / _ProjectionParams.z) return color;
                 float distanceFade = smoothstep(_FadeDistance.x, _FadeDistance.y, 1.0 / center);
-                float2 texel = _ScreenSize.zw * max(1.0, lerp(_Width, 1, distanceFade) * _ScreenSize.y / 1080.0);
+                float width = GroupWidth(uv);
+                if (width <= 0) return color;
+                float2 brush = float2(1,1);
+                if (_BrushMode > .5) brush = Brush(uv);
+                float radius = lerp(width, min(width, 1), distanceFade) * brush.x * _ScreenSize.y / 1080.0;
+                float2 texel = _ScreenSize.zw * max(1.0, radius);
                 float2 offsets[4] = { float2(texel.x, 0), float2(-texel.x, 0), float2(0, texel.y), float2(0, -texel.y) };
 
                 half3 normal = SampleSceneNormals(uv);
@@ -81,7 +121,7 @@ Shader "Hidden/DriftPaint/Contorno a tinta"
                 half edge = max(depthEdge, normalEdge);
 
                 half fade = lerp(1, _FarStrength, distanceFade);
-                color.rgb = lerp(color.rgb, _InkColor.rgb, edge * _Strength * fade);
+                color.rgb = lerp(color.rgb, _InkColor.rgb, edge * _Strength * fade * saturate(radius) * brush.y);
                 return color;
             }
             ENDHLSL

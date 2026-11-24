@@ -107,6 +107,7 @@ Shader "DriftPaint/Rampa de pista"
             HLSLPROGRAM
             #pragma vertex InkDepthVert
             #pragma fragment InkNormalsFrag
+            #define INK_OUTLINE_GROUP .50
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
             #include "InkPasses.hlsl"
             ENDHLSL

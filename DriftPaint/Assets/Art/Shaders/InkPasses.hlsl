@@ -34,12 +34,16 @@ half InkDepthFrag(InkDepthVaryings input) : SV_Target
 
 half4 InkNormalsFrag(InkDepthVaryings input) : SV_Target
 {
+    // URP Forward guarda la normal en RGB. Alfa identifica el material para el trazo interior.
+    #ifndef INK_OUTLINE_GROUP
+        #define INK_OUTLINE_GROUP 0.0
+    #endif
     half3 normalWS = NormalizeNormalPerPixel(input.normalWS);
     #if defined(_GBUFFER_NORMALS_OCT)
         float2 octNormal = PackNormalOctQuadEncode(normalWS);
-        return half4(PackFloat2To888(saturate(octNormal * 0.5 + 0.5)), 0.0);
+        return half4(PackFloat2To888(saturate(octNormal * 0.5 + 0.5)), INK_OUTLINE_GROUP);
     #else
-        return half4(normalWS, 0.0);
+        return half4(normalWS, INK_OUTLINE_GROUP);
     #endif
 }
 

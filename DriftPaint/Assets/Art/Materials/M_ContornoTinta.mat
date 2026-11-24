@@ -25,10 +25,19 @@ Material:
     m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _DepthThreshold: 0.06
-    - _FarStrength: 0.3
-    - _NormalThreshold: 0.5
-    - _Strength: 0.85
+    - _ArenaWidth: 1.5
+    - _BrushLength: 47
+    - _BrushMode: 1
+    - _BrushPressure: 0.28
+    - _CarWidth: 3.2
+    - _ConcreteWidth: 4.4
+    - _DepthThreshold: 0.093
+    - _DryBrush: 0.09
+    - _FarStrength: 0.55
+    - _NormalThreshold: 0.32
+    - _RampWidth: 9
+    - _Strength: 1
+    - _Width: 2.8
     m_Colors:
     - _FadeDistance: {r: 25, g: 120, b: 0, a: 0}
     - _InkColor: {r: 0.079999976, g: 0.06999998, b: 0.13999996, a: 1}

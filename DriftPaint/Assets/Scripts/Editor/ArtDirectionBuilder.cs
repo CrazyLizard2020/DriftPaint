@@ -25,7 +25,7 @@ namespace DriftPaint.EditorTools
         internal const string GameplayProfilePath = VolumesFolder + "/VP_Gameplay.asset";
         internal const string MenuProfilePath = VolumesFolder + "/VP_Menu.asset";
         internal const string ResultsProfilePath = VolumesFolder + "/VP_Results.asset";
-        const string OutlineMaterialPath = "Assets/Art/Materials/M_ContornoTinta.mat";
+        internal const string OutlineMaterialPath = "Assets/Art/Materials/M_ContornoTinta.mat";
         const string OutlineShader = "Hidden/DriftPaint/Contorno a tinta";
         const string InkShader = "DriftPaint/Concreto entintado";
         const string OutlineFeatureName = "Contorno a tinta";

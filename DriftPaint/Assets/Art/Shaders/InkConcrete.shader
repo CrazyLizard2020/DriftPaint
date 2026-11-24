@@ -149,6 +149,7 @@ Shader "DriftPaint/Concreto entintado"
             HLSLPROGRAM
             #pragma vertex InkDepthVert
             #pragma fragment InkNormalsFrag
+            #define INK_OUTLINE_GROUP (_Enamel > .5 ? .25 : .75)
             #pragma multi_compile_fragment _ _GBUFFER_NORMALS_OCT
             #include "InkPasses.hlsl"
             ENDHLSL

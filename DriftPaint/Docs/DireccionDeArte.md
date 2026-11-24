@@ -10,13 +10,33 @@ Abrí **DriftPaint → Arte → Dirección de arte**. El selector abre el inspec
 | El color de un equipo | Equipos → Duplas y pigmentos | Cada equipo tiene principal, brillo y detalle. La captura verde usa la dupla verde/fucsia. El partido sigue eligiendo entre las seis duplas. |
 | El acabado de los autos | Materiales → Esmalte / Vidrio | Subí «Puntos por metro» para conseguir una trama más fina. Bajá «Trama en sombra» para limpiar la superficie. «Luz de borde» actúa sobre el esmalte. |
 | El carácter del cielo y del suelo | Materiales → Atardecer / Floor | En el cielo, ajustá horizonte, cenit, nubes, borde de nube y disco solar. En el suelo, ajustá el pigmento y el reflejo rasante por separado. El vector del disco solar controla su posición en el cielo. |
-| El grosor o el alcance de las líneas | Materiales → ContornoTinta | Grosor cercano de 2,3 px a 1080p. «Umbral de normales» regula los quiebres internos. El intervalo de distancia y la opacidad lejana reducen el ruido del horizonte. Asigná la capa **SinContorno** a un renderer opaco para excluirlo en PC. |
+| El estilo y el grosor de las líneas | Line art · Pincelada sumi-e y grosores | Elegí **Pincelada** o **Continuo**. Subí el grosor del grupo que querés destacar. Los valores están en píxeles de referencia a 1080p. |
 | La separación entre ruedas y suelo | Render → PC · SSAO y contorno | SSAO a media resolución, intensidad 0,48 y radio 0,28. Para comparar la silueta con el contacto, alterná por separado SSAO y Contorno a tinta. |
 | El brillo de reflectores, aro y escapes | Materiales → Tribunas, Conducción, luz y HUD y Postproceso → Partida | Primero retocá la emisión de la fuente. Para la difusión global, Bloom parte de intensidad 0,20, umbral 1,20 y dispersión 0,60. |
 | El pigmento territorial | Materiales → PinturaHumeda | Intensidad inicial de pigmento 1,16 y trama interior 0,075. Los materiales visuales reciben la textura agregada del terreno. |
 | La sensación de velocidad | Conducción, luz y HUD | La curva recorre de 0 a 120 km/h. El FOV suma hasta 3,5° y el turbo agrega 1,5°. El suavizado es de 0,26 s. Las estelas arrancan por encima de 90 km/h, con máximos de 32 trazos/s en PC y 14 en Mobile. |
 | El derrape y el frenado | Conducción, luz y HUD | Ajustá emisión lateral, ancho y duración de las marcas, longitud de turbo y flujo de frenado. El ancho del chorro modifica su aspecto. |
 | Legibilidad de la interfaz | Conducción, luz y HUD | Editá los colores de texto y panel. El menú Arte también permite regenerar los iconos y el fondo del velocímetro. Los porcentajes mantienen el color de la dupla. |
+
+## Cómo afinar el line art
+
+Abrí la partida con el perfil **PC** y mirá el auto de tres cuartos, con una rampa y las tribunas detrás. La ventana edita el material compartido `M_ContornoTinta`. El perfil Mobile carece de este pase.
+
+| Control | Qué cambia |
+| --- | --- |
+| Estilo de línea | **Continuo** da un borde parejo. **Pincelada** combina variación de ancho y fibras de tinta. |
+| Variación de presión | Aumentala para alternar tramos gruesos y finos. En cero, el ancho es uniforme. |
+| Pincel seco | Aumentalo para que asome el color del material entre las fibras. Bajalo para conseguir un trazo cargado de tinta. |
+| Longitud de pincelada | Subila para espaciar los cambios de presión a lo largo del trazo. |
+| Grosores por material | Carrocería y cristales parten de **3,6 px**, rampas de **3 px**, concreto de **2 px**, tribunas y ciudad de **1,8 px**. Los demás opacos, incluidas ruedas y piezas con URP Lit, parten de **2,3 px**. Cada deslizador va de **0 a 12**. En cero se apaga el trazo que dibuja ese grupo en su propia superficie. |
+| Color y opacidad | Afectan todos los grupos. Para acentuar solo el auto, subí primero el grosor de carrocería. |
+| Umbrales y distancia | Bajá el umbral de normales para entintar quiebres más suaves y el de profundidad para detectar saltos menores. El inicio y fin del desvanecido se expresan en metros. La opacidad lejana regula cuánta tinta llega al horizonte. |
+
+La capa **SinContorno** excluye renderers opacos. El HUD y la pintura territorial conservan sus exclusiones. Las líneas de la grilla y los detalles pintados en las texturas se editan en sus respectivos materiales.
+
+En la captura del techo se ve el efecto de cambiar de estilo a igual grosor y luego subir solo el grosor de la carrocería a 8 px. Se verificó cada grupo por separado en la misma toma a 1080p. [Comparación de trazos en Unity](Arte/LineArt.jpg)
+
+En el RX-7, Unity descartaba dos polígonos autointersectados del lateral de cada modelo de rueda. Los laterales se reconstruyeron con triángulos y normales hacia afuera en los FBX izquierdo y derecho. Se revisaron las cuatro ruedas en la arena y se regeneraron las dos imágenes del selector de autos. [Antes y después del neumático](Arte/RX7-Ruedas.jpg)
 
 ## Qué había en el commit inicial
 

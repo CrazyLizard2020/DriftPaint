@@ -28,6 +28,7 @@ namespace DriftPaint.EditorTools
             }
 
             Add("Conducción, luz y HUD", "Assets/Resources/DrivingArt.asset");
+            Add("Line art · Pincelada sumi-e y grosores", ArtDirectionBuilder.OutlineMaterialPath);
             Add("Equipos/Duplas y pigmentos", ScriptableObjectPaths.TeamPalette);
             Add("Postproceso/Partida", ArtDirectionBuilder.GameplayProfilePath);
             Add("Postproceso/Menú", ArtDirectionBuilder.MenuProfilePath);
@@ -39,6 +40,7 @@ namespace DriftPaint.EditorTools
             foreach (string path in AssetDatabase.FindAssets("t:Material", new[] { "Assets/Art/Materials" })
                          .Select(AssetDatabase.GUIDToAssetPath).OrderBy(path => path))
             {
+                if (path == ArtDirectionBuilder.OutlineMaterialPath) continue;
                 string name = path.Substring("Assets/Art/Materials/".Length).Replace("M_", "");
                 Add("Materiales/" + System.IO.Path.ChangeExtension(name, null), path);
             }
@@ -64,6 +66,8 @@ namespace DriftPaint.EditorTools
             }
             Editor.CreateCachedEditor(asset, null, ref _inspector);
             if (GUILayout.Button("Mostrar en Project")) EditorGUIUtility.PingObject(asset);
+            if (_paths[_selected] == ArtDirectionBuilder.OutlineMaterialPath)
+                EditorGUILayout.HelpBox("En calidad PC, elegí Continuo o Pincelada. La presión varía el ancho del trazo y el pincel seco deja ver el color entre las fibras. Cada grosor se mide a 1080p. En cero se apaga el trazo de ese grupo.", MessageType.Info);
             EditorGUILayout.Space();
             _scroll = EditorGUILayout.BeginScrollView(_scroll);
             _inspector.OnInspectorGUI();
