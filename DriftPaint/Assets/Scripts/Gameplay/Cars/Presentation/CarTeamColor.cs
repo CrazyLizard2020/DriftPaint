@@ -29,6 +29,24 @@ namespace DriftPaint.Cars
 
         static readonly int BaseColorId = Shader.PropertyToID("_BaseColor");
         static readonly int ColorId = Shader.PropertyToID("_Color");
+        static readonly int HitColor = Shader.PropertyToID("_HitColor");
+        static readonly int HitOrigin = Shader.PropertyToID("_HitOrigin");
+        static readonly int HitPattern = Shader.PropertyToID("_HitPattern");
+
+        public void ShowHitPaint(Color color, Vector3 point, float opacity, float seed, float scale, float radius)
+        {
+            CollectRenderers();
+            foreach (var slot in _slots)
+            {
+                var renderer = slot.Renderer;
+                if (!renderer) continue;
+                renderer.GetPropertyBlock(_block, slot.Index);
+                _block.SetColor(HitColor, color);
+                _block.SetVector(HitOrigin, renderer.worldToLocalMatrix.MultiplyPoint3x4(point));
+                _block.SetVector(HitPattern, new Vector4(opacity, seed, scale, radius));
+                renderer.SetPropertyBlock(_block, slot.Index);
+            }
+        }
 
         MaterialPropertyBlock _block;
         readonly List<(Renderer Renderer, int Index, bool Main)> _slots = new();

@@ -138,6 +138,31 @@ Development Player de Windows, D3D11, RTX 4070 Laptop, 1920 × 1080, VSync desac
 
 En una segunda ejecución con la dupla fijada para las capturas, el cuadro completo dio 0,997 ms de GPU y 1,788 ms de CPU al inicio, y 0,830 ms de GPU y 1,608 ms de CPU al repetir. El perfil corresponde a una GPU dedicada en una escena controlada. Quedan por medir un dispositivo Mobile físico, GPU integrada y una partida en red con varios clientes. La cámara, los límites de partículas y el renderer Mobile se pueden ajustar desde la ventana de arte.
 
+## Salpicaduras al recibir un impacto
+
+En **DriftPaint → Arte → Dirección de arte → VFX/Impactos de pintura** se edita el perfil compartido `Assets/Resources/PaintHitArt.asset`. Para comparar los ajustes, golpeá el mismo auto primero de lleno y después con el borde de la explosión. El color proviene del pigmento principal del equipo atacante en la dupla de la partida.
+
+| Control | Qué cambia |
+| --- | --- |
+| Stun Strength / Slow Strength | Tamaño e intensidad relativos del impacto directo y del indirecto. De fábrica valen 1 y 0,55. |
+| Attack Seconds / Release Seconds | Tiempo de entrada y fundido al cancelar el estado. Ambos arrancan en 0,10 s. |
+| Recovery / Drainage | Opacidad y avance de las gotas entre el comienzo (0) y el vencimiento (1). Para una recuperación suave, terminar Recovery en cero. |
+| Screen Opacity / Coverage | Transparencia y superficie cubierta en los bordes de la pantalla. El centro queda reservado y el HUD se dibuja encima. |
+| Drip Length / Drip Speed / Irregularity | Alcance de los hilos, velocidad de caída y variación del borde. Cada gota tiene su propia velocidad. |
+| Body Opacity / Pigment Scale / Spread Meters | Opacidad sobre el esmalte, frecuencia de manchas y radio en metros. A mayor Pigment Scale, manchas más pequeñas. |
+
+`WeaponSystem` recibe del Master el centro del impacto y la lista de víctimas. El dueño sigue el tiempo restante de `CarStatusEffects`. En los observadores, `PaintHitFeedback` toma la duración de esa arma en la sala y calcula el vencimiento a partir de la recepción del impacto. Stun tiene prioridad visual sobre Slow. Si el Slow sigue vigente al terminar el Stun, se ve el tramo restante de su recuperación. Un nuevo golpe del mismo tipo renueva la representación.
+
+La pantalla usa una sola `RawImage` debajo del HUD con `M_SalpicaduraPantalla`. Las máscaras de charcos, hilos y gotas se calculan en `ScreenPaint.shader`. En el auto, `CarTeamColor` actualiza los bloques de propiedades del esmalte. `InkConcrete.shader` proyecta la mancha en coordenadas locales antes de aplicar luz y trama. Vidrios y ruedas conservan su acabado. Para los disparos directos se aproxima la cara alcanzada con la trayectoria disponible. Para el splash se usa el centro de la explosión.
+
+Las pruebas de la máscara y de los dos roles están en `Assets/Tests/EditMode/PaintHitFeedbackTests.cs`. Cubren el centro libre en tres formatos de pantalla, impactos directos e indirectos, barriles, un stun configurado en cero, impactos consecutivos, cambio de dupla, recuperación, teletransporte y salida de la escena.
+
+![Stun de pintura naranja sobre un auto turquesa en Drift Arena, captura del Development Player a 1080p](Arte/ImpactoDirecto.png)
+
+El banco de Unity pasó 129 pruebas. En una sala Photon de dos Players de Windows, el Master validó un disparo directo al cliente. Ambos renderizaron la pintura sobre el auto de la víctima. Solo el cliente alcanzado recibió Stun y la viñeta.
+
+En el Development Player de Windows a 1920 × 1080 (D3D11, RTX 4070 Laptop), la mediana de GPU fue 0,715 ms antes del impacto, 0,799 ms con Stun, 0,817 ms con Slow y 0,711 ms tras la recuperación. Las medianas de CPU fueron 1,337 / 1,708 / 1,759 / 1,387 ms y las de draw calls, 335 / 334 / 336 / 333. Son tiempos del cuadro completo con dos autos, cámara fija y la explosión preexistente desactivada para aislar la salpicadura. Se descartaron 50 cuadros y se midieron 130 por condición. Quedan por medir hardware móvil y el coste en una partida con ocho autos.
+
 ## Referencias de implementación
 
 Se reutilizaron los shaders y renderer de DriftPaint. OutlineFx ofrece contorno en URP y tiene licencia MIT. El proyecto de Daniel Ilett muestra el enfoque fullscreen de Unity 2022 y también usa MIT. El renderer existente ya disponía de profundidad, normales y un punto de inyección adecuado. [OutlineFx](https://github.com/NullTale/OutlineFx) · [Fullscreen Outlines](https://github.com/daniel-ilett/shaders-fullscreen-outlines)

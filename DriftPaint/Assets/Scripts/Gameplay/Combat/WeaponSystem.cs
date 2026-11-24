@@ -319,13 +319,17 @@ namespace DriftPaint.Combat
 
         void OnImpact(ImpactInfo impact)
         {
+            MatchCars.Collect(_mediator, _cars);
             byte team = MatchCars.TeamOf(_mediator, _cars, impact.SourceActorId);
+            Vector3 approach = Vector3.zero;
 
             if (impact.Kind == ImpactKind.Projectile)
             {
                 long key = KeyOf(impact.SourceActorId, impact.ShotId);
                 if (_shots.TryGetValue(key, out Shot shot))
                 {
+                    approach = -shot.Info.Velocity.normalized;
+                    if (team == TeamId.None) team = shot.Team;
                     DestroyView(shot);
                     _shots.Remove(key);
                 }
@@ -346,11 +350,37 @@ namespace DriftPaint.Combat
                 _paint.RegisterImpact(impact.Position, size, effects.PaintPrioritySeconds, impact.StunnedActorId, effects.StunDuration);
 
             // Cada jugador aplica los efectos sobre su propio auto, que es el que simula.
-            if (!MatchCars.TryGetLocal(_mediator, out MatchCar local)) return;
-            if (impact.StunnedActorId >= 0 && impact.StunnedActorId == local.OwnerActorId)
-                local.Car.StatusEffects.ApplyStun(effects.StunDuration, effects.StunSpeedFactor);
-            else if (impact.Slows(local.OwnerActorId))
-                local.Car.StatusEffects.ApplySlow(effects.SlowDuration, effects.SlowDeceleration);
+            if (MatchCars.TryGetLocal(_mediator, out MatchCar local))
+            {
+                if (impact.StunnedActorId >= 0 && impact.StunnedActorId == local.OwnerActorId)
+                    local.Car.StatusEffects.ApplyStun(effects.StunDuration, effects.StunSpeedFactor);
+                else if (impact.Slows(local.OwnerActorId))
+                    local.Car.StatusEffects.ApplySlow(effects.SlowDuration, effects.SlowDeceleration);
+            }
+            ShowHitFeedback(impact, effects, team, approach);
+        }
+
+        void ShowHitFeedback(ImpactInfo impact, ImpactEffectSettings effects, byte team, Vector3 approach)
+        {
+            if (!_palette || !_match || !_match.Phase.IsRound()) return;
+            foreach (MatchCar target in _cars)
+            {
+                bool direct = impact.StunnedActorId >= 0 && impact.StunnedActorId == target.OwnerActorId;
+                if (!direct && !impact.Slows(target.OwnerActorId)) continue;
+                float duration = direct ? effects.StunDuration : effects.SlowDuration;
+                if (duration <= 0 || target.Team == TeamId.None || target.Team == team ||
+                    target.OwnerActorId == impact.SourceActorId) continue;
+                // Ambos equipos son rivales. Un barril puede sobrevivir a su dueño.
+                byte attacker = team == TeamId.None ? TeamId.Other(target.Team) : team;
+                Vector3 offset = impact.Position - target.Position;
+                if (direct && impact.Kind == ImpactKind.Projectile && approach != Vector3.zero)
+                    offset = approach * 1.4f;
+                Vector3 anchor = target.Position + Vector3.up * .7f + Vector3.ClampMagnitude(offset, 1.6f);
+                if (!target.Car.TryGetComponent(out PaintHitFeedback feedback))
+                    feedback = target.Car.gameObject.AddComponent<PaintHitFeedback>();
+                feedback.Show(target, _match, _hud, _palette.Get(attacker).Main, anchor, direct, duration,
+                    impact.ShotId * .137f + impact.SourceActorId * .271f + impact.Position.x * .031f);
+            }
         }
 
         ImpactEffectSettings EffectsFor(ImpactKind kind) =>

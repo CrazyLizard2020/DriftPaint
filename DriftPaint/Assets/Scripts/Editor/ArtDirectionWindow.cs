@@ -28,6 +28,7 @@ namespace DriftPaint.EditorTools
             }
 
             Add("Conducción, luz y HUD", "Assets/Resources/DrivingArt.asset");
+            Add("VFX/Impactos de pintura", "Assets/Resources/PaintHitArt.asset");
             Add("Tribunas/Público y ambiente 3D", CrowdArtBuilder.ProfilePath);
             Add("Line art · Pincelada sumi-e y grosores", ArtDirectionBuilder.OutlineMaterialPath);
             Add("Equipos/Duplas y pigmentos", ScriptableObjectPaths.TeamPalette);

@@ -1,4 +1,5 @@
 using DriftPaint.Cars;
+using DriftPaint.Combat;
 using DriftPaint.Net;
 using DriftPaint.Scoring;
 using DriftPaint.Teams;
@@ -75,7 +76,48 @@ namespace DriftPaint.Match
         float _timeUpSince = -1f;
         int _artRevision = -1;
 
-        public void SetTarget(CarController car) => _car = car;
+        RawImage _hitImage;
+        Material _hitMaterial;
+        static readonly int PaintColor = Shader.PropertyToID("_PaintColor");
+        static readonly int Hit = Shader.PropertyToID("_Hit");
+        static readonly int Flow = Shader.PropertyToID("_Flow");
+
+        public void SetTarget(CarController car)
+        {
+            if (_car != car && _hitImage) _hitImage.enabled = false;
+            _car = car;
+        }
+
+        public void ShowHitPaint(CarController car, PaintHitArt art, Color color, float seed, float strength, float opacity, float drain)
+        {
+            if (!isActiveAndEnabled || _car != car || !art.screenMaterial || !_clockText || !_clockText.canvas) return;
+            if (!_hitImage)
+            {
+                var go = new GameObject("Salpicadura de impacto", typeof(RectTransform), typeof(RawImage));
+                _hitImage = go.GetComponent<RawImage>();
+                var rect = _hitImage.rectTransform;
+                rect.SetParent(_clockText.canvas.rootCanvas.transform, false);
+                rect.SetAsFirstSibling();
+                rect.anchorMin = Vector2.zero;
+                rect.anchorMax = Vector2.one;
+                rect.offsetMin = rect.offsetMax = Vector2.zero;
+                _hitImage.raycastTarget = false;
+                _hitMaterial = new Material(art.screenMaterial);
+                _hitImage.material = _hitMaterial;
+            }
+            _hitImage.enabled = opacity * art.screenOpacity > .001f;
+            _hitMaterial.SetColor(PaintColor, color);
+            _hitMaterial.SetVector(Hit, new Vector4(strength * art.coverage, opacity * art.screenOpacity, drain, seed));
+            _hitMaterial.SetVector(Flow, new Vector4(art.dripLength, art.dripSpeed, art.irregularity,
+                _hitImage.rectTransform.rect.width / Mathf.Max(1, _hitImage.rectTransform.rect.height)));
+        }
+
+        public void HideHitPaint(CarController car) { if (_car == car && _hitImage) _hitImage.enabled = false; }
+        void OnDestroy()
+        {
+            if (_hitImage) Destroy(_hitImage.gameObject);
+            if (_hitMaterial) Destroy(_hitMaterial);
+        }
 
         /// <summary>Estado del disparo y del inventario de barriles del auto local.</summary>
         public void SetAbilities(float fireCooldownRemaining, float fireCooldownTotal, int barrels)
@@ -116,7 +158,11 @@ namespace DriftPaint.Match
         }
 
         void OnEnable() => GameLanguage.Changed += RefreshLanguage;
-        void OnDisable() => GameLanguage.Changed -= RefreshLanguage;
+        void OnDisable()
+        {
+            GameLanguage.Changed -= RefreshLanguage;
+            if (_hitImage) _hitImage.enabled = false;
+        }
 
         void Start()
         {

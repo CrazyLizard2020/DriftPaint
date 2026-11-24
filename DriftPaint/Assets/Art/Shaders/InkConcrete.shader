@@ -12,6 +12,9 @@ Shader "DriftPaint/Concreto entintado"
         _Rim("Luz de borde del esmalte", Range(0,.6)) = .16
         _FloorSheen("Reflejo rasante del atardecer", Range(0,1)) = 0
         [Enum(Concreto,0,Esmalte,1,Vidrio,2)] _Enamel("Acabado", Float) = 0
+        [HideInInspector] _HitColor("Pigmento rival", Color) = (0,0,0,1)
+        [HideInInspector] _HitOrigin("Origen local", Vector) = (0,0,0,0)
+        [HideInInspector] _HitPattern("Cobertura, semilla, escala y radio", Vector) = (0,0,1,1)
     }
 
     SubShader
@@ -23,6 +26,8 @@ Shader "DriftPaint/Concreto entintado"
         CBUFFER_START(UnityPerMaterial)
         float4 _BaseMap_ST;
         half4 _BaseColor;
+        half4 _HitColor;
+        float4 _HitOrigin, _HitPattern;
         half _Ink, _PrintScale, _PrintStrength, _Enamel, _Rim, _FloorSheen;
         CBUFFER_END
         ENDHLSL
@@ -90,6 +95,17 @@ Shader "DriftPaint/Concreto entintado"
                         half3 glass = lerp(albedo * .70, albedo * 1.30 + half3(.18,.075,.08), wash);
                         float dots = InkDots(p, _PrintScale, .75 - .5 * wash);
                         return half4(glass * (1 - _PrintStrength * dots * .61), 1);
+                    }
+                    if (_HitPattern.x > 0)
+                    {
+                        float fall = saturate(1 - distance(local, _HitOrigin.xyz * scale) / max(.1, _HitPattern.w));
+                        float2 inkUV = p * _HitPattern.z * 2.6 + _HitPattern.y * float2(29,43);
+                        float wash = InkFbm(inkUV);
+                        float specks = InkNoise(inkUV * 3.8);
+                        float edge = max(wash + .19 * (specks - .4), .76 * specks) - lerp(.87, .46, fall);
+                        float aa = max(.008, fwidth(edge));
+                        float mask = smoothstep(-aa, aa, edge) * smoothstep(0,.14,fall);
+                        albedo = lerp(albedo, _HitColor.rgb * (.91 + .16 * wash), mask * _HitPattern.x);
                     }
                     half alignment = saturate(dot(normalWS, SafeNormalize(sun.direction + view)));
                     half shine = (.14 * pow(alignment, 16) + smoothstep(.968, .994, alignment)) * sun.shadowAttenuation;
