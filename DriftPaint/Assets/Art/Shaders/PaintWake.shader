@@ -2,7 +2,7 @@ Shader "DriftPaint/Estela ondulada"
 {
     Properties { _BaseColor("Pigmento",Color)=(1,1,1,1) }
     SubShader {
-        Tags { "RenderPipeline"="UniversalPipeline" "DisableBatching"="True" }
+        Tags { "RenderPipeline"="UniversalPipeline" "Queue"="Transparent" "DisableBatching"="True" }
         Pass {
             HLSLPROGRAM
             #pragma vertex Vert

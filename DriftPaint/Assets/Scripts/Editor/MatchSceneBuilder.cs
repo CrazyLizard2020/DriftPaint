@@ -154,6 +154,7 @@ namespace DriftPaint.EditorTools
             nameplate.gameObject.SetActive(false);
             OptionsMenuBuilder.Install(scene);
             ArenaArtBuilder.Install(scene);
+            ArtDirectionBuilder.InstallMatch(scene);
             PaintRingBuilder.Install(scene);
             SfxBuilder.InstallMatch(scene);
 
@@ -291,7 +292,7 @@ namespace DriftPaint.EditorTools
             var meshRenderer = surface.GetComponent<MeshRenderer>();
             meshRenderer.sharedMaterial = material;
             meshRenderer.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
-            meshRenderer.receiveShadows = false;
+            meshRenderer.receiveShadows = true;
 
             var view = surface.AddComponent<PaintSurfaceView>();
             MenuSceneBuilder.Bind(view, ("_paint", paint), ("_palette", palette));

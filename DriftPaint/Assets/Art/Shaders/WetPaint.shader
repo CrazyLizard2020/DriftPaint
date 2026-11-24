@@ -9,8 +9,13 @@ Shader "DriftPaint/Pintura húmeda"
             HLSLPROGRAM
             #pragma vertex Vert
             #pragma fragment Frag
-            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #pragma multi_compile _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE
+            #pragma multi_compile_fragment _ _SHADOWS_SOFT _SHADOWS_SOFT_LOW _SHADOWS_SOFT_MEDIUM _SHADOWS_SOFT_HIGH
+            #pragma multi_compile_fragment _ _SCREEN_SPACE_OCCLUSION
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
             TEXTURE2D(_BaseMap); SAMPLER(sampler_BaseMap);
+            // La sombra tiñe hacia violeta sin apagar el matiz del equipo.
+            #define PAINT_SHADOW half3(.60, .58, .76)
             struct Input { float4 vertex:POSITION; float3 normal:NORMAL; };
             struct Link { float4 clip:SV_POSITION; float2 uv:TEXCOORD0; float3 world:TEXCOORD1; };
             Link Vert(Input v) {
@@ -37,7 +42,11 @@ Shader "DriftPaint/Pintura húmeda"
                 float3 view=normalize(GetCameraPositionWS()-i.world);
                 float streak=sin(p.x*1.9+sin(p.y*.85)*2.3+p.y*1.4);
                 float spec=smoothstep(.94,1,streak)*(.035+.08*pow(1-saturate(view.y),3));
-                return half4(color*(.95+.035*waves)+rim*.14+spec*.70,1);
+                // Los autos y las estructuras apoyan su sombra y su oclusión sobre la pintura.
+                half shadow=MainLightRealtimeShadow(TransformWorldToShadowCoord(i.world));
+                AmbientOcclusionFactor ao=GetScreenSpaceAmbientOcclusion(GetNormalizedScreenSpaceUV(i.clip));
+                half3 shade=lerp(PAINT_SHADOW,1,shadow)*lerp(.8,1,ao.directAmbientOcclusion);
+                return half4((color*(.95+.035*waves)+rim*.14)*shade+spec*.70*shadow,1);
             }
             ENDHLSL
         }

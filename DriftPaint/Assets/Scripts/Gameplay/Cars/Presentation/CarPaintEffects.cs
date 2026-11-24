@@ -16,6 +16,9 @@ namespace DriftPaint.Cars
         static readonly int BaseColor = Shader.PropertyToID("_BaseColor");
         static readonly int JetShape = Shader.PropertyToID("_ExhaustShape");
         static readonly int JetFlow = Shader.PropertyToID("_JetFlow");
+        static readonly int TurboGlow = Shader.PropertyToID("_TurboGlow");
+        // El brillo del turbo entra rápido al salir del drift y se apaga más despacio.
+        const float TurboRiseSeconds = .08f, TurboFallSeconds = .35f;
         const float StreamLength = 1.38f;
         // Parte del largo en la que el chorro termina de caer; tiene que coincidir con LANDING del shader.
         const float LandingFraction = .8f;
@@ -39,7 +42,7 @@ namespace DriftPaint.Cars
         CarTeamColor _color;
         CarVisuals _wheels;
         CarGhostVisual _ghost;
-        float _nextProbe, _flow, _cycle;
+        float _nextProbe, _flow, _cycle, _turbo;
         byte _lastTeam = byte.MaxValue;
         int _lastPalette = -1;
 
@@ -65,7 +68,7 @@ namespace DriftPaint.Cars
 
         void Clear(Vector3 position, Quaternion rotation)
         {
-            _flow = _nextProbe = 0f;
+            _flow = _nextProbe = _turbo = 0f;
             _leftGround = _rightGround = default;
             _leftTrack.emitting = _rightTrack.emitting = false;
             _leftTrack.Clear();
@@ -105,6 +108,10 @@ namespace DriftPaint.Cars
             float demand = canPaint ? Mathf.InverseLerp(.18f, _fullFlowSpeed, _car.Speed) : 0f;
             _flow = Mathf.MoveTowards(_flow, demand, Time.deltaTime / (demand > _flow ? _riseSeconds : _fallSeconds));
             float reach = Mathf.Sqrt(_flow);
+            // Los autos remotos no simulan estados, así que el turbo solo brilla en el auto propio.
+            float turbo = canPaint && _car.StatusEffects.IsTurboActive ? 1f : 0f;
+            _turbo = Mathf.MoveTowards(_turbo, turbo, Time.deltaTime / (turbo > _turbo ? TurboRiseSeconds : TurboFallSeconds));
+            _pigment.SetFloat(TurboGlow, _turbo);
             // Ciclo de las ondas del chorro: gira más rápido con más caudal. Vuelve a 0 en cada vuelta
             // y el shader solo usa múltiplos enteros, así que el salto no se nota.
             _cycle = Mathf.Repeat(_cycle + Time.deltaTime * Mathf.Lerp(1.2f, 4.5f, _flow), 1f);

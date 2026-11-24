@@ -5,7 +5,7 @@ Shader "DriftPaint/Chorro viscoso"
         _ExhaustShape("Ancho, largo y contacto",Vector)=(1,1,0,0)
     }
     SubShader {
-        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "DisableBatching"="True" }
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Transparent" "DisableBatching"="True" }
         Pass {
             HLSLPROGRAM
             #pragma vertex Vert

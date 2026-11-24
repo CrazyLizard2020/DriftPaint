@@ -4,9 +4,11 @@ Shader "DriftPaint/Chorro de escape"
         _BaseColor("Pigmento",Color)=(0,1,1,1)
         _ExhaustShape("Alcance y punto de llegada",Vector)=(1,0,-.3,1.38)
         _JetFlow("Caudal, ciclo, semilla y apoyo",Vector)=(1,0,0,1)
+        _TurboGlow("Brillo del turbo",Range(0,1))=0
     }
     SubShader {
-        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "DisableBatching"="True" }
+        // Va en la cola de transparentes, aunque es opaco, para que el contorno de pantalla no lo cruce.
+        Tags { "RenderPipeline"="UniversalPipeline" "RenderType"="Opaque" "Queue"="Transparent" "DisableBatching"="True" }
         Pass {
             HLSLPROGRAM
             #pragma vertex Vert
@@ -24,6 +26,7 @@ Shader "DriftPaint/Chorro de escape"
             half4 _BaseColor;
             float4 _ExhaustShape; // x: alcance de 0 a 1; yzw: punto de llegada en el espacio del escape
             float4 _JetFlow;      // x: caudal de 0 a 1; y: ciclo de 0 a 1; z: semilla de cada escape; w: apoyo en el piso
+            half _TurboGlow;      // 0 sin turbo, 1 turbo de drift en curso
             CBUFFER_END
 
             struct Link {
@@ -101,6 +104,8 @@ Shader "DriftPaint/Chorro de escape"
                 color += _BaseColor.rgb * .2 * saturate(i.jet.z) + .16 * streak + .14 * rim;
                 // Sobre el piso toma el tono de la pintura que se asienta.
                 color = lerp(color, _BaseColor.rgb * .88, .5 * i.jet.w);
+                // El turbo empuja el pigmento por encima del umbral del Bloom sin cambiar su matiz.
+                color *= 1 + _TurboGlow * (.9 + 1.4 * streak + .8 * rim) * (1 - .6 * i.jet.w);
                 return half4(color + .5 * spec, 1);
             }
             ENDHLSL

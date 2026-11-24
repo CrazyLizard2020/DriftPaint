@@ -113,8 +113,8 @@ namespace DriftPaint.EditorTools
                 }
                 if (root.TryGetComponent<Light>(out var light) && light.type == LightType.Directional)
                 {
-                    light.color = new Color(1f, .82f, .66f);
-                    light.intensity = 1.2f;
+                    light.color = new Color(1f, .80f, .56f);
+                    light.intensity = 1.25f;
                     light.transform.rotation = Quaternion.Euler(29, -135, 0);
                 }
                 if (root.TryGetComponent<Paint.PaintSurfaceView>(out var paint))
@@ -202,7 +202,7 @@ namespace DriftPaint.EditorTools
                 var surface = top.GetComponent<MeshRenderer>();
                 surface.sharedMaterial = material;
                 surface.shadowCastingMode = ShadowCastingMode.Off;
-                surface.receiveShadows = false;
+                surface.receiveShadows = true;
                 surfaces.GetArrayElementAtIndex(i).objectReferenceValue = surface;
             }
             so.ApplyModifiedPropertiesWithoutUndo();

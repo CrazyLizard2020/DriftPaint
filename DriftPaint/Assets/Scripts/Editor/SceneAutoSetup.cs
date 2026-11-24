@@ -70,6 +70,9 @@ namespace DriftPaint.EditorTools
             new Step(RoyalDriftRoadMap.ScenePath, "panel de habilidades que se adapta al idioma", AbilitiesLayoutBuilder.Pending, AbilitiesLayoutBuilder.Install),
             new Step(MenuSceneBuilder.ScenePath, "chat de sala desplazable", ChatScrollBuilder.Pending, ChatScrollBuilder.Install),
             new Step(MenuSceneBuilder.ScenePath, "flechas para elegir mapa en el lobby", LobbyMapSelectorBuilder.Pending, LobbyMapSelectorBuilder.Install),
+            new Step(MatchSceneBuilder.ScenePath, "postproceso, cámara y luz de atardecer", ArtDirectionBuilder.MatchPending, ArtDirectionBuilder.InstallMatch),
+            new Step(RoyalDriftRoadMap.ScenePath, "postproceso, cámara y luz de atardecer", ArtDirectionBuilder.MatchPending, ArtDirectionBuilder.InstallMatch),
+            new Step(MenuSceneBuilder.ScenePath, "postproceso del menú", ArtDirectionBuilder.MenuPending, ArtDirectionBuilder.InstallMenu),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
@@ -95,6 +98,7 @@ namespace DriftPaint.EditorTools
             new AssetStep("escena de Royal Drift Road", MatchSceneBuilder.RoyalDriftRoadMissing, MatchSceneBuilder.BuildRoyalDriftRoad),
             new AssetStep("modelo del barril", BarrelArtBuilder.Outdated, BarrelArtBuilder.Apply),
             new AssetStep("japonés y chino", CjkLanguageBuilder.Outdated, CjkLanguageBuilder.Apply),
+            new AssetStep("dirección de arte: contorno, materiales entintados y postproceso", ArtDirectionBuilder.Outdated, ArtDirectionBuilder.Apply),
         };
 
         static SceneAutoSetup()
