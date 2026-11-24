@@ -27,6 +27,10 @@ namespace DriftPaint.Combat
         [SerializeField, Min(0.1f)] float _triggerRadius = 1.6f;
         [Tooltip("Segundos después de soltarlo en los que todavía no explota.")]
         [SerializeField, Min(0f)] float _armDelay = 0.4f;
+        [Tooltip("Segundos antes de desaparecer en los que el barril titila, para todos los jugadores.")]
+        [SerializeField, Min(0f)] float _expireWarning = 2f;
+        [Tooltip("Opacidad mínima del barril mientras titila.")]
+        [SerializeField, Range(0f, 1f)] float _expireMinOpacity = 0.15f;
 
         [Header("Explosión")]
         [SerializeField] ImpactEffectSettings _impact = new ImpactEffectSettings(4f);
@@ -44,6 +48,11 @@ namespace DriftPaint.Combat
         public float SlideTime => _slideTime;
         public float TriggerRadius => _triggerRadius;
         public float ArmDelay => _armDelay;
+        public float ExpireWarning => _expireWarning;
+        public float ExpireMinOpacity => _expireMinOpacity;
+
+        /// <summary>Opacidad de un barril al que le quedan remaining segundos de vida.</summary>
+        public float OpacityAt(float remaining) => CombatRules.BarrelOpacity(remaining, _expireWarning, _expireMinOpacity);
         public ImpactEffectSettings Impact => _impact;
         public float PickupRadius => _pickupRadius;
         public float PickupRespawnSeconds => _pickupRespawnSeconds;

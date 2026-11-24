@@ -52,6 +52,22 @@ namespace DriftPaint.Combat
             return dropSpeed * (t - t * t / (2f * slideTime));
         }
 
+        /// <summary>
+        /// Opacidad de un barril al que le quedan remaining segundos. Fuera del aviso es 1; dentro, titila
+        /// entre minOpacity y 1 cada vez más rápido (de 3 a 9 veces por segundo), empezando opaco.
+        /// </summary>
+        public static float BarrelOpacity(float remaining, float warning, float minOpacity)
+        {
+            if (warning <= 0f || remaining >= warning) return 1f;
+            if (remaining <= 0f) return minOpacity;
+
+            // La frecuencia sube en línea recta: los ciclos son su integral desde que arrancó el aviso.
+            float elapsed = warning - remaining;
+            float cycles = 3f * elapsed + 3f * elapsed * elapsed / warning;
+            float wave = 0.5f + 0.5f * Mathf.Cos(cycles * 2f * Mathf.PI);
+            return Mathf.Lerp(minOpacity, 1f, wave);
+        }
+
         /// <summary>Barriles después de recolectar uno, sin pasar del máximo.</summary>
         public static int AddBarrel(int current, int max) => Mathf.Min(max, Mathf.Max(0, current) + 1);
     }

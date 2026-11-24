@@ -18,6 +18,30 @@ namespace DriftPaint.Tests
         const float SlideTime = 0.6f;
 
         [Test]
+        public void BarrelOpacity_StaysSolidBeforeTheWarning()
+        {
+            Assert.AreEqual(1f, CombatRules.BarrelOpacity(10f, 2f, 0.15f));
+            Assert.AreEqual(1f, CombatRules.BarrelOpacity(2f, 2f, 0.15f));
+        }
+
+        [Test]
+        public void BarrelOpacity_BlinksBetweenMinimumAndSolidDuringTheWarning()
+        {
+            float lowest = 1f;
+            float highest = 0f;
+            for (float remaining = 1.99f; remaining > 0f; remaining -= 0.01f)
+            {
+                float opacity = CombatRules.BarrelOpacity(remaining, 2f, 0.15f);
+                Assert.GreaterOrEqual(opacity, 0.15f - 0.0001f);
+                Assert.LessOrEqual(opacity, 1f);
+                lowest = Mathf.Min(lowest, opacity);
+                highest = Mathf.Max(highest, opacity);
+            }
+            Assert.Less(lowest, 0.2f, "Tiene que llegar casi a transparente.");
+            Assert.Greater(highest, 0.95f, "Tiene que volver a verse opaco entre parpadeos.");
+        }
+
+        [Test]
         public void Projectile_StartsAtOrigin()
         {
             var origin = new Vector3(3f, 1.2f, -7f);

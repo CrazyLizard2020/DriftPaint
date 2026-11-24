@@ -38,6 +38,7 @@ namespace DriftPaint.Combat
         sealed class LiveBarrel
         {
             public GameObject Instance;
+            public BarrelView View;
             public int Owner;
             public byte Team;
             public double SpawnTime;
@@ -128,6 +129,7 @@ namespace DriftPaint.Combat
             double now = Clock;
             foreach (BarrelPickup pickup in _pickups)
                 if (pickup != null) pickup.Refresh(now);
+            UpdateBarrelLooks(now);
 
             if (IsAuthority)
             {
@@ -169,10 +171,33 @@ namespace DriftPaint.Combat
 
             foreach (LiveBarrel live in _live)
                 if (live.Instance == info.Instance) return;
-            _live.Add(new LiveBarrel { Instance = info.Instance, Owner = owner, Team = team, SpawnTime = spawnTime });
+            _live.Add(new LiveBarrel { Instance = info.Instance, View = view, Owner = owner, Team = team, SpawnTime = spawnTime });
 
             // Los barriles que ya estaban al entrar a la partida no se anuncian como recién soltados.
             if (Clock - spawnTime < 1.0) BarrelDropped?.Invoke(info.Instance.transform.position);
+        }
+
+        /// <summary>
+        /// En cada cliente: el aro solo para los barriles del propio equipo y el titileo de los que están por
+        /// vencer. Todos usan la hora de creación y el reloj del servidor, así titilan a la vez en cada pantalla.
+        /// </summary>
+        void UpdateBarrelLooks(double now)
+        {
+            byte localTeam = LocalTeam();
+            foreach (LiveBarrel barrel in _live)
+            {
+                if (barrel.View == null) continue;
+                barrel.View.ShowRing(localTeam != TeamId.None && barrel.Team == localTeam);
+                barrel.View.ShowRemaining((float)(_settings.Lifetime - (now - barrel.SpawnTime)));
+            }
+        }
+
+        byte LocalTeam()
+        {
+            if (_online)
+                foreach (PlayerSummary player in _mediator.Players)
+                    if (player.IsLocal && player.Team != TeamId.None) return player.Team;
+            return MatchCars.TryGetLocal(_mediator, out MatchCar local) ? local.Team : TeamId.None;
         }
 
         void OnObjectDespawned(GameObject instance)

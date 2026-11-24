@@ -309,17 +309,13 @@ namespace DriftPaint.EditorTools
         static void BuildCombat(GameObject matchGo, MatchController match, PaintSystem paint, MatchHUD hud, TeamPaletteSO palette,
             Vector2[] pickupHalf)
         {
-            Material barrelMat = EditorAssetUtility.LoadOrCreateLitMaterial(MaterialFolder + "/M_Barrel.mat",
-                DriftPaintPalette.SunsetGold, smoothness: 0.5f);
-            Material bandMat = EditorAssetUtility.LoadOrCreateLitMaterial(MaterialFolder + "/M_BarrelBand.mat",
-                DriftPaintPalette.OffWhite, smoothness: 0.3f);
             Material fxMat = LoadOrCreateUnlitMaterial(MaterialFolder + "/M_CombatFx.mat");
 
             // Los valores ya editados en los assets se conservan al regenerar la escena.
             ProjectileSettingsSO projectileSettings = CombatSettingsBuilder.LoadOrCreateProjectileSettings();
             BarrelSettingsSO barrelSettings = CombatSettingsBuilder.LoadOrCreateBarrelSettings();
 
-            GameObject barrelPrefab = BuildBarrelPrefab(barrelMat, bandMat, barrelSettings);
+            GameObject barrelPrefab = BuildBarrelPrefab(barrelSettings);
 
             var fxRoot = new GameObject("Combat FX").transform;
 
@@ -334,7 +330,7 @@ namespace DriftPaint.EditorTools
             BindRenderers(burstView, "_tinted", burst.GetComponent<Renderer>());
             burst.SetActive(false);
 
-            List<BarrelPickup> pickups = BuildPickups(barrelMat, bandMat, pickupHalf);
+            List<BarrelPickup> pickups = BuildPickups(pickupHalf);
 
             BarrelSystem barrels = matchGo.AddComponent<BarrelSystem>();
             WeaponSystem weapons = matchGo.AddComponent<WeaponSystem>();
@@ -357,16 +353,12 @@ namespace DriftPaint.EditorTools
             AssetDatabase.SaveAssets();
         }
 
-        /// <summary>Barril soltado: tambor dorado con una banda que toma el color del equipo. Sin colisionador.</summary>
-        static GameObject BuildBarrelPrefab(Material barrelMat, Material bandMat, BarrelSettingsSO settings)
+        /// <summary>Barril soltado: modelo con la banda del equipo y el aro del piso. Sin colisionador.</summary>
+        static GameObject BuildBarrelPrefab(BarrelSettingsSO settings)
         {
             var root = new GameObject(BarrelSystem.PrefabId);
-            CreateVisual(root.transform, "Body", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f), new Vector3(0.9f, 0.55f, 0.9f), barrelMat);
-            GameObject band = CreateVisual(root.transform, "Band", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f),
-                new Vector3(0.96f, 0.12f, 0.96f), bandMat);
-            BarrelView view = root.AddComponent<BarrelView>();
-            BindRenderers(view, "_tinted", band.GetComponent<Renderer>());
-            MenuSceneBuilder.Bind(view, ("_settings", settings));
+            root.AddComponent<BarrelView>();
+            BarrelArtBuilder.DressBarrel(root, settings);
 
             EditorAssetUtility.EnsureFolder(CombatPrefabFolder);
             string path = CombatPrefabFolder + "/" + BarrelSystem.PrefabId + ".prefab";
@@ -375,7 +367,7 @@ namespace DriftPaint.EditorTools
             return prefab;
         }
 
-        static List<BarrelPickup> BuildPickups(Material barrelMat, Material bandMat, Vector2[] half)
+        static List<BarrelPickup> BuildPickups(Vector2[] half)
         {
             // Cada pickup tiene su espejo (-x, -z), igual que el resto del mapa.
             var root = new GameObject("Barrel Pickups").transform;
@@ -383,13 +375,13 @@ namespace DriftPaint.EditorTools
             int id = 1;
             foreach (Vector2 p in half)
             {
-                pickups.Add(CreatePickup(root, id++, new Vector3(p.x, 0f, p.y), barrelMat, bandMat));
-                pickups.Add(CreatePickup(root, id++, new Vector3(-p.x, 0f, -p.y), barrelMat, bandMat));
+                pickups.Add(CreatePickup(root, id++, new Vector3(p.x, 0f, p.y)));
+                pickups.Add(CreatePickup(root, id++, new Vector3(-p.x, 0f, -p.y)));
             }
             return pickups;
         }
 
-        static BarrelPickup CreatePickup(Transform parent, int id, Vector3 position, Material barrelMat, Material bandMat)
+        static BarrelPickup CreatePickup(Transform parent, int id, Vector3 position)
         {
             var go = new GameObject($"Pickup_{id}");
             go.transform.SetParent(parent);
@@ -398,8 +390,7 @@ namespace DriftPaint.EditorTools
             var visual = new GameObject("Visual").transform;
             visual.SetParent(go.transform, false);
             visual.localPosition = new Vector3(0f, 0.9f, 0f);
-            CreateVisual(visual, "Body", PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.8f, 0.5f, 0.8f), barrelMat);
-            CreateVisual(visual, "Band", PrimitiveType.Cylinder, Vector3.zero, new Vector3(0.86f, 0.1f, 0.86f), bandMat);
+            BarrelArtBuilder.DressPickup(visual);
             visual.localRotation = Quaternion.Euler(0f, 0f, 20f);
 
             BarrelPickup pickup = go.AddComponent<BarrelPickup>();

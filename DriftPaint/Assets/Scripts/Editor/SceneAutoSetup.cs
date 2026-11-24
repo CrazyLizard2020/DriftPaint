@@ -45,6 +45,8 @@ namespace DriftPaint.EditorTools
             new Step(MenuSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(MatchSfx) }, SfxBuilder.InstallMatch),
+            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(DriftPaint.Combat.BarrelLook) }, BarrelArtBuilder.InstallPickups),
+            new Step(RoyalDriftRoadMap.ScenePath, new[] { typeof(DriftPaint.Combat.BarrelLook) }, BarrelArtBuilder.InstallPickups),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
@@ -68,6 +70,7 @@ namespace DriftPaint.EditorTools
             new AssetStep("motores de los autos", EngineAudioBuilder.Outdated, EngineAudioBuilder.Apply),
             new AssetStep("efectos de sonido", SfxBuilder.Outdated, SfxBuilder.Apply),
             new AssetStep("escena de Royal Drift Road", MatchSceneBuilder.RoyalDriftRoadMissing, MatchSceneBuilder.BuildRoyalDriftRoad),
+            new AssetStep("modelo del barril", BarrelArtBuilder.Outdated, BarrelArtBuilder.Apply),
         };
 
         static SceneAutoSetup()

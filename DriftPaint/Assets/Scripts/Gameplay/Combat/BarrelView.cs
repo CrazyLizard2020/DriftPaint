@@ -9,8 +9,8 @@ namespace DriftPaint.Combat
     /// </summary>
     public class BarrelView : MonoBehaviour
     {
-        [Tooltip("Partes que toman el color del equipo que soltó el barril.")]
-        [SerializeField] Renderer[] _tinted;
+        [Tooltip("Modelo del barril: banda del equipo, aro del piso y titileo al vencer.")]
+        [SerializeField] BarrelLook _look;
         [Tooltip("Capas que cuentan como piso para apoyar el barril.")]
         [SerializeField] LayerMask _groundMask = ~0;
         [Tooltip("Valores del barril. BarrelSystem lo reemplaza por el suyo al aparecer el barril.")]
@@ -21,7 +21,23 @@ namespace DriftPaint.Combat
         Vector3 _start;
         float _spawnTime;
 
-        public void SetColor(Color color) => RendererTint.Apply(_tinted, color);
+        /// <summary>Color del equipo que soltó el barril: banda y aro.</summary>
+        public void SetColor(Color color)
+        {
+            if (_look != null) _look.SetTeamColor(color);
+        }
+
+        /// <summary>El aro solo lo ven los del mismo equipo: a los rivales les haría fácil esquivarlo.</summary>
+        public void ShowRing(bool visible)
+        {
+            if (_look != null) _look.SetRingVisible(visible);
+        }
+
+        /// <summary>Segundos que le quedan antes de desaparecer: en los últimos titila para todos.</summary>
+        public void ShowRemaining(float remaining)
+        {
+            if (_look != null && _settings != null) _look.SetOpacity(_settings.OpacityAt(remaining));
+        }
 
         public void UseSettings(BarrelSettingsSO settings)
         {
