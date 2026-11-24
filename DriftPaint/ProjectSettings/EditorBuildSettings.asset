@@ -21,5 +21,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Match_RoyalDriftRoad.unity
     guid: a15a7bf7bb54d144ab7f20364c3a988d
   m_configObjects:
+    com.unity.addressableassets: {fileID: 11400000, guid: 47ef58036f9ad4047ae0e289ffada4bc, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
+    com.unity.localization.settings: {fileID: 11400000, guid: ee7a39ab620080346bb821e94d945b76, type: 2}
   m_UseUCBPForAssetBundles: 0
