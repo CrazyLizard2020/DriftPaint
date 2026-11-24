@@ -183,7 +183,12 @@ namespace DriftPaint.Cars
             float goal;
             float rate;
 
-            if (throttle > 0f && forwardSpeed < -0.1f)
+            // Frenar o cambiar de sentido se decide con la velocidad pedida, no con la medida: el PID
+            // acerca la velocidad real a 0 de a poco y puede quedar apenas por encima de cualquier
+            // umbral, lo que obligaba a soltar y volver a apretar. La pedida llega a 0 exacto y, con
+            // la tecla sostenida, sigue de largo hacia el otro sentido. El límite contra la velocidad
+            // real de más abajo la mantiene positiva mientras el auto todavía avanza rápido.
+            if (throttle > 0f && _targetSpeed < 0f)
             {
                 // W yendo marcha atrás: primero frena.
                 goal = 0f;
@@ -194,8 +199,9 @@ namespace DriftPaint.Cars
                 goal = throttle * _stats.MaxSpeed;
                 rate = _stats.AccelerationAt(forwardSpeed) * accelMultiplier;
             }
-            else if (throttle < 0f && forwardSpeed > 0.1f)
+            else if (throttle < 0f && _targetSpeed > 0f)
             {
+                // S yendo hacia adelante: primero frena.
                 goal = 0f;
                 rate = _stats.BrakeDeceleration;
             }
