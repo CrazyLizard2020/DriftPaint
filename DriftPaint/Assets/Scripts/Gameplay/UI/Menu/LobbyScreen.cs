@@ -38,6 +38,8 @@ namespace DriftPaint.UI.Menu
 
         [Header("Chat")]
         [SerializeField] TMP_Text _chatLog;
+        [Tooltip("Lista desplazable que contiene el registro. Sigue los mensajes nuevos salvo que se haya subido a leer.")]
+        [SerializeField] ScrollRect _chatScroll;
         [SerializeField] TMP_InputField _chatInput;
         [SerializeField] Button _chatSendButton;
         [SerializeField] Color _systemColor = new Color(0.094f, 0.874f, 0.941f);
@@ -195,6 +197,8 @@ namespace DriftPaint.UI.Menu
         {
             if (_chatInput == null) return;
 
+            // Al escribir se vuelve al final, así el mensaje propio se ve aunque se estuviera leyendo más arriba.
+            if (_chatScroll != null) _chatScroll.verticalNormalizedPosition = 0f;
             _mediator.SendChat(_chatInput.text);
             _chatInput.text = "";
             _chatInput.ActivateInputField();
@@ -232,6 +236,9 @@ namespace DriftPaint.UI.Menu
         {
             if (_chatLog == null) return;
 
+            // Se mira antes de cambiar el texto: quien subió a leer mensajes viejos no es arrastrado hacia abajo.
+            bool following = _chatScroll == null || _chatScroll.verticalNormalizedPosition <= 0.01f || _chatLines.Count <= 1;
+
             _chatBuilder.Clear();
             foreach (var message in _chatLines)
             {
@@ -239,6 +246,10 @@ namespace DriftPaint.UI.Menu
                 _chatBuilder.Append(FormatChat(message));
             }
             _chatLog.text = _chatBuilder.ToString();
+
+            if (_chatScroll == null || !following) return;
+            LayoutRebuilder.ForceRebuildLayoutImmediate(_chatScroll.content);
+            _chatScroll.verticalNormalizedPosition = 0f;
         }
 
         static string MapDisplayName(string mapId) => DriftPaint.Match.MapCatalog.DisplayName(mapId);
