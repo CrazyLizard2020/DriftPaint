@@ -19,7 +19,7 @@ MonoBehaviour:
   hold: 5
   fall: 5
   cooldown: 15
-  reach: 15
+  reach: 25
   degreesPerSecond: 240
   speedCurve:
     serializedVersion: 2
