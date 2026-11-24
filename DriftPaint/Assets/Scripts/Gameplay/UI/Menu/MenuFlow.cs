@@ -1,3 +1,4 @@
+using System.Collections;
 using DriftPaint.Match;
 using DriftPaint.Net;
 using TMPro;
@@ -28,6 +29,7 @@ namespace DriftPaint.UI.Menu
 
         INetworkMediator _mediator;
         bool _loadingMatch;
+        Coroutine _waitingForMenu;
 
         void Awake()
         {
@@ -57,6 +59,11 @@ namespace DriftPaint.UI.Menu
 
         void OnDisable()
         {
+            if (_waitingForMenu != null)
+            {
+                StopCoroutine(_waitingForMenu);
+                _waitingForMenu = null;
+            }
             if (_mediator == null) return;
             _mediator.StateChanged -= Refresh;
             _mediator.ErrorRaised -= ShowError;
@@ -83,7 +90,7 @@ namespace DriftPaint.UI.Menu
                     break;
                 case ConnectionState.InRoom:
                     ShowOnly(_lobby);
-                    SetBusy(null);
+                    SetBusy(_loadingMatch ? "CARGANDO PARTIDA..." : null);
                     TryLoadMatch(_mediator.Phase);
                     break;
                 case ConnectionState.LeavingRoom:
@@ -100,6 +107,13 @@ namespace DriftPaint.UI.Menu
         void TryLoadMatch(MatchPhase phase)
         {
             if (_loadingMatch || _mediator.State != ConnectionState.InRoom || phase.IsBetweenMatches()) return;
+            // OnEnable del menú puede ocurrir antes de que termine la vuelta desde resultados.
+            if (SceneLoader.IsLoading)
+            {
+                if (_waitingForMenu == null)
+                    _waitingForMenu = StartCoroutine(WaitForMenu());
+                return;
+            }
 
             string scene = MapCatalog.SceneFor(_mediator.CurrentRoom.MapId);
             if (!SceneLoader.CanLoad(scene))
@@ -108,9 +122,15 @@ namespace DriftPaint.UI.Menu
                 return;
             }
 
-            _loadingMatch = true;
-            SetBusy("CARGANDO PARTIDA...");
-            SceneLoader.Load(scene, _mediator.ReturningFromMenu);
+            _loadingMatch = SceneLoader.Load(scene, _mediator.ReturningFromMenu);
+            if (_loadingMatch) SetBusy("CARGANDO PARTIDA...");
+        }
+
+        IEnumerator WaitForMenu()
+        {
+            while (SceneLoader.IsLoading) yield return null;
+            _waitingForMenu = null;
+            TryLoadMatch(_mediator.Phase);
         }
 
         void ShowOnly(GameObject screen)
