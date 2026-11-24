@@ -24,6 +24,7 @@ namespace DriftPaint.EditorTools
             renderer.sharedMaterial = ArenaArtBuilder.MaterialFor("Tribunas", "DriftPaint/Tribunas");
             renderer.shadowCastingMode = ShadowCastingMode.Off;
             renderer.receiveShadows = false;
+            CrowdArtBuilder.Install(found);
             AddSign(arena, new Vector3(-9f, 10f, 66f), 0f, "Cartel norte");
             AddSign(arena, new Vector3(65.7f, 10f, -6f), 90f, "Cartel este");
             RenderSettings.skybox = ArenaArtBuilder.MaterialFor("Atardecer", "DriftPaint/Cielo de atardecer");

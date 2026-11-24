@@ -13,6 +13,7 @@ Abrí **DriftPaint → Arte → Dirección de arte**. El selector abre el inspec
 | El estilo y el grosor de las líneas | Line art · Pincelada sumi-e y grosores | Elegí **Pincelada** o **Continuo**. Subí el grosor del grupo que querés destacar. Los valores están en píxeles de referencia a 1080p. |
 | La separación entre ruedas y suelo | Render → PC · SSAO y contorno | SSAO a media resolución, intensidad 0,48 y radio 0,28. Para comparar la silueta con el contacto, alterná por separado SSAO y Contorno a tinta. |
 | El brillo de reflectores, aro y escapes | Materiales → Tribunas, Conducción, luz y HUD y Postproceso → Partida | Primero retocá la emisión de la fuente. Para la difusión global, Bloom parte de intensidad 0,20, umbral 1,20 y dispersión 0,60. |
+| Los espectadores y los vitoreos | Tribunas → Público y ambiente 3D | Ajustá densidad, colores, tamaño, animación o audio en el perfil. En Play, pulsá **Aplicar público en esta partida** para probar los valores. |
 | El pigmento territorial | Materiales → PinturaHumeda | Intensidad inicial de pigmento 1,16 y trama interior 0,075. Los materiales visuales reciben la textura agregada del terreno. |
 | La sensación de velocidad | Conducción, luz y HUD | La curva recorre de 0 a 120 km/h. El FOV suma hasta 3,5° y el turbo agrega 1,5°. El suavizado es de 0,26 s. Las estelas arrancan por encima de 90 km/h, con máximos de 32 trazos/s en PC y 14 en Mobile. |
 | El derrape y el frenado | Conducción, luz y HUD | Ajustá emisión lateral, ancho y duración de las marcas, longitud de turbo y flujo de frenado. El ancho del chorro modifica su aspecto. |
@@ -37,6 +38,33 @@ La capa **SinContorno** excluye renderers opacos. El HUD y la pintura territoria
 En la captura del techo se ve el efecto de cambiar de estilo a igual grosor y luego subir solo el grosor de la carrocería a 8 px. Se verificó cada grupo por separado en la misma toma a 1080p. [Comparación de trazos en Unity](Arte/LineArt.jpg)
 
 En el RX-7, Unity descartaba dos polígonos autointersectados del lateral de cada modelo de rueda. Los laterales se reconstruyeron con triángulos y normales hacia afuera en los FBX izquierdo y derecho. Se revisaron las cuatro ruedas en la arena y se regeneraron las dos imágenes del selector de autos. [Antes y después del neumático](Arte/RX7-Ruedas.jpg)
+
+## Público de las tribunas
+
+Drift Arena y Royal Drift Road comparten el prefab `Assets/Prefabs/StadiumCrowd.prefab`, bajo **Arena → Tribunas y ciudad**. Tiene cuatro lados, cada uno con nueve módulos y cuatro filas. La primera fila apoya a 5,1 m de altura. Las siguientes suben 0,9 m y retroceden 2,3 m. Los intervalos libres dejan espacio a carteles y torres. [Detalle de los espectadores](Arte/PublicoTribunas.jpg) · [Vista desde la pista](Arte/PublicoDesdePista.jpg)
+
+### Cómo editarlo
+
+| Dónde | Control | Qué cambia |
+| --- | --- | --- |
+| Dirección de arte → Tribunas → Público y ambiente 3D | Density, Spacing | Ocupación global (55 %) y separación entre localidades (1,75 m). La densidad de cada sector multiplica la global. |
+| Mismo perfil | Height, Size Variation, Seat Jitter | Altura del cuadro (1,7 m), variación de escala (10 %) y desplazamiento leve dentro de cada localidad. Pigment regula el brillo del color de la silueta. |
+| Mismo perfil | Home Share | Proporción del color local, inicialmente 70 %. Las plazas se mezclan y el resto se reparte entre los otros once colores principales de TeamPalette. En los laterales, cada mitad acompaña al equipo de su cabecera. |
+| Mismo perfil | Celebration Share, Fps, Tempo Variation | Probabilidad de celebrar con ambos brazos (50 %), velocidad de referencia (7 cuadros/s) y variación individual (13 %). Los ciclos tienen fases independientes. |
+| Mismo perfil | Frame Pixels | Resolución por cuadro, inicialmente **256 × 256**. Después de cambiarla, usá **DriftPaint → Arte → Regenerar sprites del público**. Se generan de nuevo los círculos y trazos a esa resolución. Cada PNG contiene tres cuadros, con el mismo apoyo de los pies. |
+| Mismo perfil | Cheers, Volume, Near Distance, Far Distance, Rolloff | Clips compartidos, ganancia por defecto (0,16), distancias cercana y lejana (12 y 170 m) y curva de atenuación. La curva llega a 0,055 en el extremo lejano. El control Efectos del jugador multiplica esta ganancia. |
+| Prefab → cada lado → Crowd Stand | Bays, Bay Pitch, Rows, Row Step, Aisles | Cantidad y ancho de módulos, filas, separación de escalones e intervalos libres en X local. Para otro mapa, ubicá el origen en el centro de la primera fila y orientá +Z hacia las filas traseras. Left Team, Right Team y Seed permiten editar el lado y repetir la distribución. |
+| Prefab → cada lado → Ambiente | Sector Volume, Source Span, Clip Index, Start Fraction | Nivel del sector, tramo de grada que actúa como emisor, clip y punto de inicio del loop. Para fijar el emisor en un punto, poné Source Span en cero. |
+
+### Implementación y presupuesto
+
+`CrowdStand` arma una malla de quads por lado al iniciar, después del sorteo de la dupla. `CrowdInk.shader` usa fase, velocidad y variante de cada espectador para elegir uno de tres cuadros en la GPU. `M_Publico` se comparte en ambos mapas. Las texturas importadas conservan solo el alfa, con mipmaps y filtro trilineal. El público usa profundidad de la escena, un solo pase sin iluminación y color por vértice. Los dos PNG blancos y transparentes están en `Assets/Art/Generated/Crowd`.
+
+`CrowdAmbience` mantiene cuatro fuentes mono 3D. Cada fuente sigue el punto más próximo al listener a lo largo de su sector. Unity mezcla distancia y dirección. Los dos Vorbis de `Assets/Audio/Sfx/Crowd` se leen por streaming, con un desfase distinto por fuente. Los ajustes comunes viven en `Assets/ScriptableObjects/Crowd/StadiumCrowd.asset` y los componentes en `Assets/Scripts/Gameplay/Level`. La reproducción y el sorteo visual son locales.
+
+En la configuración inicial hay **519 espectadores y 1.038 triángulos por mapa**. Se midieron 363 espectadores del color local. El redondeo se hace por lado y equipo. En el Development Player Windows, D3D11, RTX 4070 Laptop, a 1920 × 1080, una cámara apuntando a una grada registró 56 draw calls con público y 55 sin él. Las medianas de 180 cuadros fueron 1,334 / 0,637 ms de CPU/GPU con público, 1,263 / 0,656 ms sin público y 1,387 / 0,664 ms al reactivarlo. El número visible de lados cambia con la cámara. Las diferencias de GPU están dentro de la variación entre pasadas.
+
+En ese Player se registraron 262.592 bytes por tira y 324.882 bytes por AudioClip en streaming. Son tamaños de los objetos informados por el Profiler, no del subsistema de audio completo. Las cuatro mallas sumaron 87.204 bytes en el Editor. Se observaron cuatro fuentes reproduciendo y un listener activo. Al aislar la tribuna norte, el canal dominante pasó de 0,00121 RMS a 71 m a 0,00736 RMS a 12 m. Girar el listener invirtió el canal dominante. Ambos clips cruzaron el fin de loop en Play. Quedan la escucha con auriculares durante combate, la comparación con dos clientes y el perfil en un dispositivo móvil físico.
 
 ## Qué había en el commit inicial
 

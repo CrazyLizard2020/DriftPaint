@@ -113,6 +113,9 @@ namespace DriftPaint.EditorTools
                           .FirstOrDefault(c => c != null && c.CompareTag("MainCamera"));
             if (camera == null) throw new System.InvalidOperationException("La escena no tiene cámara principal: " + scene.path);
             if (camera.TryGetComponent<CarCameraRig>(out var rig)) rig.enabled = false;
+            foreach (var root in scene.GetRootGameObjects())
+                foreach (var stand in root.GetComponentsInChildren<DriftPaint.Level.CrowdStand>())
+                    stand.Rebuild();
 
             string[] models = { "Car_RX7", "Car_AE86", "Car_Gc14" };
             byte[] teams = { TeamId.A, TeamId.A, TeamId.B };
@@ -210,6 +213,9 @@ namespace DriftPaint.EditorTools
             var facing = Quaternion.Euler(0, MockupYaw, 0);
             car.transform.SetPositionAndRotation(MockupCar, facing);
             car.GetComponent<CarTeamColor>().PreviewTeam(TeamId.A, MockupPair);
+            foreach (var root in scene.GetRootGameObjects())
+                foreach (var stand in root.GetComponentsInChildren<DriftPaint.Level.CrowdStand>())
+                    stand.Rebuild(MockupPair);
 
             var view = Quaternion.Euler(0, 32, 0);
             camera.transform.SetPositionAndRotation(MockupCar + view * new Vector3(-.12f, 1.61f, -4.50f),

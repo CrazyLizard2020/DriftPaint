@@ -12,6 +12,7 @@ namespace DriftPaint.EditorTools
     {
         public const string EnginesFolder = "Assets/Audio/Engines";
         public const string EffectsFolder = "Assets/Audio/Sfx";
+        public const string CrowdFolder = EffectsFolder + "/Crowd";
         /// <summary>Prefijo de los sonidos sueltos dentro de las carpetas de motores.</summary>
         public const string OneShotPrefix = "FX_";
 
@@ -24,6 +25,17 @@ namespace DriftPaint.EditorTools
             bool loop = engine && !System.IO.Path.GetFileName(assetPath).StartsWith(OneShotPrefix);
             var importer = (AudioImporter)assetImporter;
             AudioImporterSampleSettings settings = importer.defaultSampleSettings;
+            if (assetPath.StartsWith(CrowdFolder + "/"))
+            {
+                settings.loadType = AudioClipLoadType.Streaming;
+                settings.compressionFormat = AudioCompressionFormat.Vorbis;
+                settings.preloadAudioData = false;
+                settings.sampleRateSetting = AudioSampleRateSetting.PreserveSampleRate;
+                importer.defaultSampleSettings = settings;
+                importer.forceToMono = true;
+                importer.loadInBackground = true;
+                return;
+            }
             settings.loadType = AudioClipLoadType.DecompressOnLoad;
             settings.compressionFormat = loop ? AudioCompressionFormat.PCM : AudioCompressionFormat.ADPCM;
             settings.sampleRateSetting = AudioSampleRateSetting.PreserveSampleRate;
