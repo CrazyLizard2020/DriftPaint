@@ -159,6 +159,7 @@ namespace DriftPaint.Networking
         public event Action<ChatMessage> ChatReceived;
         public event Action<FireInfo> FireReceived;
         public event Action<ImpactInfo> ImpactReceived;
+        public event Action<Vector3, bool> RingChargeReceived;
         public event Action<NetworkObjectInfo> ObjectSpawned;
         public event Action<GameObject> ObjectDespawned;
         public event Action<PaintDelta> PaintDeltaReceived;
@@ -598,6 +599,17 @@ namespace DriftPaint.Networking
             FireReceived?.Invoke(new FireInfo(LocalActorId, shotId, origin, velocity, fireTime));
         }
 
+        /// <summary>Los clientes presentes oyen el cruce una vez. La sala no lo conserva para quien vuelva después.</summary>
+        public void AnnounceRingCharge(Vector3 position, bool won)
+        {
+            if (_provider.InRoom)
+            {
+                if (!IsMaster) return;
+                _provider.SendEvent(NetEventCodes.RingCharge, new object[] { position, won }, NetTarget.Others, true);
+            }
+            RingChargeReceived?.Invoke(position, won);
+        }
+
         public void SendImpact(ImpactInfo impact)
         {
             if (_provider.InRoom)
@@ -988,6 +1000,12 @@ namespace DriftPaint.Networking
 
                 case NetEventCodes.PaintSnapshotRequest:
                     if (IsMaster) PaintSnapshotRequested?.Invoke(senderActorId);
+                    break;
+
+                case NetEventCodes.RingCharge:
+                    if (IsFromMaster(senderActorId) && payload is object[] charge && charge.Length == 2 &&
+                        charge[0] is Vector3 ringPosition && charge[1] is bool won)
+                        RingChargeReceived?.Invoke(ringPosition, won);
                     break;
 
                 // Los impactos los decide el Master: se ignoran los de cualquier otro.

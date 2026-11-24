@@ -59,6 +59,20 @@ MonoBehaviour:
     _volume: 0.7
     _volumeVariation: 0
     _pitchVariation: 0
+  _ringCounter:
+    _clips:
+    - {fileID: 8300000, guid: 0da6e4696292a9245a29d968d0e71b23, type: 3}
+    _selection: 1
+    _volume: 0.8
+    _volumeVariation: 0
+    _pitchVariation: 0
+  _ringWin:
+    _clips:
+    - {fileID: 8300000, guid: 82e69be2fa8163342b333f559edb336c, type: 3}
+    _selection: 1
+    _volume: 1
+    _volumeVariation: 0
+    _pitchVariation: 0
   _minDistance: 8
   _maxDistance: 140
   _generatorVersion: 3

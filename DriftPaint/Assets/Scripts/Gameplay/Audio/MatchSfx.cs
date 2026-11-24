@@ -27,6 +27,7 @@ namespace DriftPaint.Audio
         float[] _startTimes;
         int _lastSecond = -1;
         bool _counting;
+        INetworkMediator _mediator;
 
         void Awake()
         {
@@ -48,6 +49,8 @@ namespace DriftPaint.Audio
 
         void OnEnable()
         {
+            _mediator = NetworkServices.Mediator;
+            if (_mediator != null) _mediator.RingChargeReceived += OnRingCharge;
             if (_weapons != null)
             {
                 _weapons.ShotFired += OnShot;
@@ -58,6 +61,7 @@ namespace DriftPaint.Audio
 
         void OnDisable()
         {
+            if (_mediator != null) _mediator.RingChargeReceived -= OnRingCharge;
             if (_weapons != null)
             {
                 _weapons.ShotFired -= OnShot;
@@ -96,6 +100,11 @@ namespace DriftPaint.Audio
         }
 
         void OnBarrelDropped(Vector3 position) => Play(_library != null ? _library.BarrelDrop : null, position);
+
+        void OnRingCharge(Vector3 position, bool won)
+        {
+            if (_library != null) Play(won ? _library.RingWin : _library.RingCounter, position);
+        }
 
         /// <summary>Toca un efecto en una posición del mundo, o en estéreo sin posición si es null.</summary>
         void Play(SfxClip sfx, Vector3? position)

@@ -374,6 +374,11 @@ namespace DriftPaint.Net
         void SendImpact(ImpactInfo impact);
         event Action<ImpactInfo> ImpactReceived;
 
+        /// <summary>La autoridad anuncia una carga ganada e indica si esa carga conquistó el aro.</summary>
+        void AnnounceRingCharge(Vector3 position, bool won);
+        /// <summary>Notificación puntual del cruce, también para quien juega sin sala.</summary>
+        event Action<Vector3, bool> RingChargeReceived;
+
         /// <summary>Pide al Master soltar un barril.</summary>
         void RequestDropBarrel(Vector3 position, Vector3 direction);
         /// <summary>Un jugador pidió soltar un barril: actor, posición y dirección. Solo le llega al Master.</summary>

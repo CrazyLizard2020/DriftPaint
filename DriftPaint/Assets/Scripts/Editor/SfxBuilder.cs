@@ -57,7 +57,8 @@ namespace DriftPaint.EditorTools
         {
             if (AllNames.Any(name => !File.Exists(Wav(name)))) return true;
             var library = AssetDatabase.LoadAssetAtPath<SfxLibrarySO>(ScriptableObjectPaths.SfxLibrary);
-            if (library == null || !library.Shot.HasClips || library.GeneratorVersion < Version) return true;
+            if (library == null || !library.Shot.HasClips || !library.RingCounter.HasClips ||
+                !library.RingWin.HasClips || library.GeneratorVersion < Version) return true;
             foreach (CarPrefabBuilder.CarModelSpec spec in CarPrefabBuilder.Models)
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{CarPrefabBuilder.PrefabFolder}/Car_{spec.Name}.prefab");
@@ -133,6 +134,11 @@ namespace DriftPaint.EditorTools
         static SfxLibrarySO EnsureLibrary()
         {
             SfxLibrarySO library = EditorAssetUtility.LoadOrCreate(ScriptableObjectPaths.SfxLibrary, ScriptableObject.CreateInstance<SfxLibrarySO>);
+            if (!library.RingCounter.HasClips || !library.RingWin.HasClips)
+            {
+                library.FillRingClips(Load("ring/ring_counter_acquired"), Load("ring/ring_win"));
+                EditorUtility.SetDirty(library);
+            }
             if (library.Shot.HasClips) return library;
 
             AudioClip[] recorded = RecordedShots();

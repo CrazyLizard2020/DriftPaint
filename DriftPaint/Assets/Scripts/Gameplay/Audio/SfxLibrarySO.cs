@@ -24,6 +24,10 @@ namespace DriftPaint.Audio
         [Tooltip("La largada, cuando la cuenta llega a cero.")]
         [SerializeField] SfxClip _countdownGo = new SfxClip();
 
+        [Header("Aros de pintura")]
+        [SerializeField] SfxClip _ringCounter = new SfxClip();
+        [SerializeField] SfxClip _ringWin = new SfxClip();
+
         [Header("Distancia")]
         [Tooltip("Hasta esta distancia (m) los efectos se oyen a volumen pleno.")]
         [SerializeField, Min(0.5f)] float _minDistance = 8f;
@@ -42,8 +46,19 @@ namespace DriftPaint.Audio
         public SfxClip BarrelDrop => _barrelDrop;
         public SfxClip CountdownTick => _countdownTick;
         public SfxClip CountdownGo => _countdownGo;
+        /// <summary>Un equipo suma una carga intermedia.</summary>
+        public SfxClip RingCounter => _ringCounter;
+        /// <summary>La última carga activa el aro.</summary>
+        public SfxClip RingWin => _ringWin;
         public float MinDistance => _minDistance;
         public float MaxDistance => Mathf.Max(_maxDistance, _minDistance + 1f);
+
+        /// <summary>Conecta las grabaciones del aro conservando las selecciones del inspector.</summary>
+        public void FillRingClips(AudioClip counter, AudioClip win)
+        {
+            if (!_ringCounter.HasClips && counter != null) _ringCounter = new SfxClip(new[] { counter }, 0.8f, 0f);
+            if (!_ringWin.HasClips && win != null) _ringWin = new SfxClip(new[] { win }, 1f, 0f);
+        }
 
         /// <summary>El generador de editor arma la biblioteca con este método.</summary>
         public void Set(SfxClip shot, SfxClip projectileImpact, SfxClip barrelExplosion, SfxClip barrelDrop,

@@ -13,6 +13,7 @@ namespace DriftPaint.Networking
         public const byte PaintSnapshot = 8;
         public const byte PaintSnapshotRequest = 9;
         public const byte TeamChangeRequest = 10;
+        public const byte RingCharge = 11;
         public const byte Chat = 20;
     }
 

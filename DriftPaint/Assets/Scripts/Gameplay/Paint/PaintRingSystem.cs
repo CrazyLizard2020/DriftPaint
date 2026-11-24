@@ -150,7 +150,7 @@ namespace DriftPaint.Paint
                     if (!ring.Crosses(track.position, current, _settings.diameter * .5f - _settings.edgeClearance)) continue;
                     track.launched[id] = double.NegativeInfinity;
                     if ((car.Team == TeamId.A || car.Team == TeamId.B) && Airborne(current))
-                        Charge(_state.rings[id], car.Team, car.OwnerActorId);
+                        Charge(ring, car.Team, car.OwnerActorId);
                 }
                 track.frame = Time.frameCount;
                 track.position = current;
@@ -171,8 +171,9 @@ namespace DriftPaint.Paint
             return true;
         }
 
-        void Charge(Objective ring, byte team, int actor)
+        void Charge(PaintRing objective, byte team, int actor)
         {
+            var ring = _state.rings[objective.Id];
             if (ring.active) return;
             if (ring.team != TeamId.None && ring.team != team)
             {
@@ -196,6 +197,7 @@ namespace DriftPaint.Paint
                         award.points += _settings.activationCredit;
                     }
                 }
+                _net.AnnounceRingCharge(objective.transform.position, ring.active);
             }
             _dirty = true;
         }
