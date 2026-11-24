@@ -1,3 +1,4 @@
+using System.Linq;
 using DriftPaint.Match;
 using DriftPaint.UI;
 using UnityEditor;
@@ -106,7 +107,8 @@ namespace DriftPaint.EditorTools
         {
             if (plate == null) return;
 
-            Transform existing = plate.transform.Find(IconObjectName);
+            // El ícono puede estar dentro del contenedor centrado del cartel.
+            Transform existing = plate.GetComponentsInChildren<Transform>(true).FirstOrDefault(t => t.name == IconObjectName);
             GameObject icon;
             if (existing != null)
             {
@@ -123,6 +125,7 @@ namespace DriftPaint.EditorTools
 
             icon.SetActive(false);
             MenuSceneBuilder.Bind(plate, ("_disconnectedIcon", icon));
+            NameplateBuilder.Center(plate);
         }
 
         /// <summary>Conecta el material fantasma y el ícono en el MatchSpawner y su plantilla de nombres.</summary>

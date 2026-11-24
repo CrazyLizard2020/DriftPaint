@@ -30,12 +30,26 @@ namespace DriftPaint.EditorTools
             public readonly string ScenePath;
             public readonly Type[] Required;
             public readonly Action<Scene> Apply;
+            /// <summary>Para cambios que no agregan componentes propios: decide leyendo el texto de la escena.</summary>
+            public readonly Func<string, bool> Pending;
+            public readonly string Label;
 
             public Step(string scenePath, Type[] required, Action<Scene> apply)
             {
                 ScenePath = scenePath;
                 Required = required;
                 Apply = apply;
+                Pending = null;
+                Label = null;
+            }
+
+            public Step(string scenePath, string label, Func<string, bool> pending, Action<Scene> apply)
+            {
+                ScenePath = scenePath;
+                Required = Array.Empty<Type>();
+                Apply = apply;
+                Pending = pending;
+                Label = label;
             }
         }
 
@@ -47,6 +61,8 @@ namespace DriftPaint.EditorTools
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(MatchSfx) }, SfxBuilder.InstallMatch),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(DriftPaint.Combat.BarrelLook) }, BarrelArtBuilder.InstallPickups),
             new Step(RoyalDriftRoadMap.ScenePath, new[] { typeof(DriftPaint.Combat.BarrelLook) }, BarrelArtBuilder.InstallPickups),
+            new Step(MatchSceneBuilder.ScenePath, "nombres centrados sobre los autos", NameplateBuilder.Pending, NameplateBuilder.Install),
+            new Step(RoyalDriftRoadMap.ScenePath, "nombres centrados sobre los autos", NameplateBuilder.Pending, NameplateBuilder.Install),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
@@ -116,9 +132,15 @@ namespace DriftPaint.EditorTools
             {
                 if (!File.Exists(step.ScenePath)) continue;
                 string text = File.ReadAllText(step.ScenePath);
+                if (step.Pending != null)
+                {
+                    // Estos pasos se pueden repetir sin duplicar: si la escena abierta ya lo tiene sin guardar, no cambia nada.
+                    if (step.Pending(text)) Apply(step, step.Label);
+                    continue;
+                }
                 Type[] missing = step.Required.Where(type => !SceneUses(text, type)).ToArray();
                 if (missing.Length == 0 || AlreadyInOpenScene(step)) continue;
-                Apply(step, missing);
+                Apply(step, string.Join(", ", missing.Select(type => type.Name)));
             }
         }
 
@@ -153,7 +175,7 @@ namespace DriftPaint.EditorTools
             return null;
         }
 
-        static void Apply(Step step, Type[] missing)
+        static void Apply(Step step, string names)
         {
             Scene scene = SceneManager.GetSceneByPath(step.ScenePath);
             bool wasOpen = scene.IsValid() && scene.isLoaded;
@@ -176,7 +198,6 @@ namespace DriftPaint.EditorTools
                 if (previousActive.IsValid() && previousActive.isLoaded) SceneManager.SetActiveScene(previousActive);
             }
 
-            string names = string.Join(", ", missing.Select(type => type.Name));
             if (hadUnsavedChanges)
             {
                 // No se guardan cambios ajenos sin que el usuario los vea: la escena queda marcada para guardar.

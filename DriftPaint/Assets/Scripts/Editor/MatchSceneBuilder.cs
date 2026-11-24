@@ -813,6 +813,7 @@ namespace DriftPaint.EditorTools
 
             var plate = go.AddComponent<CarNameplate>();
             MenuSceneBuilder.Bind(plate, ("_nameText", name), ("_marker", marker));
+            NameplateBuilder.Center(plate);
             return plate;
         }
 
