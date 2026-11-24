@@ -31,6 +31,8 @@ namespace DriftPaint.Networking
         public const string StartTime = "startTime";
         public const string Duration = "duration";
         public const string Round = "round";
+        public const string Roster = "roundTeams";
+        public const string Rings = "rings";
         public const string Palette = "palette";
         /// <summary>Identifica una partida de la sala y se conserva durante los desempates.</summary>
         public const string MatchId = "matchId";

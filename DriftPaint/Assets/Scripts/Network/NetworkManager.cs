@@ -116,6 +116,20 @@ namespace DriftPaint.Networking
         /// <summary>Dupla que acompaña al identificador de partida durante todas sus rondas.</summary>
         public int PaletteIndex { get; private set; }
         public int Round => _round;
+        public string MatchId => _currentMatchId;
+        public string RingSnapshot { get; private set; }
+        int[] _roundTeams;
+        public int RoundTeamSize(byte team) => _roundTeams != null && team >= 1 && team <= _roundTeams.Length ? _roundTeams[team - 1] : 0;
+        public bool PublishRingSnapshot(string snapshot) => IsMaster && _provider.InRoom &&
+            _provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.Rings, snapshot } });
+
+        int[] CountRoundTeams()
+        {
+            var sizes = new int[2];
+            foreach (var player in _players)
+                if (player.Team == TeamId.A || player.Team == TeamId.B) sizes[player.Team - 1]++;
+            return sizes;
+        }
         public byte Winner => _winner;
         /// <summary>La sala decide al recibir el pedido si todavía conserva al actor.</summary>
         public bool CanRejoinLastMatch => _state == ConnectionState.Disconnected && HasReservation;
@@ -439,6 +453,8 @@ namespace DriftPaint.Networking
                 { RoomKeys.MatchId, Guid.NewGuid().ToString("N") },
                 { RoomKeys.StartTime, ServerTime + RoomRules.CountdownSeconds },
                 { RoomKeys.Round, 1 },
+                { RoomKeys.Roster, CountRoundTeams() },
+                { RoomKeys.Rings, "" },
                 { RoomKeys.Palette, UnityEngine.Random.Range(0, TeamPaletteSO.PairCount) },
                 { RoomKeys.ScoreA, 0 },
                 { RoomKeys.ScoreB, 0 },
@@ -494,7 +510,8 @@ namespace DriftPaint.Networking
             {
                 { RoomKeys.State, (byte)MatchPhase.Tiebreak },
                 { RoomKeys.StartTime, startTime },
-                { RoomKeys.Round, Mathf.Max(1, _round) + 1 }
+                { RoomKeys.Round, Mathf.Max(1, _round) + 1 },
+                { RoomKeys.Roster, CountRoundTeams() }
             });
         }
 
@@ -1021,6 +1038,8 @@ namespace DriftPaint.Networking
         {
             ReturningFromMenu = false;
             _currentMatchId = null;
+            RingSnapshot = null;
+            _roundTeams = null;
             _currentRoom = default;
             _players.Clear();
             _phase = MatchPhase.Lobby;
@@ -1048,6 +1067,8 @@ namespace DriftPaint.Networking
             NetRoomInfo room = _provider.CurrentRoom;
             _currentRoom = ToRoomSummary(room);
             _currentMatchId = Get(room.Properties, RoomKeys.MatchId) as string;
+            RingSnapshot = Get(room.Properties, RoomKeys.Rings) as string;
+            _roundTeams = Get(room.Properties, RoomKeys.Roster) as int[];
             _matchStartTime = ToDouble(Get(room.Properties, RoomKeys.StartTime), 0);
             _scoreA = ToInt(Get(room.Properties, RoomKeys.ScoreA), 0);
             _scoreB = ToInt(Get(room.Properties, RoomKeys.ScoreB), 0);

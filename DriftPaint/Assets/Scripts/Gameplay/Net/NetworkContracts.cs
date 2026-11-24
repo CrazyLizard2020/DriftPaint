@@ -307,6 +307,12 @@ namespace DriftPaint.Net
         int ScoreB { get; }
         /// <summary>Ronda actual: 1 la partida normal, 2 en adelante los desempates. 0 fuera de partida.</summary>
         int Round { get; }
+        /// <summary>Identidad de la partida y cantidades de jugadores al comenzar la ronda.</summary>
+        string MatchId { get; }
+        int RoundTeamSize(byte team);
+        /// <summary>Último estado confirmado de los objetivos de pintura de la sala.</summary>
+        string RingSnapshot { get; }
+        bool PublishRingSnapshot(string snapshot);
         /// <summary>Dupla cromática que publicó la autoridad al iniciar la partida.</summary>
         int PaletteIndex { get; }
         /// <summary>Equipo ganador publicado al cerrar la partida, o ninguno.</summary>

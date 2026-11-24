@@ -20,5 +20,6 @@ namespace DriftPaint.EditorTools
         public const string ProjectileSettings = CombatFolder + "/ProjectileSettings.asset";
         public const string BarrelSettings = CombatFolder + "/BarrelSettings.asset";
         public const string MusicLibrary = AudioFolder + "/MusicLibrary.asset";
+        public const string PaintRings = Root + "/Paint/PaintRingSettings.asset";
     }
 }

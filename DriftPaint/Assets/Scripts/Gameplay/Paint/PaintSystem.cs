@@ -23,6 +23,7 @@ namespace DriftPaint.Paint
     public class PaintSystem : MonoBehaviour, IPaintSurfaceQuery
     {
         [SerializeField] MatchController _match;
+        [SerializeField] PaintRingSystem _rings;
         [Tooltip("Cada cuántos segundos el Master manda los cambios de la grilla.")]
         [SerializeField, Min(0.02f)] float _deltaInterval = 0.1f;
         [Tooltip("Segundos que se muestra una celda predicha que el Master todavía no confirmó.")]
@@ -136,6 +137,7 @@ namespace DriftPaint.Paint
             float until = Time.time + protectSeconds;
             foreach (int cell in _cells)
             {
+                if (_rings != null && _rings.Blocks(cell, 2)) continue;
                 PaintConfirmed(cell, team, ownerActorId);
                 if (_protectedUntil[cell] < until) _protectedUntil[cell] = until;
             }
@@ -154,6 +156,7 @@ namespace DriftPaint.Paint
                 float until = Time.time + protectSeconds;
                 foreach (int cell in _cells)
                 {
+                    if (_rings != null && _rings.Blocks(cell, 2)) continue;
                     if (_protectedUntil[cell] < until) _protectedUntil[cell] = until;
                     // Lo predicho dentro de la zona se descarta: se ve lo que confirmó el Master.
                     if (_predicted.Remove(cell)) SetDisplay(cell, _confirmed.GetTeam(cell));
@@ -303,7 +306,7 @@ namespace DriftPaint.Paint
             foreach (int cell in _cells)
             {
                 // Lo que acaba de pintar una explosión tiene prioridad sobre los rastros por un rato.
-                if (IsProtected(cell)) continue;
+                if (IsProtected(cell) || (_rings != null && _rings.Blocks(cell, 1))) continue;
                 if (IsAuthority) PaintConfirmed(cell, team, tracked.Owner);
                 else Predict(cell, team);
             }
@@ -365,6 +368,14 @@ namespace DriftPaint.Paint
             }
             stroke.Team = team;
             stroke.Cells.Add((ushort)cell);
+        }
+
+        internal void PaintRingCell(int cell, byte team, int priority)
+        {
+            if (priority < 2 && IsProtected(cell)) return;
+            if (priority > 2) _protectedUntil[cell] = 0;
+            if (IsAuthority) PaintConfirmed(cell, team, PaintGrid.RingOwner(team));
+            else if (_predicted.Remove(cell)) SetDisplay(cell, _confirmed.GetTeam(cell));
         }
 
         void FlushDelta()

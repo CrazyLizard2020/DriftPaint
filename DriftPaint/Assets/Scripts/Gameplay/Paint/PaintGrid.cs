@@ -119,8 +119,11 @@ namespace DriftPaint.Paint
             Array.Copy(_owners, owners, CellCount);
         }
 
+        internal static int RingOwner(byte team) => int.MinValue + team;
+
         void AddStanding(int actorId, int standing, int steals)
         {
+            if (actorId == RingOwner(TeamId.A) || actorId == RingOwner(TeamId.B)) return;
             PlayerPaintCount count = GetPlayer(actorId);
             count.Standing += standing;
             count.Steals += steals;

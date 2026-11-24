@@ -16,6 +16,7 @@ namespace DriftPaint.Scoring
     public class MatchScore : MonoBehaviour
     {
         [SerializeField] PaintSystem _paint;
+        [SerializeField] PaintRingSystem _rings;
         [SerializeField] MatchController _match;
         [Tooltip("Cada cuántos segundos el Master publica el puntaje.")]
         [SerializeField, Min(0.2f)] float _publishInterval = 1f;
@@ -84,9 +85,14 @@ namespace DriftPaint.Scoring
         void PublishPlayers()
         {
             if (_paint == null) return;
-            foreach (PlayerPaintCount count in _paint.Confirmed.Players)
-                _mediator.PublishPlayerScore(count.ActorId, ScoreRules.PointsOf(count), count.Standing);
+            foreach (var player in _mediator.Players)
+            {
+                var count = _paint.Confirmed.GetPlayer(player.ActorId);
+                _mediator.PublishPlayerScore(player.ActorId, Points(count), count.Standing);
+            }
         }
+
+        int Points(PlayerPaintCount count) => ScoreRules.PointsOf(count) + (_rings != null ? _rings.Credit(count.ActorId) : 0);
 
         /// <summary>Llena la lista con los jugadores de los dos equipos, ya ordenada.</summary>
         public void BuildTable(List<ScoreEntry> entries)
@@ -118,7 +124,7 @@ namespace DriftPaint.Scoring
                 string name = _mediator != null && !string.IsNullOrEmpty(_mediator.LocalNickname)
                     ? _mediator.LocalNickname
                     : PlayerProfile.LoadNickname();
-                entries.Add(new ScoreEntry(LocalActorId, name, TeamId.A, ScoreRules.PointsOf(count), count.Standing, true, false));
+                entries.Add(new ScoreEntry(LocalActorId, name, TeamId.A, Points(count), count.Standing, true, false));
             }
 
             ScoreRules.Sort(entries);

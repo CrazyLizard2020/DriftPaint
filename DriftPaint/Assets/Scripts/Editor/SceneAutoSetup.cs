@@ -41,6 +41,7 @@ namespace DriftPaint.EditorTools
 
         static readonly Step[] Steps =
         {
+            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(DriftPaint.Paint.PaintRingSystem) }, PaintRingBuilder.Install),
             new Step(MenuSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
         };
