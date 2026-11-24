@@ -32,6 +32,13 @@ namespace DriftPaint.UI.Score
         void Awake()
         {
             if (_rowTemplate != null) _rowTemplate.gameObject.SetActive(false);
+        }
+
+        void OnEnable() { GameLanguage.Changed += RefreshHeaders; RefreshHeaders(); }
+        void OnDisable() => GameLanguage.Changed -= RefreshHeaders;
+
+        void RefreshHeaders()
+        {
             if (_leftHeader != null) _leftHeader.text = TeamName(LeftTeam);
             if (_rightHeader != null) _rightHeader.text = TeamName(RightTeam);
         }
@@ -73,6 +80,6 @@ namespace DriftPaint.UI.Score
 
         Color TeamColor(byte team) => _palette != null ? _palette.Get(team).Main : Color.white;
 
-        string TeamName(byte team) => _palette != null ? $"EQUIPO {_palette.Get(team).DisplayName}" : "";
+        string TeamName(byte team) => _palette != null ? string.Format(GameLanguage.Text("EQUIPO {0}"), GameLanguage.Text(_palette.Get(team).DisplayName)) : "";
     }
 }

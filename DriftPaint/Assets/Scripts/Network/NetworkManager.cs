@@ -255,7 +255,7 @@ namespace DriftPaint.Networking
             if (_state != ConnectionState.InLobby) return false;
 
             string title = CleanText(settings.Title, 32);
-            if (title.Length == 0) title = $"Sala de {_nickname}";
+            if (title.Length == 0) title = string.Format(GameLanguage.Text("Sala de {0}"), _nickname);
 
             var options = new NetRoomOptions
             {
@@ -561,7 +561,7 @@ namespace DriftPaint.Networking
         {
             if (!_prefabs.TryGetValue(prefabId, out GameObject prefab))
             {
-                RaiseError($"No hay un prefab registrado como \"{prefabId}\".");
+                RaiseError(string.Format(GameLanguage.Text("No hay un prefab registrado como \"{0}\"."), prefabId));
                 return null;
             }
 
@@ -748,7 +748,7 @@ namespace DriftPaint.Networking
                 PlayersChanged?.Invoke();
             }
 
-            if (!expected) RaiseError(string.IsNullOrEmpty(cause) ? "Se perdió la conexión con el servidor." : $"Se perdió la conexión con el servidor ({cause}).");
+            if (!expected) RaiseError(string.IsNullOrEmpty(cause) ? "Se perdió la conexión con el servidor." : string.Format(GameLanguage.Text("Se perdió la conexión con el servidor ({0})."), cause));
         }
 
         /// <summary>
@@ -839,7 +839,7 @@ namespace DriftPaint.Networking
             }
             else
             {
-                ChatReceived?.Invoke(ChatMessage.System($"Entraste a la sala {_currentRoom.Title}."));
+                ChatReceived?.Invoke(ChatMessage.System("Entraste a la sala {0}.", _currentRoom.Title));
             }
         }
 
@@ -860,7 +860,7 @@ namespace DriftPaint.Networking
         void OnCreateRoomFailed(string message)
         {
             SetState(_provider.InLobby ? ConnectionState.InLobby : ConnectionState.Connecting);
-            RaiseError($"No se pudo crear la sala. {message}");
+            RaiseError(string.Format(GameLanguage.Text("No se pudo crear la sala. {0}"), GameLanguage.Text(message)));
         }
 
         void OnJoinRoomFailed(string message)
@@ -878,7 +878,7 @@ namespace DriftPaint.Networking
                 return;
             }
             SetState(_provider.InLobby ? ConnectionState.InLobby : ConnectionState.Connecting);
-            RaiseError($"No se pudo entrar a la sala. {message}");
+            RaiseError(string.Format(GameLanguage.Text("No se pudo entrar a la sala. {0}"), GameLanguage.Text(message)));
         }
 
         bool IsReservedMatch()
@@ -910,7 +910,7 @@ namespace DriftPaint.Networking
             if (IsMaster) EnsureTeams();
 
             PlayersChanged?.Invoke();
-            ChatReceived?.Invoke(ChatMessage.System($"{NameOf(actorId)} entró a la sala."));
+            ChatReceived?.Invoke(ChatMessage.System("{0} entró a la sala.", NameOf(actorId)));
         }
 
         void OnPlayerLeft(int actorId)
@@ -921,7 +921,7 @@ namespace DriftPaint.Networking
             if (IsMaster) EnsureTeams();
 
             PlayersChanged?.Invoke();
-            ChatReceived?.Invoke(ChatMessage.System(stillReserved ? $"{name} se desconectó." : $"{name} salió de la sala."));
+            ChatReceived?.Invoke(ChatMessage.System(stillReserved ? "{0} se desconectó." : "{0} salió de la sala.", name));
         }
 
         void OnMasterSwitched(int newMasterActorId)
@@ -932,7 +932,7 @@ namespace DriftPaint.Networking
 
             PlayersChanged?.Invoke();
             RoomChanged?.Invoke();
-            ChatReceived?.Invoke(ChatMessage.System($"{NameOf(newMasterActorId)} ahora es el host."));
+            ChatReceived?.Invoke(ChatMessage.System("{0} ahora es el host.", NameOf(newMasterActorId)));
         }
 
         void OnRoomPropertiesChanged(IReadOnlyDictionary<string, object> changed)
@@ -1106,7 +1106,7 @@ namespace DriftPaint.Networking
             foreach (NetPlayerInfo player in _provider.Players)
             {
                 byte team = (byte)ToInt(Get(player.Properties, PlayerKeys.Team), TeamId.None);
-                string name = string.IsNullOrEmpty(player.NickName) ? $"Jugador {player.ActorNumber}" : player.NickName;
+                string name = string.IsNullOrEmpty(player.NickName) ? string.Format(GameLanguage.Text("Jugador {0}"), player.ActorNumber) : player.NickName;
                 // pts viaja como { puntaje, celdas en pie }.
                 int points = 0, standing = 0;
                 if (Get(player.Properties, PlayerKeys.Points) is int[] pts && pts.Length >= 2)
@@ -1166,7 +1166,7 @@ namespace DriftPaint.Networking
 
         string NameOf(int actorId)
         {
-            return TryGetPlayer(actorId, out PlayerSummary player) ? player.Nickname : $"Jugador {actorId}";
+            return TryGetPlayer(actorId, out PlayerSummary player) ? player.Nickname : string.Format(GameLanguage.Text("Jugador {0}"), actorId);
         }
 
         byte LocalTeam()

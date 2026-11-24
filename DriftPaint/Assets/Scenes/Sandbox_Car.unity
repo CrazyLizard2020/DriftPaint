@@ -2565,6 +2565,7 @@ GameObject:
   - component: {fileID: 1422309941}
   - component: {fileID: 1422309943}
   - component: {fileID: 1422309942}
+  - component: {fileID: 1422309944}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -2691,6 +2692,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1422309940}
   m_CullTransparentMesh: 1
+--- !u!114 &1422309944
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1422309940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: REUBICANDO AUTO
 --- !u!1 &1432356278
 GameObject:
   m_ObjectHideFlags: 0
@@ -3352,6 +3366,7 @@ GameObject:
   - component: {fileID: 1870484370}
   - component: {fileID: 1870484372}
   - component: {fileID: 1870484371}
+  - component: {fileID: 1870484373}
   m_Layer: 0
   m_Name: HelpText
   m_TagString: Untagged
@@ -3482,6 +3497,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1870484369}
   m_CullTransparentMesh: 1
+--- !u!114 &1870484373
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1870484369}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Sandbox.Controls
 --- !u!1 &2116161439
 GameObject:
   m_ObjectHideFlags: 0

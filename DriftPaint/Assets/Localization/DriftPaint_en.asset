@@ -1,0 +1,775 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: DriftPaint_en
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: en
+  m_SharedData: {fileID: 11400000, guid: cf96c4dc7480cd84b9a53cb6fda7f356, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1067339321344
+    m_Localized: ROOMS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681472
+    m_Localized: QUIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681473
+    m_Localized: OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681474
+    m_Localized: Options
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681475
+    m_Localized: PLAYER  /
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681476
+    m_Localized: EDIT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681477
+    m_Localized: REJOIN MATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681478
+    m_Localized: ROOM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681479
+    m_Localized: FIND AND JOIN A MATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681480
+    m_Localized: Search by room or ID...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681481
+    m_Localized: +  CREATE ROOM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681482
+    m_Localized: CREATE ROOM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681483
+    m_Localized: MODE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681484
+    m_Localized: PLAYERS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681485
+    m_Localized: PING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681486
+    m_Localized: Paint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681487
+    m_Localized: PAINT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681488
+    m_Localized: JOIN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681489
+    m_Localized: IN GAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681490
+    m_Localized: FULL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681491
+    m_Localized: BACK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681492
+    m_Localized: REFRESH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681493
+    m_Localized: No open rooms. Create one to get started.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681494
+    m_Localized: NAME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681495
+    m_Localized: DURATION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681496
+    m_Localized: 'Map: Drift Arena   /   Mode: Paint   /   Up to 8 players'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681497
+    m_Localized: CREATE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681498
+    m_Localized: CANCEL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681499
+    m_Localized: '{0}''s room'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681500
+    m_Localized: ROOM SETTINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681501
+    m_Localized: PLAYERS  <color=#18DFF0>({0} / {1})</color>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681502
+    m_Localized: Waiting for player...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681503
+    m_Localized: '{0} (reconnecting)'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681504
+    m_Localized: COPY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681505
+    m_Localized: HOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681506
+    m_Localized: Mode
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681507
+    m_Localized: Max. players
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681508
+    m_Localized: Duration
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681509
+    m_Localized: ROOM CHAT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681510
+    m_Localized: Type a message...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681511
+    m_Localized: SEND
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681512
+    m_Localized: System
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681513
+    m_Localized: CHANGE TEAM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681514
+    m_Localized: CHANGE CAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681515
+    m_Localized: START MATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681516
+    m_Localized: WAITING FOR HOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681517
+    m_Localized: CHOOSE A CAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681518
+    m_Localized: CURRENT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681519
+    m_Localized: CONFIRM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681520
+    m_Localized: Car
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681521
+    m_Localized: 'Language: English'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681522
+    m_Localized: The match continues while the menu is open.  Esc / Start to close.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681523
+    m_Localized: Esc / Start to close.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681524
+    m_Localized: VOLUME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681525
+    m_Localized: MASTER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681526
+    m_Localized: MUSIC
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681527
+    m_Localized: EFFECTS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681528
+    m_Localized: DISPLAY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681529
+    m_Localized: Resolution
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681530
+    m_Localized: "{0} \xD7 {1} (Native)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681531
+    m_Localized: FULLSCREEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681532
+    m_Localized: WINDOWED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681533
+    m_Localized: CLOSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681534
+    m_Localized: LEAVE MATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681535
+    m_Localized: Restore the default settings?
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681536
+    m_Localized: Yes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681537
+    m_Localized: No
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681538
+    m_Localized: CONTROLS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681539
+    m_Localized: ACTION
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681540
+    m_Localized: KEYBOARD & MOUSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681541
+    m_Localized: GAMEPAD
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681542
+    m_Localized: Accelerate
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681543
+    m_Localized: Brake / reverse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681544
+    m_Localized: Steer
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681545
+    m_Localized: Drift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681546
+    m_Localized: Fire paint
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681547
+    m_Localized: Drop barrel
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681548
+    m_Localized: Look around
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681549
+    m_Localized: Look back
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681550
+    m_Localized: Respawn (hold)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681551
+    m_Localized: Scoreboard
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681552
+    m_Localized: VICTORY!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681553
+    m_Localized: DEFEAT!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681554
+    m_Localized: '{0} TEAM WINS'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681555
+    m_Localized: '{0} TEAM'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681556
+    m_Localized: SCORE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681557
+    m_Localized: REMATCH
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681558
+    m_Localized: EXIT TO MENU
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681559
+    m_Localized: Leaving in {0} s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681560
+    m_Localized: TIME'S UP!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681561
+    m_Localized: Counting cells...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681562
+    m_Localized: TIE!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681563
+    m_Localized: Preparing the tiebreaker...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681564
+    m_Localized: CONNECTION LOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681565
+    m_Localized: Rejoining the match... {0} s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681566
+    m_Localized: READY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681567
+    m_Localized: GO!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681568
+    m_Localized: RESPAWNING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681569
+    m_Localized: DISCONNECTED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681570
+    m_Localized: CONNECTING...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681571
+    m_Localized: JOINING ROOM...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681572
+    m_Localized: LEAVING ROOM...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681573
+    m_Localized: RECONNECTING...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681574
+    m_Localized: LOADING MATCH...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681575
+    m_Localized: OK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681576
+    m_Localized: Error
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681577
+    m_Localized: Networking could not start. Check that DriftPaint.App is installed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681578
+    m_Localized: Scene "{0}" is missing from the build. Generate it from the DriftPaint
+      menu.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681579
+    m_Localized: Could not connect to the server.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681580
+    m_Localized: Could not rejoin the match.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681581
+    m_Localized: No prefab is registered as "{0}".
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681582
+    m_Localized: Could not load the room list.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681583
+    m_Localized: Lost connection to the server.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681584
+    m_Localized: Lost connection to the server ({0}).
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681585
+    m_Localized: You joined {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681586
+    m_Localized: Could not create the room. {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681587
+    m_Localized: Could not join the room. {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681588
+    m_Localized: This match can no longer be rejoined.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681589
+    m_Localized: '{0} joined the room.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681590
+    m_Localized: '{0} disconnected.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681591
+    m_Localized: '{0} left the room.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681592
+    m_Localized: '{0} is now the host.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681593
+    m_Localized: The room is full.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681594
+    m_Localized: The room is closed.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681595
+    m_Localized: The room does not exist.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681596
+    m_Localized: Player {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681597
+    m_Localized: CYAN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681598
+    m_Localized: ORANGE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681599
+    m_Localized: NO TEAM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681600
+    m_Localized: LIME
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681601
+    m_Localized: PURPLE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681602
+    m_Localized: YELLOW
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681603
+    m_Localized: VIOLET
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681604
+    m_Localized: TURQUOISE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681605
+    m_Localized: PINK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681606
+    m_Localized: GREEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681607
+    m_Localized: FUCHSIA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681608
+    m_Localized: AQUA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681609
+    m_Localized: RED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681610
+    m_Localized: Reverse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681611
+    m_Localized: Forward
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681612
+    m_Localized: DRIFT  level {0}  ({1:0.0} s)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681613
+    m_Localized: Paint BOOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681614
+    m_Localized: Airborne
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681615
+    m_Localized: Flipped
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681616
+    m_Localized: Recovering in {0:0.0} s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681617
+    m_Localized: TELEMETRY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681618
+    m_Localized: 'Top speed: '
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681619
+    m_Localized: unmeasured
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681620
+    m_Localized: target
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681621
+    m_Localized: Up Arrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681622
+    m_Localized: Down Arrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681623
+    m_Localized: Left Arrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681624
+    m_Localized: Right Arrow
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681625
+    m_Localized: Space
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681626
+    m_Localized: Left Shift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681627
+    m_Localized: Tab
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681628
+    m_Localized: Left click
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681629
+    m_Localized: Right click
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681630
+    m_Localized: Right Stick Press
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681631
+    m_Localized: Mouse
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681632
+    m_Localized: Select
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681633
+    m_Localized: Start
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681634
+    m_Localized: Driver
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681635
+    m_Localized: TEAM
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681636
+    m_Localized: PLAYERS  (0 / 8)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681637
+    m_Localized: Leaving in 30 s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681638
+    m_Localized: ORANGE TEAM WINS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681639
+    m_Localized: Driver's room
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681640
+    m_Localized: Nickname
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875776
+    m_Localized: '<b>CONTROLS</b>
+
+      W / RT  accelerate
+
+      S / LT  brake
+      and reverse
+
+      A D / left stick  steer
+
+      Shift / RB  drift (hold)
+
+      Mouse
+      / right stick  look around
+
+      C / R3  look back
+
+      R / Y (1 s)  respawn
+
+
+      <b>TEST
+      CONTROLS</b>
+
+      F4 change car   F5 return to spawn
+
+      F6 switch team
+
+      Esc
+      release / lock cursor'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875777
+    m_Localized: You rejoined the match.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875778
+    m_Localized: Connection lost. Rejoining the match...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875779
+    m_Localized: GAME OPTIONS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875780
+    m_Localized: Language
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875781
+    m_Localized: ALERT
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875782
+    m_Localized: Spanish
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875783
+    m_Localized: English
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875784
+    m_Localized: "Left/Right"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875785
+    m_Localized: "STUNNED  {0:0.0} s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875786
+    m_Localized: "SLOWED  {0:0.0} s"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

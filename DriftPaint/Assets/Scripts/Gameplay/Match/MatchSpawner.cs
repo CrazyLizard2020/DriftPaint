@@ -291,7 +291,7 @@ namespace DriftPaint.Match
             if (_mediator != null)
                 foreach (PlayerSummary player in _mediator.Players)
                     if (player.ActorId == actorId) return player.Nickname;
-            return $"Jugador {actorId}";
+            return string.Format(GameLanguage.Text("Jugador {0}"), actorId);
         }
 
         Color TeamColor(byte team) => _palette != null ? _palette.Get(team).Main : Color.white;

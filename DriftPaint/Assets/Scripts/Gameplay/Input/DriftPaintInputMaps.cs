@@ -141,9 +141,31 @@ namespace DriftPaint.Input
                 if (isGamepad != gamepad) continue;
 
                 string text = action.GetBindingDisplayString(i);
+                if (!binding.isComposite)
+                    text = BindingLabel(path, text);
+                else if (i + 2 < bindings.Count && path == "<Keyboard>/leftArrow" && bindings[i + 2].effectivePath == "<Keyboard>/rightArrow")
+                    text = GameLanguage.Text("Izq./Der.");
                 if (!string.IsNullOrEmpty(text) && !parts.Contains(text)) parts.Add(text);
             }
             return parts.Count > 0 ? string.Join(separator, parts) : "-";
+        }
+
+        static string BindingLabel(string path, string deviceLabel)
+        {
+            string key = path switch
+            {
+                "<Keyboard>/upArrow" => "Flecha Arriba",
+                "<Keyboard>/downArrow" => "Flecha Abajo",
+                "<Keyboard>/space" => "Barra Espaciadora",
+                "<Keyboard>/leftShift" => "Mayúsculas",
+                "<Keyboard>/tab" => "Tabulación",
+                "<Mouse>/leftButton" => "Clic izquierdo",
+                "<Mouse>/rightButton" => "Clic derecho",
+                "<Mouse>/delta" => "Ratón",
+                "<Gamepad>/rightStickPress" => "Pulsar stick derecho",
+                _ => null
+            };
+            return key == null ? deviceLabel : GameLanguage.Text(key);
         }
     }
 }

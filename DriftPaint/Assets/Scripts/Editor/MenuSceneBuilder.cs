@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Teams;
@@ -84,6 +84,7 @@ namespace DriftPaint.EditorTools
             ArenaArtBuilder.Install(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
+            LocalizedInterfaceBuilder.Install(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             PutSceneFirstInBuild(ScenePath);
             AssetDatabase.SaveAssets();

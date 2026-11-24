@@ -26,7 +26,8 @@ namespace DriftPaint.UI.Options
 
         [SerializeField] List<Row> _rows = new List<Row>();
 
-        void OnEnable() => Refresh();
+        void OnEnable() { GameLanguage.Changed += Refresh; Refresh(); }
+        void OnDisable() => GameLanguage.Changed -= Refresh;
 
         public void Refresh()
         {

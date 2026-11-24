@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Level;
@@ -82,6 +82,7 @@ namespace DriftPaint.EditorTools
             so.ApplyModifiedPropertiesWithoutUndo();
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
+            LocalizedInterfaceBuilder.Install(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
             AddSceneToBuildSettings(ScenePath);
         }

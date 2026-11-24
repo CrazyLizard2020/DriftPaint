@@ -56,7 +56,7 @@ namespace DriftPaint.UI.Menu
         static readonly Regex NoParseClose = new Regex("</?noparse>", RegexOptions.IgnoreCase);
 
         readonly List<PlayerSummary> _ordered = new List<PlayerSummary>();
-        readonly Queue<string> _chatLines = new Queue<string>();
+        readonly Queue<ChatMessage> _chatLines = new Queue<ChatMessage>();
         readonly StringBuilder _chatBuilder = new StringBuilder();
         INetworkMediator _mediator;
         string _shownRoomId;
@@ -79,6 +79,7 @@ namespace DriftPaint.UI.Menu
             _mediator = NetworkServices.Mediator;
             if (_mediator == null) return;
 
+            GameLanguage.Changed += RefreshLanguage;
             _mediator.RoomChanged += RefreshRoom;
             _mediator.PlayersChanged += RefreshPlayers;
             _mediator.ChatReceived += AppendChat;
@@ -90,9 +91,17 @@ namespace DriftPaint.UI.Menu
         {
             _carPanel?.Close();
             if (_mediator == null) return;
+            GameLanguage.Changed -= RefreshLanguage;
             _mediator.RoomChanged -= RefreshRoom;
             _mediator.PlayersChanged -= RefreshPlayers;
             _mediator.ChatReceived -= AppendChat;
+        }
+
+        void RefreshLanguage()
+        {
+            RefreshRoom();
+            RefreshPlayers();
+            RenderChat();
         }
 
         void RefreshRoom()
@@ -110,7 +119,7 @@ namespace DriftPaint.UI.Menu
             if (_roomTitleText != null) _roomTitleText.text = room.Title;
             if (_roomIdText != null) _roomIdText.text = $"ID: {room.Id}";
             if (_mapText != null) _mapText.text = MapDisplayName(room.MapId);
-            if (_modeText != null) _modeText.text = "Pintura";
+            if (_modeText != null) _modeText.text = GameLanguage.Text("Pintura");
             if (_maxPlayersText != null) _maxPlayersText.text = room.MaxPlayers.ToString();
             if (_durationText != null) _durationText.text = RoomsScreen.FormatDuration(room.DurationSeconds);
 
@@ -119,7 +128,7 @@ namespace DriftPaint.UI.Menu
             SetVisible(_durationPlus, canEdit);
 
             if (_startButton != null) _startButton.interactable = canEdit;
-            if (_startLabel != null) _startLabel.text = _mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST";
+            if (_startLabel != null) _startLabel.text = GameLanguage.Text(_mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST");
 
             RefreshPlayersHeader();
             RefreshTeamAndCarButtons();
@@ -154,7 +163,7 @@ namespace DriftPaint.UI.Menu
 
             RefreshPlayersHeader();
             // El host puede cambiar de manos cuando alguien se va.
-            if (_startLabel != null) _startLabel.text = _mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST";
+            if (_startLabel != null) _startLabel.text = GameLanguage.Text(_mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST");
             if (_startButton != null) _startButton.interactable = _mediator.IsMaster && _mediator.Phase.IsBetweenMatches();
             RefreshTeamAndCarButtons();
         }
@@ -169,7 +178,7 @@ namespace DriftPaint.UI.Menu
         {
             if (_playersHeaderText == null) return;
             int max = _mediator.CurrentRoom.MaxPlayers;
-            _playersHeaderText.text = $"JUGADORES  <color=#18DFF0>({_mediator.Players.Count} / {max})</color>";
+            _playersHeaderText.text = string.Format(GameLanguage.Text("JUGADORES  <color=#18DFF0>({0} / {1})</color>"), _mediator.Players.Count, max);
         }
 
         void ChangeDuration(int delta)
@@ -193,10 +202,20 @@ namespace DriftPaint.UI.Menu
 
         void AppendChat(ChatMessage message)
         {
+            _chatLines.Enqueue(message);
+            while (_chatLines.Count > MaxChatLines) _chatLines.Dequeue();
+            RenderChat();
+        }
+
+        string FormatChat(ChatMessage message)
+        {
             string line;
             if (message.IsSystem)
             {
-                line = $"<color=#{ColorUtility.ToHtmlStringRGB(_systemColor)}>[Sistema]</color> {message.Text}";
+                string text = GameLanguage.Text(message.Text);
+                if (message.Argument != null)
+                    text = string.Format(text, "<noparse>" + NoParseClose.Replace(message.Argument, "") + "</noparse>");
+                line = $"<color=#{ColorUtility.ToHtmlStringRGB(_systemColor)}>[{GameLanguage.Text("Sistema")}]</color> {text}";
             }
             else
             {
@@ -206,9 +225,7 @@ namespace DriftPaint.UI.Menu
                 line = $"<color=#{ColorUtility.ToHtmlStringRGB(nameColor)}><b><noparse>{safeName}</noparse>:</b></color> <noparse>{safeText}</noparse>";
             }
 
-            _chatLines.Enqueue(line);
-            while (_chatLines.Count > MaxChatLines) _chatLines.Dequeue();
-            RenderChat();
+            return line;
         }
 
         void RenderChat()
@@ -216,10 +233,10 @@ namespace DriftPaint.UI.Menu
             if (_chatLog == null) return;
 
             _chatBuilder.Clear();
-            foreach (string line in _chatLines)
+            foreach (var message in _chatLines)
             {
                 if (_chatBuilder.Length > 0) _chatBuilder.Append('\n');
-                _chatBuilder.Append(line);
+                _chatBuilder.Append(FormatChat(message));
             }
             _chatLog.text = _chatBuilder.ToString();
         }

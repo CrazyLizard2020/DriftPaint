@@ -3,6 +3,7 @@
     "rootNamespace": "DriftPaint",
     "references": [
         "Unity.InputSystem",
+        "Unity.Localization",
         "Unity.TextMeshPro",
         "UnityEngine.UI",
         "ATG.VehicleNoiseSynthesizer"

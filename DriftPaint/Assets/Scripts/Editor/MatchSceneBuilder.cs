@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using DriftPaint.Cars;
 using DriftPaint.Combat;
@@ -158,6 +158,7 @@ namespace DriftPaint.EditorTools
             SfxBuilder.InstallMatch(scene);
 
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
+            LocalizedInterfaceBuilder.Install(scene);
             EditorSceneManager.SaveScene(scene, layout.ScenePath);
             AddSceneToBuild(layout.ScenePath);
             AssetDatabase.SaveAssets();
@@ -468,7 +469,7 @@ namespace DriftPaint.EditorTools
         {
             Button button = hud.transform.Find("Leave Match Button")?.GetComponent<Button>();
             if (button == null)
-                button = MenuSceneBuilder.CreateButton(hud.transform, "Leave Match Button", "SALIR AL MENÃš",
+                button = MenuSceneBuilder.CreateButton(hud.transform, "Leave Match Button", "SALIR AL MENÚ",
                     MenuSceneBuilder.ButtonStyle.Outline, 32f, new Vector2(1f, 1f), new Vector2(-154f, -54f),
                     new Vector2(244f, 60f));
             MenuSceneBuilder.Bind(hud, ("_leaveMatchButton", button));
@@ -525,7 +526,7 @@ namespace DriftPaint.EditorTools
             TextMeshProUGUI bannerTitle = MenuSceneBuilder.CreateLabel(banner.transform, "Title", _titleFont, 120f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, new Vector2(0.5f, 1f), new Vector2(0.5f, 1f),
                 new Vector2(0f, -16f), new Vector2(900f, 130f));
-            bannerTitle.text = "Â¡TIEMPO!";
+            bannerTitle.text = "¡TIEMPO!";
             TextMeshProUGUI bannerSubtitle = MenuSceneBuilder.CreateLabel(banner.transform, "Subtitle", _labelFont, 36f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite.WithAlpha(0.75f), FontStyles.Italic, new Vector2(0.5f, 0f), new Vector2(0.5f, 0f),
                 new Vector2(0f, 20f), new Vector2(900f, 50f));
@@ -637,7 +638,7 @@ namespace DriftPaint.EditorTools
 
             TextMeshProUGUI title = MenuSceneBuilder.CreateLabel(root, "Title", _titleFont, 150f, TextAlignmentOptions.Center,
                 DriftPaintPalette.SunsetGold, FontStyles.Bold | FontStyles.Italic, top, top, new Vector2(0f, -36f), new Vector2(1400f, 170f));
-            title.text = "Â¡VICTORIA!";
+            title.text = "¡VICTORIA!";
             TextMeshProUGUI winner = MenuSceneBuilder.CreateLabel(root, "Winner", _labelFont, 44f, TextAlignmentOptions.Center,
                 DriftPaintPalette.OffWhite, FontStyles.Bold | FontStyles.Italic, top, top, new Vector2(0f, -200f), new Vector2(1200f, 60f));
             winner.text = "GANA EL EQUIPO NARANJA";

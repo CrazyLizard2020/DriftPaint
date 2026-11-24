@@ -33,6 +33,7 @@ namespace DriftPaint.UI.Options
 
         [Header("Botones")]
         [SerializeField] Button _closeButton;
+        [SerializeField] Button _languageButton;
         [Tooltip("Salir de la partida. Solo se usa en la escena de partida.")]
         [SerializeField] Button _leaveButton;
         [SerializeField] MatchController _match;
@@ -58,6 +59,7 @@ namespace DriftPaint.UI.Options
             SetupSlider(_effectsSlider, VolumeChannel.Effects, _effectsValue);
 
             if (_closeButton != null) _closeButton.onClick.AddListener(Close);
+            if (_languageButton != null) _languageButton.onClick.AddListener(GameLanguage.Toggle);
             if (_restoreButton != null) _restoreButton.onClick.AddListener(() => ShowConfirmation(true));
             if (_cancelButton != null) _cancelButton.onClick.AddListener(() => ShowConfirmation(false));
             if (_confirmButton != null) _confirmButton.onClick.AddListener(RestoreDefaults);
@@ -128,6 +130,7 @@ namespace DriftPaint.UI.Options
         {
             VolumeSettings.RestoreDefaults();
             DisplaySettings.RestoreDefaults();
+            GameLanguage.RestoreDefaults();
             RefreshSliders();
             _display.Refresh();
             ShowConfirmation(false);

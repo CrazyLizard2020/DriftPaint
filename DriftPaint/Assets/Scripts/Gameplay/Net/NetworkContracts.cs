@@ -120,15 +120,18 @@ namespace DriftPaint.Net
         public readonly byte SenderTeam;
         public readonly string Text;
 
-        public ChatMessage(bool isSystem, string senderName, byte senderTeam, string text)
+        public readonly string Argument;
+
+        public ChatMessage(bool isSystem, string senderName, byte senderTeam, string text, string argument = null)
         {
+            Argument = argument;
             IsSystem = isSystem;
             SenderName = senderName;
             SenderTeam = senderTeam;
             Text = text;
         }
 
-        public static ChatMessage System(string text) => new ChatMessage(true, "", 0, text);
+        public static ChatMessage System(string key, string argument = null) => new ChatMessage(true, "", 0, key, argument);
     }
 
     /// <summary>Disparo recibido: todos los clientes simulan el proyectil desde FireTime.</summary>

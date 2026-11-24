@@ -72,7 +72,7 @@ namespace DriftPaint.Match
         public void SetAbilities(float fireCooldownRemaining, float fireCooldownTotal, int barrels)
         {
             if (_fireCooldownText != null)
-                _fireCooldownText.text = fireCooldownRemaining > 0f ? $"{fireCooldownRemaining:0.0} s" : "LISTO";
+                _fireCooldownText.text = fireCooldownRemaining > 0f ? $"{fireCooldownRemaining:0.0} s" : GameLanguage.Text("LISTO");
             if (_fireCooldownFill != null)
                 _fireCooldownFill.fillAmount = fireCooldownTotal > 0f ? 1f - Mathf.Clamp01(fireCooldownRemaining / fireCooldownTotal) : 1f;
             if (_barrelsText != null) _barrelsText.text = $"x{barrels}";
@@ -133,7 +133,7 @@ namespace DriftPaint.Match
             if (_countdownRoot != null && _countdownRoot.activeSelf != (countdown || go))
                 _countdownRoot.SetActive(countdown || go);
             if (_countdownText != null && (countdown || go))
-                _countdownText.text = countdown ? Mathf.CeilToInt(_match.CountdownRemaining).ToString() : "¡YA!";
+                _countdownText.text = countdown ? Mathf.CeilToInt(_match.CountdownRemaining).ToString() : GameLanguage.Text("¡YA!");
         }
 
         void UpdateBanner()
@@ -152,13 +152,13 @@ namespace DriftPaint.Match
             if (reconnecting)
             {
                 int seconds = Mathf.CeilToInt(_match.ReconnectTimeRemaining);
-                if (_bannerTitle != null) _bannerTitle.text = _reconnectingTitle;
-                if (_bannerSubtitle != null) _bannerSubtitle.text = string.Format(_reconnectingSubtitle, seconds);
+                if (_bannerTitle != null) _bannerTitle.text = GameLanguage.Text(_reconnectingTitle);
+                if (_bannerSubtitle != null) _bannerSubtitle.text = string.Format(GameLanguage.Text(_reconnectingSubtitle), seconds);
                 return;
             }
 
-            if (_bannerTitle != null) _bannerTitle.text = timeUp ? _timeUpTitle : _tieTitle;
-            if (_bannerSubtitle != null) _bannerSubtitle.text = timeUp ? _timeUpSubtitle : _tieSubtitle;
+            if (_bannerTitle != null) _bannerTitle.text = GameLanguage.Text(timeUp ? _timeUpTitle : _tieTitle);
+            if (_bannerSubtitle != null) _bannerSubtitle.text = GameLanguage.Text(timeUp ? _timeUpSubtitle : _tieSubtitle);
         }
 
         void UpdateSpeed()

@@ -104,7 +104,7 @@ namespace DriftPaint.UI.Menu
             string scene = MapCatalog.SceneFor(_mediator.CurrentRoom.MapId);
             if (!SceneLoader.CanLoad(scene))
             {
-                ShowError($"La escena \"{scene}\" no está en la lista de escenas del build. Generala con DriftPaint > Generar escena de partida.");
+                ShowError(string.Format(GameLanguage.Text("La escena \"{0}\" no está en la lista de escenas del build. Generala con DriftPaint > Generar escena de partida."), scene));
                 return;
             }
 
@@ -125,14 +125,14 @@ namespace DriftPaint.UI.Menu
             if (_busyRoot == null) return;
             bool show = !string.IsNullOrEmpty(message);
             _busyRoot.SetActive(show);
-            if (show && _busyText != null) _busyText.text = message;
+            if (show && _busyText != null) _busyText.text = GameLanguage.Text(message);
         }
 
         void ShowError(string message)
         {
             if (_errorRoot == null) return;
             _errorRoot.SetActive(true);
-            if (_errorText != null) _errorText.text = message;
+            if (_errorText != null) _errorText.text = GameLanguage.Text(message);
         }
 
         void HideError()

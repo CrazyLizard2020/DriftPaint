@@ -86,7 +86,7 @@ namespace DriftPaint.Sandbox
 
             _builder.Clear();
             _builder.Append("<b>").Append(_carName).Append("</b>\n");
-            _builder.Append(kmh < -0.5f ? "Marcha atrás\n" : "Adelante\n");
+            _builder.Append(GameLanguage.Text(kmh < -0.5f ? "Marcha atrás" : "Adelante")).Append('\n');
 
             if (fx.IsDrifting)
             {
@@ -96,20 +96,20 @@ namespace DriftPaint.Sandbox
                     1 => DriftPaintPalette.OrangeBright,
                     _ => DriftPaintPalette.OffWhite
                 };
-                AppendColored(color, $"DRIFT  nivel {fx.DriftChargeLevel}  ({fx.DriftTime:0.0} s)");
+                AppendColored(color, string.Format(GameLanguage.Text("DRIFT  nivel {0}  ({1:0.0} s)"), fx.DriftChargeLevel, fx.DriftTime));
             }
             if (fx.IsTurboActive) AppendColored(DriftPaintPalette.Orange, $"TURBO  {fx.TurboTimeLeft:0.0} s");
-            if (fx.IsBoosting) AppendColored(DriftPaintPalette.Cyan, "BOOST de pintura");
-            if (fx.IsStunned) AppendColored(DriftPaintPalette.Hex(0xE94A3A), $"STUN  {fx.StunTimeLeft:0.0} s");
-            if (fx.IsSlowed) AppendColored(DriftPaintPalette.SkyLavender, $"SLOW  {fx.SlowTimeLeft:0.0} s");
-            if (!ground.IsGrounded) AppendColored(DriftPaintPalette.SunsetGold, "En el aire");
+            if (fx.IsBoosting) AppendColored(DriftPaintPalette.Cyan, GameLanguage.Text("BOOST de pintura"));
+            if (fx.IsStunned) AppendColored(DriftPaintPalette.Hex(0xE94A3A), string.Format(GameLanguage.Text("ATURDIDO  {0:0.0} s"), fx.StunTimeLeft));
+            if (fx.IsSlowed) AppendColored(DriftPaintPalette.SkyLavender, string.Format(GameLanguage.Text("LENTO  {0:0.0} s"), fx.SlowTimeLeft));
+            if (!ground.IsGrounded) AppendColored(DriftPaintPalette.SunsetGold, GameLanguage.Text("En el aire"));
 
             if (_flipRecovery != null)
             {
                 if (_flipRecovery.State == CarFlipRecovery.FlipState.Flipped)
-                    AppendColored(DriftPaintPalette.SunsetGold, "Dado vuelta");
+                    AppendColored(DriftPaintPalette.SunsetGold, GameLanguage.Text("Dado vuelta"));
                 else if (_flipRecovery.State == CarFlipRecovery.FlipState.Blinking)
-                    AppendColored(DriftPaintPalette.SunsetGold, $"Enderezando en {_flipRecovery.TimeToRecover:0.0} s");
+                    AppendColored(DriftPaintPalette.SunsetGold, string.Format(GameLanguage.Text("Enderezando en {0:0.0} s"), _flipRecovery.TimeToRecover));
             }
 
             _statusText.SetText(_builder);
@@ -124,12 +124,12 @@ namespace DriftPaint.Sandbox
         void UpdateTelemetry()
         {
             _builder.Clear();
-            _builder.Append("<b>MEDICIONES</b>\n");
+            _builder.Append("<b>" + GameLanguage.Text("MEDICIONES") + "</b>\n");
             if (_telemetry != null)
             {
                 AppendTime("0 → 120 km/h", _telemetry.LastAccelerationTime, _car.Stats.TimeToMaxSpeed);
                 AppendTime("120 → 0 km/h", _telemetry.LastBrakingTime, 2f);
-                _builder.Append("Máxima alcanzada: ").Append(Mathf.RoundToInt(_telemetry.TopSpeedReached * 3.6f)).Append(" km/h");
+                _builder.Append(GameLanguage.Text("Máxima alcanzada: ")).Append(Mathf.RoundToInt(_telemetry.TopSpeedReached * 3.6f)).Append(" km/h");
             }
             _telemetryText.SetText(_builder);
         }
@@ -139,7 +139,7 @@ namespace DriftPaint.Sandbox
             _builder.Append(label).Append(": ");
             if (value < 0f)
             {
-                _builder.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(DriftPaintPalette.SkyBlue)).Append(">sin medir</color>");
+                _builder.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(DriftPaintPalette.SkyBlue)).Append(">" + GameLanguage.Text("sin medir") + "</color>");
             }
             else
             {
@@ -147,7 +147,7 @@ namespace DriftPaint.Sandbox
                 _builder.Append("<color=#").Append(ColorUtility.ToHtmlStringRGB(color)).Append('>')
                     .Append(value.ToString("0.00")).Append(" s</color>");
             }
-            _builder.Append("  (esperado ").Append(expected.ToString("0.#")).Append(" s)\n");
+            _builder.Append( "  (" + GameLanguage.Text("esperado") + " ").Append(expected.ToString("0.#")).Append(" s)\n");
         }
     }
 }

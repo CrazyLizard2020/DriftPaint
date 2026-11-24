@@ -58,11 +58,13 @@ namespace DriftPaint.UI.Score
 
         void OnEnable()
         {
+            GameLanguage.Changed += RefreshLanguage;
             if (_match != null) _match.PhaseChanged += OnPhaseChanged;
         }
 
         void OnDisable()
         {
+            GameLanguage.Changed -= RefreshLanguage;
             if (_match != null) _match.PhaseChanged -= OnPhaseChanged;
         }
 
@@ -71,21 +73,33 @@ namespace DriftPaint.UI.Score
             if (phase == MatchPhase.Results) Open();
         }
 
+        void RefreshLanguage()
+        {
+            if (_root != null && _root.activeSelf) RefreshResult();
+        }
+
         void Open()
         {
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
 
+            RefreshResult();
+            if (_root != null) _root.SetActive(true);
+            if (_rematchButton != null) _rematchButton.Select();
+        }
+
+        void RefreshResult()
+        {
             byte winner = _match.Winner;
             bool victory = winner != TeamId.None && winner == _score.LocalTeam;
             if (_winnerBrush != null && _palette != null) _winnerBrush.color = _palette.Get(winner).Detail;
             if (_titleText != null)
             {
-                _titleText.text = victory ? _victoryTitle : _defeatTitle;
+                _titleText.text = GameLanguage.Text(victory ? _victoryTitle : _defeatTitle);
                 _titleText.color = _winnerBrush != null ? Color.white : victory ? _victoryColor : _defeatColor;
             }
             if (_winnerText != null)
-                _winnerText.text = winner == TeamId.None ? "" : string.Format(_winnerFormat, TeamName(winner));
+                _winnerText.text = winner == TeamId.None ? "" : string.Format(GameLanguage.Text(_winnerFormat), TeamName(winner));
 
             ScoreRules.Percentages(_score.CellsA, _score.CellsB, out int percentA, out int percentB);
             if (_leftPercentText != null) _leftPercentText.text = $"{(_leftTeam == TeamId.A ? percentA : percentB)}%";
@@ -95,8 +109,6 @@ namespace DriftPaint.UI.Score
             if (_table != null) _table.Show(_entries, ScoreRules.FindMvp(_entries, winner));
 
             _lastTimeout = -1;
-            if (_root != null) _root.SetActive(true);
-            if (_rematchButton != null) _rematchButton.Select();
         }
 
         void Update()
@@ -106,7 +118,7 @@ namespace DriftPaint.UI.Score
             int seconds = Mathf.CeilToInt(_match.ResultsTimeRemaining);
             if (seconds == _lastTimeout) return;
             _lastTimeout = seconds;
-            _timeoutText.text = string.Format(_timeoutFormat, seconds);
+            _timeoutText.text = string.Format(GameLanguage.Text(_timeoutFormat), seconds);
         }
 
         void OnRematch()
@@ -127,6 +139,6 @@ namespace DriftPaint.UI.Score
             if (_leaveButton != null) _leaveButton.interactable = interactable;
         }
 
-        string TeamName(byte team) => _palette != null ? _palette.Get(team).DisplayName : team == TeamId.A ? "A" : "B";
+        string TeamName(byte team) => _palette != null ? GameLanguage.Text(_palette.Get(team).DisplayName) : team == TeamId.A ? "A" : "B";
     }
 }

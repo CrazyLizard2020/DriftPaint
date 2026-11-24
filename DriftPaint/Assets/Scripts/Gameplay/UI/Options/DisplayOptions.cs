@@ -13,18 +13,24 @@ namespace DriftPaint.UI.Options
 
         void Awake()
         {
-            _resolution.ClearOptions();
-            foreach (var size in DisplaySettings.Resolutions)
-            {
-                string label = _resolution.options.Count == 0 ? string.Format(_nativeFormat, size.x, size.y) : $"{size.x} × {size.y}";
-                _resolution.options.Add(new TMP_Dropdown.OptionData(label));
-            }
             _resolution.onValueChanged.AddListener(DisplaySettings.SelectResolution);
             _fullscreen.onClick.AddListener(() => ChangeMode(true));
             _windowed.onClick.AddListener(() => ChangeMode(false));
         }
 
-        void OnEnable() => Refresh();
+        void Populate()
+        {
+            _resolution.ClearOptions();
+            foreach (var size in DisplaySettings.Resolutions)
+            {
+                string label = _resolution.options.Count == 0 ? string.Format(GameLanguage.Text(_nativeFormat), size.x, size.y) : $"{size.x} × {size.y}";
+                _resolution.options.Add(new TMP_Dropdown.OptionData(label));
+            }
+            Refresh();
+        }
+
+        void OnEnable() { GameLanguage.Changed += Populate; Populate(); }
+        void OnDisable() => GameLanguage.Changed -= Populate;
 
         void ChangeMode(bool fullscreen)
         {

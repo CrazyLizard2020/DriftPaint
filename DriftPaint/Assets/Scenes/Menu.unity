@@ -130,6 +130,7 @@ GameObject:
   - component: {fileID: 1371223}
   - component: {fileID: 1371225}
   - component: {fileID: 1371224}
+  - component: {fileID: 1371226}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -178,8 +179,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CERRAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -209,7 +210,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -256,6 +257,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1371222}
   m_CullTransparentMesh: 1
+--- !u!114 &1371226
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CERRAR
 --- !u!1 &1754024
 GameObject:
   m_ObjectHideFlags: 0
@@ -267,6 +281,7 @@ GameObject:
   - component: {fileID: 1754025}
   - component: {fileID: 1754027}
   - component: {fileID: 1754026}
+  - component: {fileID: 1754028}
   m_Layer: 0
   m_Name: Placeholder
   m_TagString: Untagged
@@ -393,6 +408,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1754024}
   m_CullTransparentMesh: 1
+--- !u!114 &1754028
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1754024}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Nickname
 --- !u!1 &16403941
 GameObject:
   m_ObjectHideFlags: 0
@@ -404,6 +432,7 @@ GameObject:
   - component: {fileID: 16403942}
   - component: {fileID: 16403944}
   - component: {fileID: 16403943}
+  - component: {fileID: 16403945}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -452,8 +481,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: COPIAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -483,7 +512,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -530,6 +559,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 16403941}
   m_CullTransparentMesh: 1
+--- !u!114 &16403945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 16403941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: COPIAR
 --- !u!1 &28540238
 GameObject:
   m_ObjectHideFlags: 0
@@ -541,6 +583,7 @@ GameObject:
   - component: {fileID: 28540239}
   - component: {fileID: 28540241}
   - component: {fileID: 28540240}
+  - component: {fileID: 28540242}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -667,6 +710,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 28540238}
   m_CullTransparentMesh: 1
+--- !u!114 &28540242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 28540238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Tabla de puntajes
 --- !u!1 &35404191
 GameObject:
   m_ObjectHideFlags: 0
@@ -678,6 +734,7 @@ GameObject:
   - component: {fileID: 35404192}
   - component: {fileID: 35404194}
   - component: {fileID: 35404193}
+  - component: {fileID: 35404195}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -726,8 +783,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: PANTALLA COMPLETA
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
-  m_sharedMaterial: {fileID: -6873901680493035932, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -757,7 +814,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 3
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -804,6 +861,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 35404191}
   m_CullTransparentMesh: 1
+--- !u!114 &35404195
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 35404191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: PANTALLA COMPLETA
 --- !u!1 &35978511
 GameObject:
   m_ObjectHideFlags: 0
@@ -1039,6 +1109,7 @@ GameObject:
   - component: {fileID: 52892670}
   - component: {fileID: 52892672}
   - component: {fileID: 52892671}
+  - component: {fileID: 52892673}
   m_Layer: 0
   m_Name: Placeholder
   m_TagString: Untagged
@@ -1165,6 +1236,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 52892669}
   m_CullTransparentMesh: 1
+--- !u!114 &52892673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 52892669}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Buscar sala o ID...
 --- !u!1 &55854673
 GameObject:
   m_ObjectHideFlags: 0
@@ -1176,6 +1260,7 @@ GameObject:
   - component: {fileID: 55854674}
   - component: {fileID: 55854676}
   - component: {fileID: 55854675}
+  - component: {fileID: 55854677}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -1302,6 +1387,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 55854673}
   m_CullTransparentMesh: 1
+--- !u!114 &55854677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 55854673}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &68114271
 GameObject:
   m_ObjectHideFlags: 0
@@ -1498,8 +1596,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: X
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1529,7 +1627,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -2061,6 +2159,7 @@ MonoBehaviour:
   _effectsSlider: {fileID: 428642761}
   _effectsValue: {fileID: 1664293743}
   _closeButton: {fileID: 1897664593}
+  _languageButton: {fileID: 1920039081}
   _leaveButton: {fileID: 0}
   _match: {fileID: 0}
   _openButtons:
@@ -2161,6 +2260,7 @@ GameObject:
   - component: {fileID: 95724355}
   - component: {fileID: 95724357}
   - component: {fileID: 95724356}
+  - component: {fileID: 95724358}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -2209,8 +2309,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: SALAS
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2240,7 +2340,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -2287,6 +2387,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 95724354}
   m_CullTransparentMesh: 1
+--- !u!114 &95724358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 95724354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: SALAS
 --- !u!1 &110354776
 GameObject:
   m_ObjectHideFlags: 0
@@ -2346,8 +2459,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
-  m_sharedMaterial: {fileID: -6873901680493035932, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2377,7 +2490,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 3
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -2524,6 +2637,7 @@ GameObject:
   - component: {fileID: 126038584}
   - component: {fileID: 126038586}
   - component: {fileID: 126038585}
+  - component: {fileID: 126038587}
   m_Layer: 0
   m_Name: Music Label
   m_TagString: Untagged
@@ -2650,6 +2764,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 126038583}
   m_CullTransparentMesh: 1
+--- !u!114 &126038587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 126038583}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "M\xDASICA"
 --- !u!1 &134505283
 GameObject:
   m_ObjectHideFlags: 0
@@ -2840,6 +2967,7 @@ GameObject:
   - component: {fileID: 137157747}
   - component: {fileID: 137157746}
   - component: {fileID: 137157745}
+  - component: {fileID: 137157748}
   m_Layer: 0
   m_Name: Log
   m_TagString: Untagged
@@ -2894,7 +3022,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.09019608, g: 0.101960786, b: 0.16862746, a: 1}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2919,6 +3047,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 137157743}
   m_CullTransparentMesh: 1
+--- !u!114 &137157748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 137157743}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &138376494
 GameObject:
   m_ObjectHideFlags: 0
@@ -3067,6 +3210,7 @@ GameObject:
   - component: {fileID: 146538107}
   - component: {fileID: 146538109}
   - component: {fileID: 146538108}
+  - component: {fileID: 146538110}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -3193,6 +3337,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 146538106}
   m_CullTransparentMesh: 1
+--- !u!114 &146538110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 146538106}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Mirar atr\xE1s"
 --- !u!1 &151940203
 GameObject:
   m_ObjectHideFlags: 0
@@ -3654,6 +3811,7 @@ GameObject:
   - component: {fileID: 166099249}
   - component: {fileID: 166099251}
   - component: {fileID: 166099250}
+  - component: {fileID: 166099252}
   m_Layer: 0
   m_Name: Header Ping
   m_TagString: Untagged
@@ -3780,6 +3938,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 166099248}
   m_CullTransparentMesh: 1
+--- !u!114 &166099252
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 166099248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: PING
 --- !u!1 &180691643
 GameObject:
   m_ObjectHideFlags: 0
@@ -3866,6 +4037,7 @@ GameObject:
   - component: {fileID: 187046942}
   - component: {fileID: 187046944}
   - component: {fileID: 187046943}
+  - component: {fileID: 187046945}
   m_Layer: 0
   m_Name: Duration Label
   m_TagString: Untagged
@@ -3992,6 +4164,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 187046941}
   m_CullTransparentMesh: 1
+--- !u!114 &187046945
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 187046941}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "DURACI\xD3N"
 --- !u!1 &193186189
 GameObject:
   m_ObjectHideFlags: 0
@@ -4641,6 +4826,157 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 216318348}
   m_CullTransparentMesh: 1
+--- !u!1 &226527932
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 226527933}
+  - component: {fileID: 226527936}
+  - component: {fileID: 226527935}
+  - component: {fileID: 226527934}
+  m_Layer: 0
+  m_Name: Label
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &226527933
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226527932}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1920039086}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &226527934
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226527932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Idioma: Espa\xF1ol"
+--- !u!114 &226527935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226527932}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: "Idioma: Espa\xF1ol"
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 0.95686275, g: 0.96862745, b: 0.9843137, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: 0
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 34
+  m_fontSizeBase: 34
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 0
+  m_fontSizeMax: 0
+  m_fontStyle: 0
+  m_HorizontalAlignment: 2
+  m_VerticalAlignment: 512
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 0
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 00000000
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 0
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &226527936
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 226527932}
+  m_CullTransparentMesh: 1
 --- !u!1 &231400145
 GameObject:
   m_ObjectHideFlags: 0
@@ -4727,6 +5063,7 @@ GameObject:
   - component: {fileID: 240954877}
   - component: {fileID: 240954879}
   - component: {fileID: 240954878}
+  - component: {fileID: 240954880}
   m_Layer: 0
   m_Name: Subtitle
   m_TagString: Untagged
@@ -4853,6 +5190,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 240954876}
   m_CullTransparentMesh: 1
+--- !u!114 &240954880
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 240954876}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: BUSCAR Y UNIRTE A UNA PARTIDA
 --- !u!1 &249727008
 GameObject:
   m_ObjectHideFlags: 0
@@ -5079,6 +5429,7 @@ GameObject:
   - component: {fileID: 256272247}
   - component: {fileID: 256272249}
   - component: {fileID: 256272248}
+  - component: {fileID: 256272250}
   m_Layer: 0
   m_Name: Effects Label
   m_TagString: Untagged
@@ -5205,6 +5556,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 256272246}
   m_CullTransparentMesh: 1
+--- !u!114 &256272250
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 256272246}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: EFECTOS
 --- !u!1 &266098588
 GameObject:
   m_ObjectHideFlags: 0
@@ -5339,8 +5703,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '-'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -5370,7 +5734,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -6691,6 +7055,7 @@ GameObject:
   - component: {fileID: 341086858}
   - component: {fileID: 341086860}
   - component: {fileID: 341086859}
+  - component: {fileID: 341086861}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -6817,6 +7182,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 341086857}
   m_CullTransparentMesh: 1
+--- !u!114 &341086861
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 341086857}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &342827364
 GameObject:
   m_ObjectHideFlags: 0
@@ -6828,6 +7206,7 @@ GameObject:
   - component: {fileID: 342827365}
   - component: {fileID: 342827367}
   - component: {fileID: 342827366}
+  - component: {fileID: 342827368}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -6876,8 +7255,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: SALIR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6907,7 +7286,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -6954,6 +7333,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 342827364}
   m_CullTransparentMesh: 1
+--- !u!114 &342827368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 342827364}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: SALIR
 --- !u!1 &344474813
 GameObject:
   m_ObjectHideFlags: 0
@@ -6965,6 +7357,7 @@ GameObject:
   - component: {fileID: 344474814}
   - component: {fileID: 344474816}
   - component: {fileID: 344474815}
+  - component: {fileID: 344474817}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -7091,6 +7484,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 344474813}
   m_CullTransparentMesh: 1
+--- !u!114 &344474817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 344474813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: ELEGIR AUTO
 --- !u!1 &357730944
 GameObject:
   m_ObjectHideFlags: 0
@@ -7131,8 +7537,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: INICIAR PARTIDA
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -7162,7 +7568,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -7195,7 +7601,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 48, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -7504,6 +7910,7 @@ GameObject:
   - component: {fileID: 364969060}
   - component: {fileID: 364969059}
   - component: {fileID: 364969058}
+  - component: {fileID: 364969062}
   m_Layer: 0
   m_Name: Confirm Button
   m_TagString: Untagged
@@ -7524,6 +7931,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1215116869}
+  - {fileID: 1043904109}
   m_Father: {fileID: 1927658599}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
@@ -7626,6 +8034,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 364969056}
   m_CullTransparentMesh: 1
+--- !u!114 &364969062
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 364969056}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.039215688, g: 0.07058824, b: 0.15294118, a: 0.88235295}
+  m_EffectDistance: {x: 4, y: -7}
+  m_UseGraphicAlpha: 1
 --- !u!1 &367160582
 GameObject:
   m_ObjectHideFlags: 0
@@ -7785,7 +8208,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8139,6 +8562,7 @@ GameObject:
   - component: {fileID: 385070296}
   - component: {fileID: 385070298}
   - component: {fileID: 385070297}
+  - component: {fileID: 385070299}
   m_Layer: 0
   m_Name: Name Label
   m_TagString: Untagged
@@ -8265,6 +8689,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385070295}
   m_CullTransparentMesh: 1
+--- !u!114 &385070299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 385070295}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: NOMBRE
 --- !u!1 &389320938
 GameObject:
   m_ObjectHideFlags: 0
@@ -9004,6 +9441,7 @@ GameObject:
   - component: {fileID: 464633363}
   - component: {fileID: 464633365}
   - component: {fileID: 464633364}
+  - component: {fileID: 464633366}
   m_Layer: 0
   m_Name: Info
   m_TagString: Untagged
@@ -9130,6 +9568,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 464633362}
   m_CullTransparentMesh: 1
+--- !u!114 &464633366
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 464633362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Mapa: Drift Arena   /   Modo: Pintura   /   M\xE1x. 8 jugadores"
 --- !u!1 &465337182
 GameObject:
   m_ObjectHideFlags: 0
@@ -9141,6 +9592,7 @@ GameObject:
   - component: {fileID: 465337183}
   - component: {fileID: 465337185}
   - component: {fileID: 465337184}
+  - component: {fileID: 465337186}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -9267,6 +9719,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 465337182}
   m_CullTransparentMesh: 1
+--- !u!114 &465337186
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 465337182}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: OPCIONES
 --- !u!1 &468364260
 GameObject:
   m_ObjectHideFlags: 0
@@ -9367,6 +9832,7 @@ GameObject:
   - component: {fileID: 471984465}
   - component: {fileID: 471984467}
   - component: {fileID: 471984466}
+  - component: {fileID: 471984468}
   m_Layer: 0
   m_Name: Question
   m_TagString: Untagged
@@ -9493,6 +9959,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 471984464}
   m_CullTransparentMesh: 1
+--- !u!114 &471984468
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 471984464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "\xBFQuieres reiniciar las opciones a default?"
 --- !u!1 &474759576
 GameObject:
   m_ObjectHideFlags: 0
@@ -9504,6 +9983,7 @@ GameObject:
   - component: {fileID: 474759577}
   - component: {fileID: 474759579}
   - component: {fileID: 474759578}
+  - component: {fileID: 474759580}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -9552,8 +10032,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CANCELAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9583,7 +10063,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -9630,6 +10110,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 474759576}
   m_CullTransparentMesh: 1
+--- !u!114 &474759580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 474759576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CANCELAR
 --- !u!1 &479461372
 GameObject:
   m_ObjectHideFlags: 0
@@ -9716,6 +10209,7 @@ GameObject:
   - component: {fileID: 480955825}
   - component: {fileID: 480955827}
   - component: {fileID: 480955826}
+  - component: {fileID: 480955828}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -9841,6 +10335,94 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 480955824}
+  m_CullTransparentMesh: 1
+--- !u!114 &480955828
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 480955824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Soltar barril
+--- !u!1 &483768157
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 483768158}
+  - component: {fileID: 483768160}
+  - component: {fileID: 483768159}
+  m_Layer: 0
+  m_Name: Signal 4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &483768158
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 483768157}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 617080483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 30, y: -12}
+  m_SizeDelta: {x: 8, y: 25}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &483768159
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 483768157}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &483768160
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 483768157}
   m_CullTransparentMesh: 1
 --- !u!1 &490329366
 GameObject:
@@ -9979,6 +10561,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 490329366}
   m_CullTransparentMesh: 1
+--- !u!1 &493085771
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 493085772}
+  - component: {fileID: 493085773}
+  m_Layer: 0
+  m_Name: Icono
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &493085772
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493085771}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1004837745}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: 31, y: 31}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &493085773
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493085771}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161c7671522d9244480bb2f232d9437c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MenuGlyph
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  _shape: 0
 --- !u!1 &500229203
 GameObject:
   m_ObjectHideFlags: 0
@@ -9990,6 +10629,7 @@ GameObject:
   - component: {fileID: 500229204}
   - component: {fileID: 500229206}
   - component: {fileID: 500229205}
+  - component: {fileID: 500229207}
   m_Layer: 0
   m_Name: Header
   m_TagString: Untagged
@@ -10116,6 +10756,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 500229203}
   m_CullTransparentMesh: 1
+--- !u!114 &500229207
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 500229203}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "CONFIGURACI\xD3N DE LA SALA"
 --- !u!1 &501014996
 GameObject:
   m_ObjectHideFlags: 0
@@ -10565,6 +11218,7 @@ GameObject:
   - component: {fileID: 536658574}
   - component: {fileID: 536658576}
   - component: {fileID: 536658575}
+  - component: {fileID: 536658577}
   m_Layer: 0
   m_Name: Header
   m_TagString: Untagged
@@ -10691,6 +11345,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 536658573}
   m_CullTransparentMesh: 1
+--- !u!114 &536658577
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 536658573}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CHAT DE SALA
 --- !u!1 &538798680
 GameObject:
   m_ObjectHideFlags: 0
@@ -10791,6 +11458,7 @@ GameObject:
   - component: {fileID: 539170517}
   - component: {fileID: 539170519}
   - component: {fileID: 539170518}
+  - component: {fileID: 539170520}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -10917,6 +11585,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 539170516}
   m_CullTransparentMesh: 1
+--- !u!114 &539170520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 539170516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CREAR SALA
 --- !u!1 &545247087
 GameObject:
   m_ObjectHideFlags: 0
@@ -10928,6 +11609,7 @@ GameObject:
   - component: {fileID: 545247088}
   - component: {fileID: 545247090}
   - component: {fileID: 545247089}
+  - component: {fileID: 545247091}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -11054,6 +11736,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 545247087}
   m_CullTransparentMesh: 1
+--- !u!114 &545247091
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 545247087}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Girar
 --- !u!1 &549589832
 GameObject:
   m_ObjectHideFlags: 0
@@ -11403,8 +12098,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '-'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11434,7 +12129,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -11480,6 +12175,138 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 567494754}
+  m_CullTransparentMesh: 1
+--- !u!1 &579960225
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 579960226}
+  - component: {fileID: 579960227}
+  m_Layer: 0
+  m_Name: Icono
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &579960226
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579960225}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 607922732}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: 31, y: 31}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &579960227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 579960225}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161c7671522d9244480bb2f232d9437c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MenuGlyph
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  _shape: 4
+--- !u!1 &580629160
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 580629161}
+  - component: {fileID: 580629163}
+  - component: {fileID: 580629162}
+  m_Layer: 0
+  m_Name: Signal 2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &580629161
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580629160}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 617080483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 10, y: -12}
+  m_SizeDelta: {x: 8, y: 13}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &580629162
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580629160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &580629163
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 580629160}
   m_CullTransparentMesh: 1
 --- !u!1 &581247941
 GameObject:
@@ -11916,6 +12743,7 @@ GameObject:
   - component: {fileID: 606662746}
   - component: {fileID: 606662748}
   - component: {fileID: 606662747}
+  - component: {fileID: 606662749}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -11964,8 +12792,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CONFIRMAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -11995,7 +12823,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -12028,7 +12856,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 48, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -12042,6 +12870,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 606662745}
   m_CullTransparentMesh: 1
+--- !u!114 &606662749
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 606662745}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CONFIRMAR
 --- !u!1 &607922731
 GameObject:
   m_ObjectHideFlags: 0
@@ -12076,6 +12917,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1100400565}
+  - {fileID: 579960226}
   m_Father: {fileID: 1267388007}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
@@ -12168,7 +13010,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -12311,7 +13153,11 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1172506803}
+  - {fileID: 580629161}
+  - {fileID: 1500243008}
+  - {fileID: 483768158}
   m_Father: {fileID: 1019916570}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
@@ -12405,7 +13251,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 45, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -12629,6 +13475,7 @@ GameObject:
   - component: {fileID: 626548207}
   - component: {fileID: 626548209}
   - component: {fileID: 626548208}
+  - component: {fileID: 626548210}
   m_Layer: 0
   m_Name: Column JOYSTICK
   m_TagString: Untagged
@@ -12755,6 +13602,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 626548206}
   m_CullTransparentMesh: 1
+--- !u!114 &626548210
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 626548206}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: JOYSTICK
 --- !u!1 &627209378
 GameObject:
   m_ObjectHideFlags: 0
@@ -14955,6 +15815,7 @@ GameObject:
   - component: {fileID: 740305402}
   - component: {fileID: 740305404}
   - component: {fileID: 740305403}
+  - component: {fileID: 740305405}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -15081,6 +15942,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 740305401}
   m_CullTransparentMesh: 1
+--- !u!114 &740305405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 740305401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &745854833
 GameObject:
   m_ObjectHideFlags: 0
@@ -15407,6 +16281,7 @@ GameObject:
   - component: {fileID: 754076163}
   - component: {fileID: 754076165}
   - component: {fileID: 754076164}
+  - component: {fileID: 754076166}
   m_Layer: 0
   m_Name: Column TECLADO Y MOUSE
   m_TagString: Untagged
@@ -15533,6 +16408,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 754076162}
   m_CullTransparentMesh: 1
+--- !u!114 &754076166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 754076162}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: TECLADO Y MOUSE
 --- !u!1 &760094946
 GameObject:
   m_ObjectHideFlags: 0
@@ -15544,6 +16432,7 @@ GameObject:
   - component: {fileID: 760094947}
   - component: {fileID: 760094949}
   - component: {fileID: 760094948}
+  - component: {fileID: 760094950}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -15592,8 +16481,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: EDITAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -15623,7 +16512,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -15670,6 +16559,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 760094946}
   m_CullTransparentMesh: 1
+--- !u!114 &760094950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 760094946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: EDITAR
 --- !u!1 &777483968
 GameObject:
   m_ObjectHideFlags: 0
@@ -16535,6 +17437,7 @@ GameObject:
   - component: {fileID: 835612673}
   - component: {fileID: 835612675}
   - component: {fileID: 835612674}
+  - component: {fileID: 835612676}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -16583,8 +17486,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ENVIAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -16614,7 +17517,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -16661,6 +17564,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 835612672}
   m_CullTransparentMesh: 1
+--- !u!114 &835612676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 835612672}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: ENVIAR
 --- !u!1 &839265777
 GameObject:
   m_ObjectHideFlags: 0
@@ -16805,6 +17721,7 @@ GameObject:
   - component: {fileID: 863121245}
   - component: {fileID: 863121247}
   - component: {fileID: 863121246}
+  - component: {fileID: 863121248}
   m_Layer: 0
   m_Name: Header Players
   m_TagString: Untagged
@@ -16931,6 +17848,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 863121244}
   m_CullTransparentMesh: 1
+--- !u!114 &863121248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863121244}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: JUGADORES
 --- !u!1 &869670131
 GameObject:
   m_ObjectHideFlags: 0
@@ -17162,6 +18092,7 @@ GameObject:
   - component: {fileID: 892795879}
   - component: {fileID: 892795881}
   - component: {fileID: 892795880}
+  - component: {fileID: 892795882}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -17288,6 +18219,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 892795878}
   m_CullTransparentMesh: 1
+--- !u!114 &892795882
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 892795878}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Disparar pintura
 --- !u!1 &906271042
 GameObject:
   m_ObjectHideFlags: 0
@@ -17836,8 +18780,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 8ee84c5e661195144bdd89f935bd530b, type: 3}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: c32f2641f50e67747810e20d657d002c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -17932,7 +18876,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -17961,7 +18905,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.95686275, g: 0.96862745, b: 0.9843137, a: 1}
+  m_EffectColor: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
 --- !u!114 &939598698
@@ -18265,6 +19209,7 @@ GameObject:
   - component: {fileID: 953287301}
   - component: {fileID: 953287303}
   - component: {fileID: 953287302}
+  - component: {fileID: 953287304}
   m_Layer: 0
   m_Name: "Column ACCI\xD3N"
   m_TagString: Untagged
@@ -18391,6 +19336,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 953287300}
   m_CullTransparentMesh: 1
+--- !u!114 &953287304
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 953287300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "ACCI\xD3N"
 --- !u!1 &955142929
 GameObject:
   m_ObjectHideFlags: 0
@@ -18477,6 +19435,7 @@ GameObject:
   - component: {fileID: 960225609}
   - component: {fileID: 960225611}
   - component: {fileID: 960225610}
+  - component: {fileID: 960225612}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -18603,6 +19562,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 960225608}
   m_CullTransparentMesh: 1
+--- !u!114 &960225612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960225608}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &960389862
 GameObject:
   m_ObjectHideFlags: 0
@@ -18614,6 +19586,7 @@ GameObject:
   - component: {fileID: 960389863}
   - component: {fileID: 960389865}
   - component: {fileID: 960389864}
+  - component: {fileID: 960389866}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -18662,8 +19635,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ACEPTAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -18693,7 +19666,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -18740,6 +19713,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 960389862}
   m_CullTransparentMesh: 1
+--- !u!114 &960389866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 960389862}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: ACEPTAR
 --- !u!1 &960671601
 GameObject:
   m_ObjectHideFlags: 0
@@ -18886,6 +19872,7 @@ GameObject:
   - component: {fileID: 967289150}
   - component: {fileID: 967289152}
   - component: {fileID: 967289151}
+  - component: {fileID: 967289153}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -18934,8 +19921,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: EDITAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -18965,7 +19952,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -19012,6 +19999,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 967289149}
   m_CullTransparentMesh: 1
+--- !u!114 &967289153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 967289149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: EDITAR
 --- !u!1 &975455731
 GameObject:
   m_ObjectHideFlags: 0
@@ -19112,6 +20112,7 @@ GameObject:
   - component: {fileID: 976951998}
   - component: {fileID: 976952000}
   - component: {fileID: 976951999}
+  - component: {fileID: 976952001}
   m_Layer: 0
   m_Name: Header
   m_TagString: Untagged
@@ -19238,6 +20239,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 976951997}
   m_CullTransparentMesh: 1
+--- !u!114 &976952001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 976951997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: PANTALLA
 --- !u!1 &978218087
 GameObject:
   m_ObjectHideFlags: 0
@@ -19453,7 +20467,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -19550,6 +20564,7 @@ GameObject:
   - component: {fileID: 983181115}
   - component: {fileID: 983181117}
   - component: {fileID: 983181116}
+  - component: {fileID: 983181118}
   m_Layer: 0
   m_Name: Resolution Caption
   m_TagString: Untagged
@@ -19676,6 +20691,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 983181114}
   m_CullTransparentMesh: 1
+--- !u!114 &983181118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 983181114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Resoluci\xF3n"
 --- !u!1 &987959354
 GameObject:
   m_ObjectHideFlags: 0
@@ -19687,6 +20715,7 @@ GameObject:
   - component: {fileID: 987959355}
   - component: {fileID: 987959357}
   - component: {fileID: 987959356}
+  - component: {fileID: 987959358}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -19735,8 +20764,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: VOLVER
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -19766,7 +20795,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -19799,7 +20828,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 48, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -19813,6 +20842,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 987959354}
   m_CullTransparentMesh: 1
+--- !u!114 &987959358
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 987959354}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: VOLVER
 --- !u!1 &988486859
 GameObject:
   m_ObjectHideFlags: 0
@@ -20013,6 +21055,7 @@ GameObject:
   - component: {fileID: 993420235}
   - component: {fileID: 993420237}
   - component: {fileID: 993420236}
+  - component: {fileID: 993420238}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -20139,6 +21182,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 993420234}
   m_CullTransparentMesh: 1
+--- !u!114 &993420238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 993420234}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &1004837740
 GameObject:
   m_ObjectHideFlags: 0
@@ -20152,6 +21208,7 @@ GameObject:
   - component: {fileID: 1004837742}
   - component: {fileID: 1004837743}
   - component: {fileID: 1004837741}
+  - component: {fileID: 1004837746}
   m_Layer: 0
   m_Name: Confirm Button
   m_TagString: Untagged
@@ -20267,6 +21324,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 606662746}
+  - {fileID: 493085772}
+  - {fileID: 1721659825}
   m_Father: {fileID: 1855280414}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
@@ -20274,6 +21333,21 @@ RectTransform:
   m_AnchoredPosition: {x: 190, y: 32}
   m_SizeDelta: {x: 520, y: 86}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &1004837746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1004837740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.039215688, g: 0.07058824, b: 0.15294118, a: 0.88235295}
+  m_EffectDistance: {x: 4, y: -7}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1007496082
 GameObject:
   m_ObjectHideFlags: 0
@@ -20376,6 +21450,7 @@ GameObject:
   - component: {fileID: 1019916573}
   - component: {fileID: 1019916572}
   - component: {fileID: 1019916571}
+  - component: {fileID: 1019916575}
   m_Layer: 0
   m_Name: Room Row Template
   m_TagString: Untagged
@@ -20423,6 +21498,11 @@ MonoBehaviour:
   _modeText: {fileID: 553415315}
   _playersText: {fileID: 379329961}
   _pingText: {fileID: 617080484}
+  _pingBars:
+  - {fileID: 1172506804}
+  - {fileID: 580629162}
+  - {fileID: 1500243009}
+  - {fileID: 483768159}
   _joinButton: {fileID: 690343850}
   _joinLabel: {fileID: 1955093456}
 --- !u!114 &1019916572
@@ -20451,15 +21531,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.16470589, g: 0.18431373, b: 0.2901961, a: 1}
+  m_Color: {r: 0.16862746, g: 0.23529412, b: 0.34901962, a: 1}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: c32f2641f50e67747810e20d657d002c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -20476,6 +21556,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1019916569}
   m_CullTransparentMesh: 1
+--- !u!114 &1019916575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1019916569}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1021529779
 GameObject:
   m_ObjectHideFlags: 0
@@ -20587,6 +21682,95 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1029378695}
   m_CullTransparentMesh: 1
+--- !u!1 &1043904108
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1043904109}
+  - component: {fileID: 1043904112}
+  - component: {fileID: 1043904111}
+  - component: {fileID: 1043904110}
+  m_Layer: 0
+  m_Name: Accent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1043904109
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043904108}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 364969057}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 14, y: 0}
+  m_SizeDelta: {x: 8, y: 0}
+  m_Pivot: {x: 1, y: 0.5}
+--- !u!114 &1043904110
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043904108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4775c1daa5980419e819c99d1d4482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.UISkew
+  _angle: 14
+--- !u!114 &1043904111
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043904108}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1043904112
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1043904108}
+  m_CullTransparentMesh: 1
 --- !u!1 &1068255297
 GameObject:
   m_ObjectHideFlags: 0
@@ -20675,6 +21859,7 @@ GameObject:
   - component: {fileID: 1074958683}
   - component: {fileID: 1074958685}
   - component: {fileID: 1074958684}
+  - component: {fileID: 1074958686}
   m_Layer: 0
   m_Name: Players Panel
   m_TagString: Untagged
@@ -20723,7 +21908,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.9}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -20748,6 +21933,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1074958682}
   m_CullTransparentMesh: 1
+--- !u!114 &1074958686
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1074958682}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1078418831
 GameObject:
   m_ObjectHideFlags: 0
@@ -20761,6 +21961,7 @@ GameObject:
   - component: {fileID: 1078418835}
   - component: {fileID: 1078418834}
   - component: {fileID: 1078418833}
+  - component: {fileID: 1078418837}
   m_Layer: 0
   m_Name: Rooms Button
   m_TagString: Untagged
@@ -20781,6 +21982,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 95724355}
+  - {fileID: 1950162957}
   m_Father: {fileID: 623994514}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -20883,6 +22085,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1078418831}
   m_CullTransparentMesh: 1
+--- !u!114 &1078418837
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1078418831}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.039215688, g: 0.07058824, b: 0.15294118, a: 0.88235295}
+  m_EffectDistance: {x: 4, y: -7}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1085885974
 GameObject:
   m_ObjectHideFlags: 0
@@ -20955,6 +22172,7 @@ GameObject:
   - component: {fileID: 1100400565}
   - component: {fileID: 1100400567}
   - component: {fileID: 1100400566}
+  - component: {fileID: 1100400568}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -21003,8 +22221,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: ACTUALIZAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -21034,7 +22252,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -21067,7 +22285,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 48, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -21081,6 +22299,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1100400564}
   m_CullTransparentMesh: 1
+--- !u!114 &1100400568
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1100400564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: ACTUALIZAR
 --- !u!1 &1113303668
 GameObject:
   m_ObjectHideFlags: 0
@@ -21368,6 +22599,7 @@ GameObject:
   - component: {fileID: 1144220959}
   - component: {fileID: 1144220961}
   - component: {fileID: 1144220960}
+  - component: {fileID: 1144220962}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -21494,6 +22726,76 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1144220958}
   m_CullTransparentMesh: 1
+--- !u!114 &1144220962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1144220958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Duraci\xF3n"
+--- !u!1 &1150574952
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1150574953}
+  - component: {fileID: 1150574954}
+  m_Layer: 0
+  m_Name: Icono
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1150574953
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150574952}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1571236905}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: 31, y: 31}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1150574954
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1150574952}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161c7671522d9244480bb2f232d9437c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MenuGlyph
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.95686275, g: 0.96862745, b: 0.9843137, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  _shape: 1
 --- !u!1 &1150695888
 GameObject:
   m_ObjectHideFlags: 0
@@ -21553,8 +22855,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: +
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -21584,7 +22886,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -21642,6 +22944,7 @@ GameObject:
   - component: {fileID: 1153022945}
   - component: {fileID: 1153022947}
   - component: {fileID: 1153022946}
+  - component: {fileID: 1153022948}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -21768,6 +23071,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1153022944}
   m_CullTransparentMesh: 1
+--- !u!114 &1153022948
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1153022944}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Resoluci\xF3n"
 --- !u!1 &1160244294
 GameObject:
   m_ObjectHideFlags: 0
@@ -22188,7 +23504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -22217,7 +23533,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.95686275, g: 0.96862745, b: 0.9843137, a: 1}
+  m_EffectColor: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
   m_EffectDistance: {x: 3, y: -3}
   m_UseGraphicAlpha: 1
 --- !u!114 &1168698506
@@ -22274,6 +23590,7 @@ GameObject:
   - component: {fileID: 1169485781}
   - component: {fileID: 1169485783}
   - component: {fileID: 1169485782}
+  - component: {fileID: 1169485784}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -22322,8 +23639,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: +  CREAR SALA
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -22353,7 +23670,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -22399,6 +23716,94 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1169485780}
+  m_CullTransparentMesh: 1
+--- !u!114 &1169485784
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1169485780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: +  CREAR SALA
+--- !u!1 &1172506802
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1172506803}
+  - component: {fileID: 1172506805}
+  - component: {fileID: 1172506804}
+  m_Layer: 0
+  m_Name: Signal 1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1172506803
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172506802}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 617080483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: -12}
+  m_SizeDelta: {x: 8, y: 7}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &1172506804
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172506802}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1172506805
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1172506802}
   m_CullTransparentMesh: 1
 --- !u!1 &1173151902
 GameObject:
@@ -22578,6 +23983,7 @@ GameObject:
   - component: {fileID: 1174057882}
   - component: {fileID: 1174057884}
   - component: {fileID: 1174057883}
+  - component: {fileID: 1174057885}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -22704,6 +24110,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1174057881}
   m_CullTransparentMesh: 1
+--- !u!114 &1174057885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1174057881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: ACTUAL
 --- !u!1 &1174121918
 GameObject:
   m_ObjectHideFlags: 0
@@ -22888,6 +24307,7 @@ GameObject:
   - component: {fileID: 1191644761}
   - component: {fileID: 1191644763}
   - component: {fileID: 1191644762}
+  - component: {fileID: 1191644764}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -22936,8 +24356,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CANCELAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -22967,7 +24387,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -23014,6 +24434,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1191644760}
   m_CullTransparentMesh: 1
+--- !u!114 &1191644764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1191644760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CANCELAR
 --- !u!1 &1201076287
 GameObject:
   m_ObjectHideFlags: 0
@@ -23025,6 +24458,7 @@ GameObject:
   - component: {fileID: 1201076288}
   - component: {fileID: 1201076290}
   - component: {fileID: 1201076289}
+  - component: {fileID: 1201076291}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -23151,6 +24585,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1201076287}
   m_CullTransparentMesh: 1
+--- !u!114 &1201076291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1201076287}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &1208017891
 GameObject:
   m_ObjectHideFlags: 0
@@ -23429,6 +24876,7 @@ GameObject:
   - component: {fileID: 1214121133}
   - component: {fileID: 1214121135}
   - component: {fileID: 1214121134}
+  - component: {fileID: 1214121136}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -23555,6 +25003,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1214121132}
   m_CullTransparentMesh: 1
+--- !u!114 &1214121136
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1214121132}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &1215116868
 GameObject:
   m_ObjectHideFlags: 0
@@ -23566,6 +25027,7 @@ GameObject:
   - component: {fileID: 1215116869}
   - component: {fileID: 1215116871}
   - component: {fileID: 1215116870}
+  - component: {fileID: 1215116872}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -23614,8 +25076,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CREAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -23645,7 +25107,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -23692,6 +25154,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1215116868}
   m_CullTransparentMesh: 1
+--- !u!114 &1215116872
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1215116868}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CREAR
 --- !u!1 &1218454532
 GameObject:
   m_ObjectHideFlags: 0
@@ -24495,6 +25970,7 @@ GameObject:
   - component: {fileID: 1271428850}
   - component: {fileID: 1271428852}
   - component: {fileID: 1271428851}
+  - component: {fileID: 1271428853}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -24621,6 +26097,76 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1271428849}
   m_CullTransparentMesh: 1
+--- !u!114 &1271428853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1271428849}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Drift
+--- !u!1 &1281438547
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1281438548}
+  - component: {fileID: 1281438549}
+  m_Layer: 0
+  m_Name: Icono
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1281438548
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281438547}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1838500088}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: 31, y: 31}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1281438549
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1281438547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161c7671522d9244480bb2f232d9437c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MenuGlyph
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.95686275, g: 0.96862745, b: 0.9843137, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  _shape: 1
 --- !u!1 &1298395131
 GameObject:
   m_ObjectHideFlags: 0
@@ -24678,8 +26224,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 21300000, guid: c32f2641f50e67747810e20d657d002c, type: 3}
+  m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -24785,6 +26331,63 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1302367354}
   m_CullTransparentMesh: 1
+--- !u!1 &1310902112
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1310902113}
+  - component: {fileID: 1310902114}
+  m_Layer: 0
+  m_Name: Icono
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1310902113
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310902112}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1805222619}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 48, y: 0}
+  m_SizeDelta: {x: 31, y: 31}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1310902114
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1310902112}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161c7671522d9244480bb2f232d9437c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MenuGlyph
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  _shape: 0
 --- !u!1 &1316812492
 GameObject:
   m_ObjectHideFlags: 0
@@ -24846,6 +26449,63 @@ MonoBehaviour:
   _localHighlight: {fileID: 1385523384}
   _nameColor: {r: 0.957, g: 0.969, b: 0.984, a: 1}
   _emptyColor: {r: 0.957, g: 0.969, b: 0.984, a: 0.4}
+--- !u!1 &1318553492
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1318553493}
+  - component: {fileID: 1318553494}
+  m_Layer: 0
+  m_Name: Icono
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1318553493
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318553492}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1715022367}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 24, y: 24}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1318553494
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1318553492}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161c7671522d9244480bb2f232d9437c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.MenuGlyph
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  _shape: 3
 --- !u!1 &1328846694
 GameObject:
   m_ObjectHideFlags: 0
@@ -25299,6 +26959,7 @@ GameObject:
   - component: {fileID: 1356990118}
   - component: {fileID: 1356990120}
   - component: {fileID: 1356990119}
+  - component: {fileID: 1356990121}
   m_Layer: 0
   m_Name: Config Panel
   m_TagString: Untagged
@@ -25343,7 +27004,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.9}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -25368,6 +27029,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1356990117}
   m_CullTransparentMesh: 1
+--- !u!114 &1356990121
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1356990117}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1363757570
 GameObject:
   m_ObjectHideFlags: 0
@@ -25552,6 +27228,7 @@ GameObject:
   - component: {fileID: 1371865653}
   - component: {fileID: 1371865655}
   - component: {fileID: 1371865654}
+  - component: {fileID: 1371865656}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -25678,6 +27355,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1371865652}
   m_CullTransparentMesh: 1
+--- !u!114 &1371865656
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1371865652}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Modo
 --- !u!1 &1372292626
 GameObject:
   m_ObjectHideFlags: 0
@@ -25689,6 +27379,7 @@ GameObject:
   - component: {fileID: 1372292627}
   - component: {fileID: 1372292629}
   - component: {fileID: 1372292628}
+  - component: {fileID: 1372292630}
   m_Layer: 0
   m_Name: Panel
   m_TagString: Untagged
@@ -25740,7 +27431,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.9}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -25765,6 +27456,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1372292626}
   m_CullTransparentMesh: 1
+--- !u!114 &1372292630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1372292626}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1385523384
 GameObject:
   m_ObjectHideFlags: 0
@@ -25865,6 +27571,7 @@ GameObject:
   - component: {fileID: 1415832787}
   - component: {fileID: 1415832789}
   - component: {fileID: 1415832788}
+  - component: {fileID: 1415832790}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -25991,6 +27698,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1415832786}
   m_CullTransparentMesh: 1
+--- !u!114 &1415832790
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1415832786}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Opciones
 --- !u!1 &1418108064
 GameObject:
   m_ObjectHideFlags: 0
@@ -26002,6 +27722,7 @@ GameObject:
   - component: {fileID: 1418108065}
   - component: {fileID: 1418108067}
   - component: {fileID: 1418108066}
+  - component: {fileID: 1418108068}
   m_Layer: 0
   m_Name: Header
   m_TagString: Untagged
@@ -26128,6 +27849,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418108064}
   m_CullTransparentMesh: 1
+--- !u!114 &1418108068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418108064}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CONTROLES
 --- !u!1 &1422440094
 GameObject:
   m_ObjectHideFlags: 0
@@ -26217,6 +27951,7 @@ GameObject:
   - component: {fileID: 1424119784}
   - component: {fileID: 1424119786}
   - component: {fileID: 1424119785}
+  - component: {fileID: 1424119787}
   m_Layer: 0
   m_Name: Chat Panel
   m_TagString: Untagged
@@ -26260,7 +27995,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.9}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -26285,6 +28020,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1424119783}
   m_CullTransparentMesh: 1
+--- !u!114 &1424119787
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1424119783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1425684494
 GameObject:
   m_ObjectHideFlags: 0
@@ -26638,6 +28388,7 @@ RectTransform:
   - {fileID: 1897664597}
   - {fileID: 861192354}
   - {fileID: 367784884}
+  - {fileID: 1920039086}
   m_Father: {fileID: 2022310274}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -26706,6 +28457,7 @@ GameObject:
   - component: {fileID: 1459689791}
   - component: {fileID: 1459689793}
   - component: {fileID: 1459689792}
+  - component: {fileID: 1459689794}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -26832,6 +28584,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1459689790}
   m_CullTransparentMesh: 1
+--- !u!114 &1459689794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1459689790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: JUGADOR  /
 --- !u!1 &1461632832
 GameObject:
   m_ObjectHideFlags: 0
@@ -27043,6 +28808,7 @@ GameObject:
   - component: {fileID: 1486704268}
   - component: {fileID: 1486704270}
   - component: {fileID: 1486704269}
+  - component: {fileID: 1486704271}
   m_Layer: 0
   m_Name: Empty Text
   m_TagString: Untagged
@@ -27169,6 +28935,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1486704267}
   m_CullTransparentMesh: 1
+--- !u!114 &1486704271
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1486704267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "No hay salas abiertas. Cre\xE1 una para empezar."
 --- !u!1 &1493423643
 GameObject:
   m_ObjectHideFlags: 0
@@ -27270,6 +29049,7 @@ GameObject:
   - component: {fileID: 1497869150}
   - component: {fileID: 1497869152}
   - component: {fileID: 1497869151}
+  - component: {fileID: 1497869153}
   m_Layer: 0
   m_Name: Master Label
   m_TagString: Untagged
@@ -27395,6 +29175,94 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1497869149}
+  m_CullTransparentMesh: 1
+--- !u!114 &1497869153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1497869149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: GENERAL
+--- !u!1 &1500243007
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1500243008}
+  - component: {fileID: 1500243010}
+  - component: {fileID: 1500243009}
+  m_Layer: 0
+  m_Name: Signal 3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1500243008
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500243007}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 617080483}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 20, y: -12}
+  m_SizeDelta: {x: 8, y: 19}
+  m_Pivot: {x: 0, y: 0}
+--- !u!114 &1500243009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500243007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1500243010
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1500243007}
   m_CullTransparentMesh: 1
 --- !u!1 &1504187498
 GameObject:
@@ -27558,6 +29426,7 @@ GameObject:
   - component: {fileID: 1515786835}
   - component: {fileID: 1515786837}
   - component: {fileID: 1515786836}
+  - component: {fileID: 1515786838}
   m_Layer: 0
   m_Name: Header Mode
   m_TagString: Untagged
@@ -27684,6 +29553,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1515786834}
   m_CullTransparentMesh: 1
+--- !u!114 &1515786838
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1515786834}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: MODO
 --- !u!1 &1521828923
 GameObject:
   m_ObjectHideFlags: 0
@@ -27695,6 +29577,7 @@ GameObject:
   - component: {fileID: 1521828924}
   - component: {fileID: 1521828926}
   - component: {fileID: 1521828925}
+  - component: {fileID: 1521828927}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -27821,6 +29704,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1521828923}
   m_CullTransparentMesh: 1
+--- !u!114 &1521828927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1521828923}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: JUGADOR  /
 --- !u!1 &1522881762
 GameObject:
   m_ObjectHideFlags: 0
@@ -28216,7 +30112,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -28285,6 +30181,95 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1537490517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1537490518}
+  - component: {fileID: 1537490521}
+  - component: {fileID: 1537490520}
+  - component: {fileID: 1537490519}
+  m_Layer: 0
+  m_Name: Accent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1537490518
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537490517}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1805222619}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 14, y: 0}
+  m_SizeDelta: {x: 8, y: 0}
+  m_Pivot: {x: 1, y: 0.5}
+--- !u!114 &1537490519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537490517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4775c1daa5980419e819c99d1d4482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.UISkew
+  _angle: 14
+--- !u!114 &1537490520
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537490517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1537490521
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537490517}
+  m_CullTransparentMesh: 1
 --- !u!1 &1540227754
 GameObject:
   m_ObjectHideFlags: 0
@@ -28650,8 +30635,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: <
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -28681,7 +30666,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -28739,6 +30724,7 @@ GameObject:
   - component: {fileID: 1568040051}
   - component: {fileID: 1568040053}
   - component: {fileID: 1568040052}
+  - component: {fileID: 1568040054}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -28865,6 +30851,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1568040050}
   m_CullTransparentMesh: 1
+--- !u!114 &1568040054
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1568040050}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: SALA
 --- !u!1 &1568239473
 GameObject:
   m_ObjectHideFlags: 0
@@ -28988,6 +30987,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2078647367}
+  - {fileID: 1150574953}
   m_Father: {fileID: 1267388007}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -29080,7 +31080,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -29906,6 +31906,7 @@ GameObject:
   - component: {fileID: 1625649792}
   - component: {fileID: 1625649794}
   - component: {fileID: 1625649793}
+  - component: {fileID: 1625649795}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -30032,6 +32033,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1625649791}
   m_CullTransparentMesh: 1
+--- !u!114 &1625649795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1625649791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "M\xE1x. jugadores"
 --- !u!1 &1628411394
 GameObject:
   m_ObjectHideFlags: 0
@@ -31355,6 +33369,7 @@ GameObject:
   - component: {fileID: 1699036251}
   - component: {fileID: 1699036253}
   - component: {fileID: 1699036252}
+  - component: {fileID: 1699036254}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -31481,6 +33496,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1699036250}
   m_CullTransparentMesh: 1
+--- !u!114 &1699036254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1699036250}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: HOST
 --- !u!1 &1702777591
 GameObject:
   m_ObjectHideFlags: 0
@@ -31701,6 +33729,7 @@ GameObject:
   - component: {fileID: 1710661518}
   - component: {fileID: 1710661520}
   - component: {fileID: 1710661519}
+  - component: {fileID: 1710661521}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -31749,8 +33778,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: "S\xED"
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
-  m_sharedMaterial: {fileID: -6873901680493035932, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -31780,7 +33809,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 3
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -31827,6 +33856,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1710661517}
   m_CullTransparentMesh: 1
+--- !u!114 &1710661521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1710661517}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "S\xED"
 --- !u!1 &1712120212
 GameObject:
   m_ObjectHideFlags: 0
@@ -31838,6 +33880,7 @@ GameObject:
   - component: {fileID: 1712120213}
   - component: {fileID: 1712120215}
   - component: {fileID: 1712120214}
+  - component: {fileID: 1712120216}
   m_Layer: 0
   m_Name: Placeholder
   m_TagString: Untagged
@@ -31964,6 +34007,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1712120212}
   m_CullTransparentMesh: 1
+--- !u!114 &1712120216
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1712120212}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Escrib\xED un mensaje..."
 --- !u!1 &1712606551
 GameObject:
   m_ObjectHideFlags: 0
@@ -32207,12 +34263,13 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2031743403}
+  - {fileID: 1318553493}
   m_Father: {fileID: 273700951}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -8, y: -8}
-  m_SizeDelta: {x: 104, y: 30}
+  m_SizeDelta: {x: 34, y: 34}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &1715022368
 MonoBehaviour:
@@ -32340,6 +34397,95 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1715427655}
+  m_CullTransparentMesh: 1
+--- !u!1 &1721659824
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1721659825}
+  - component: {fileID: 1721659828}
+  - component: {fileID: 1721659827}
+  - component: {fileID: 1721659826}
+  m_Layer: 0
+  m_Name: Accent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1721659825
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721659824}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1004837745}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 14, y: 0}
+  m_SizeDelta: {x: 8, y: 0}
+  m_Pivot: {x: 1, y: 0.5}
+--- !u!114 &1721659826
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721659824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4775c1daa5980419e819c99d1d4482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.UISkew
+  _angle: 14
+--- !u!114 &1721659827
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721659824}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1721659828
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1721659824}
   m_CullTransparentMesh: 1
 --- !u!1 &1730027761
 GameObject:
@@ -32755,6 +34901,7 @@ GameObject:
   - component: {fileID: 1764485055}
   - component: {fileID: 1764485057}
   - component: {fileID: 1764485056}
+  - component: {fileID: 1764485058}
   m_Layer: 0
   m_Name: Placeholder
   m_TagString: Untagged
@@ -32881,6 +35028,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1764485054}
   m_CullTransparentMesh: 1
+--- !u!114 &1764485058
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1764485054}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Nickname
 --- !u!1 &1773120366
 GameObject:
   m_ObjectHideFlags: 0
@@ -32892,6 +35052,7 @@ GameObject:
   - component: {fileID: 1773120367}
   - component: {fileID: 1773120369}
   - component: {fileID: 1773120368}
+  - component: {fileID: 1773120370}
   m_Layer: 0
   m_Name: Header
   m_TagString: Untagged
@@ -33018,6 +35179,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1773120366}
   m_CullTransparentMesh: 1
+--- !u!114 &1773120370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1773120366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: VOLUMEN
 --- !u!1 &1785780511
 GameObject:
   m_ObjectHideFlags: 0
@@ -33107,6 +35281,7 @@ GameObject:
   - component: {fileID: 1791094571}
   - component: {fileID: 1791094573}
   - component: {fileID: 1791094572}
+  - component: {fileID: 1791094574}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -33155,8 +35330,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: No
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
-  m_sharedMaterial: {fileID: -6873901680493035932, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -33186,7 +35361,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 3
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -33233,6 +35408,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1791094570}
   m_CullTransparentMesh: 1
+--- !u!114 &1791094574
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1791094570}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: No
 --- !u!1 &1800031320
 GameObject:
   m_ObjectHideFlags: 0
@@ -33335,6 +35523,7 @@ GameObject:
   - component: {fileID: 1805222621}
   - component: {fileID: 1805222620}
   - component: {fileID: 1805222623}
+  - component: {fileID: 1805222624}
   m_Layer: 0
   m_Name: Start Button
   m_TagString: Untagged
@@ -33355,6 +35544,8 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 357730947}
+  - {fileID: 1310902113}
+  - {fileID: 1537490518}
   m_Father: {fileID: 1593902096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
@@ -33457,6 +35648,21 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1805222624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1805222618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cfabb0440166ab443bba8876756fdfa9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Shadow
+  m_EffectColor: {r: 0.039215688, g: 0.07058824, b: 0.15294118, a: 0.88235295}
+  m_EffectDistance: {x: 4, y: -7}
+  m_UseGraphicAlpha: 1
 --- !u!1 &1814455084
 GameObject:
   m_ObjectHideFlags: 0
@@ -33468,6 +35674,7 @@ GameObject:
   - component: {fileID: 1814455085}
   - component: {fileID: 1814455087}
   - component: {fileID: 1814455086}
+  - component: {fileID: 1814455088}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -33516,8 +35723,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: OPCIONES
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -33547,7 +35754,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -33594,6 +35801,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1814455084}
   m_CullTransparentMesh: 1
+--- !u!114 &1814455088
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1814455084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: OPCIONES
 --- !u!1 &1828483888
 GameObject:
   m_ObjectHideFlags: 0
@@ -33861,7 +36081,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -33927,6 +36147,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 987959355}
+  - {fileID: 1281438548}
   m_Father: {fileID: 1593902096}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -34116,7 +36337,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 1240, y: 780}
+  m_SizeDelta: {x: 1240, y: 830}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1855280415
 MonoBehaviour:
@@ -34130,8 +36351,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
-  m_EffectColor: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 0.8}
-  m_EffectDistance: {x: 3, y: -3}
+  m_EffectColor: {r: 0.43137255, g: 0.56078434, b: 0.70980394, a: 0.74509805}
+  m_EffectDistance: {x: 1.5, y: -1.5}
   m_UseGraphicAlpha: 1
 --- !u!114 &1855280416
 MonoBehaviour:
@@ -34146,7 +36367,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -34230,8 +36451,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: '>'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -34261,7 +36482,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -34386,7 +36607,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -34470,6 +36691,7 @@ GameObject:
   - component: {fileID: 1873117140}
   - component: {fileID: 1873117142}
   - component: {fileID: 1873117141}
+  - component: {fileID: 1873117143}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -34596,6 +36818,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1873117139}
   m_CullTransparentMesh: 1
+--- !u!114 &1873117143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1873117139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: "Mover c\xE1mara"
 --- !u!1 &1874817377
 GameObject:
   m_ObjectHideFlags: 0
@@ -34607,6 +36842,7 @@ GameObject:
   - component: {fileID: 1874817378}
   - component: {fileID: 1874817380}
   - component: {fileID: 1874817379}
+  - component: {fileID: 1874817381}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -34733,6 +36969,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1874817377}
   m_CullTransparentMesh: 1
+--- !u!114 &1874817381
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1874817377}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Acelerar
 --- !u!1 &1880350207
 GameObject:
   m_ObjectHideFlags: 0
@@ -35083,6 +37332,157 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1916908399}
   m_CullTransparentMesh: 1
+--- !u!1 &1920039080
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1920039086}
+  - component: {fileID: 1920039085}
+  - component: {fileID: 1920039082}
+  - component: {fileID: 1920039084}
+  - component: {fileID: 1920039083}
+  - component: {fileID: 1920039081}
+  m_Layer: 0
+  m_Name: Language Button
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1920039081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920039080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Button
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
+    m_PressedColor: {r: 0.7, g: 0.75, b: 0.8, a: 1}
+    m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_DisabledColor: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1920039082}
+  m_OnClick:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &1920039082
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920039080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 8ee84c5e661195144bdd89f935bd530b, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!114 &1920039083
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920039080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Outline
+  m_EffectColor: {r: 0.95686275, g: 0.96862745, b: 0.9843137, a: 1}
+  m_EffectDistance: {x: 3, y: -3}
+  m_UseGraphicAlpha: 1
+--- !u!114 &1920039084
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920039080}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4775c1daa5980419e819c99d1d4482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.UISkew
+  _angle: 14
+--- !u!222 &1920039085
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920039080}
+  m_CullTransparentMesh: 1
+--- !u!224 &1920039086
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1920039080}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 226527933}
+  m_Father: {fileID: 1456643295}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: -60, y: -28}
+  m_SizeDelta: {x: 300, y: 64}
+  m_Pivot: {x: 1, y: 1}
 --- !u!1 &1920583277
 GameObject:
   m_ObjectHideFlags: 0
@@ -35231,6 +37631,7 @@ GameObject:
   - component: {fileID: 1921984009}
   - component: {fileID: 1921984011}
   - component: {fileID: 1921984010}
+  - component: {fileID: 1921984012}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -35279,8 +37680,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: VENTANA
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
-  m_sharedMaterial: {fileID: -6873901680493035932, guid: 89e93d1d2de430c4b85f704a500e4ba8, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -35310,7 +37711,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 0
   m_fontSizeMax: 0
-  m_fontStyle: 3
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -35357,6 +37758,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1921984008}
   m_CullTransparentMesh: 1
+--- !u!114 &1921984012
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1921984008}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: VENTANA
 --- !u!1 &1925345298
 GameObject:
   m_ObjectHideFlags: 0
@@ -35604,6 +38018,7 @@ GameObject:
   - component: {fileID: 1946418036}
   - component: {fileID: 1946418038}
   - component: {fileID: 1946418037}
+  - component: {fileID: 1946418039}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -35652,8 +38067,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CAMBIAR AUTO
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -35683,7 +38098,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -35729,6 +38144,108 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1946418035}
+  m_CullTransparentMesh: 1
+--- !u!114 &1946418039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1946418035}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CAMBIAR AUTO
+--- !u!1 &1950162956
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1950162957}
+  - component: {fileID: 1950162960}
+  - component: {fileID: 1950162959}
+  - component: {fileID: 1950162958}
+  m_Layer: 0
+  m_Name: Accent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1950162957
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950162956}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1078418832}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 14, y: 0}
+  m_SizeDelta: {x: 8, y: 0}
+  m_Pivot: {x: 1, y: 0.5}
+--- !u!114 &1950162958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950162956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd4775c1daa5980419e819c99d1d4482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.Menu.UISkew
+  _angle: 14
+--- !u!114 &1950162959
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950162956}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+  m_RaycastTarget: 0
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1950162960
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1950162956}
   m_CullTransparentMesh: 1
 --- !u!1 &1955093454
 GameObject:
@@ -35789,8 +38306,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: UNIRSE
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -35820,7 +38337,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -36249,8 +38766,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: +
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -36280,7 +38797,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -36936,6 +39453,7 @@ GameObject:
   - component: {fileID: 2031743403}
   - component: {fileID: 2031743405}
   - component: {fileID: 2031743404}
+  - component: {fileID: 2031743406}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -36969,7 +39487,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2031743402}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -37062,6 +39580,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2031743402}
   m_CullTransparentMesh: 1
+--- !u!114 &2031743406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2031743402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: ACTUAL
 --- !u!1 &2042362849
 GameObject:
   m_ObjectHideFlags: 0
@@ -37149,6 +39680,7 @@ GameObject:
   - component: {fileID: 2046246846}
   - component: {fileID: 2046246848}
   - component: {fileID: 2046246847}
+  - component: {fileID: 2046246849}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -37197,8 +39729,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: CAMBIAR EQUIPO
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -37228,7 +39760,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -37275,6 +39807,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2046246845}
   m_CullTransparentMesh: 1
+--- !u!114 &2046246849
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2046246845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CAMBIAR EQUIPO
 --- !u!1 &2046616058
 GameObject:
   m_ObjectHideFlags: 0
@@ -37357,7 +39902,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -37526,6 +40071,7 @@ GameObject:
   - component: {fileID: 2049087060}
   - component: {fileID: 2049087062}
   - component: {fileID: 2049087061}
+  - component: {fileID: 2049087063}
   m_Layer: 0
   m_Name: Title
   m_TagString: Untagged
@@ -37652,6 +40198,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2049087059}
   m_CullTransparentMesh: 1
+--- !u!114 &2049087063
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049087059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: SALAS
 --- !u!1 &2051752523
 GameObject:
   m_ObjectHideFlags: 0
@@ -37915,7 +40474,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -38175,6 +40734,7 @@ GameObject:
   - component: {fileID: 2069346636}
   - component: {fileID: 2069346638}
   - component: {fileID: 2069346637}
+  - component: {fileID: 2069346639}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -38301,6 +40861,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2069346635}
   m_CullTransparentMesh: 1
+--- !u!114 &2069346639
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2069346635}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Frenar / reversa
 --- !u!1 &2073499126
 GameObject:
   m_ObjectHideFlags: 0
@@ -38449,6 +41022,7 @@ GameObject:
   - component: {fileID: 2078647367}
   - component: {fileID: 2078647369}
   - component: {fileID: 2078647368}
+  - component: {fileID: 2078647370}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -38497,8 +41071,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: VOLVER
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -38528,7 +41102,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -38561,7 +41135,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 48, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -38575,6 +41149,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2078647366}
   m_CullTransparentMesh: 1
+--- !u!114 &2078647370
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2078647366}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: VOLVER
 --- !u!1 &2083799596
 GameObject:
   m_ObjectHideFlags: 0
@@ -38988,7 +41575,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 0.92}
+  m_Color: {r: 0.09411765, g: 0.14117648, b: 0.24313726, a: 0.972549}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -39088,6 +41675,7 @@ GameObject:
   - component: {fileID: 2107700008}
   - component: {fileID: 2107700009}
   - component: {fileID: 2107700010}
+  - component: {fileID: 2107700011}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -39144,8 +41732,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: VOLVER A LA PARTIDA
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
-  m_sharedMaterial: {fileID: 8429792157464413071, guid: 58179b03cce4b464b93fd47abddecf2d, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: fd34beed51a97304792b40b783f22026, type: 2}
+  m_sharedMaterial: {fileID: 8834807566489204328, guid: fd34beed51a97304792b40b783f22026, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -39175,7 +41763,7 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 2
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
@@ -39214,6 +41802,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2107700011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2107700007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: VOLVER A LA PARTIDA
 --- !u!1 &2118935842
 GameObject:
   m_ObjectHideFlags: 0
@@ -39473,6 +42074,7 @@ GameObject:
   - component: {fileID: 2131280122}
   - component: {fileID: 2131280124}
   - component: {fileID: 2131280123}
+  - component: {fileID: 2131280125}
   m_Layer: 0
   m_Name: Action
   m_TagString: Untagged
@@ -39599,6 +42201,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2131280121}
   m_CullTransparentMesh: 1
+--- !u!114 &2131280125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2131280121}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Reaparecer (mantener)
 --- !u!1 &2134311765
 GameObject:
   m_ObjectHideFlags: 0
@@ -39884,6 +42499,7 @@ GameObject:
   - component: {fileID: 2141271786}
   - component: {fileID: 2141271788}
   - component: {fileID: 2141271787}
+  - component: {fileID: 2141271789}
   m_Layer: 0
   m_Name: Header Room
   m_TagString: Untagged
@@ -40010,6 +42626,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2141271785}
   m_CullTransparentMesh: 1
+--- !u!114 &2141271789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2141271785}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: SALA
 --- !u!1 &2142715939
 GameObject:
   m_ObjectHideFlags: 0
@@ -40093,6 +42722,7 @@ GameObject:
   - component: {fileID: 2143627961}
   - component: {fileID: 2143627963}
   - component: {fileID: 2143627962}
+  - component: {fileID: 2143627964}
   m_Layer: 0
   m_Name: Hint
   m_TagString: Untagged
@@ -40116,7 +42746,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -60, y: -58}
+  m_AnchoredPosition: {x: -60, y: -103}
   m_SizeDelta: {x: 820, y: 40}
   m_Pivot: {x: 1, y: 1}
 --- !u!114 &2143627962
@@ -40219,6 +42849,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2143627960}
   m_CullTransparentMesh: 1
+--- !u!114 &2143627964
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2143627960}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: Esc / Start para cerrar.
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

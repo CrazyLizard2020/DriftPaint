@@ -3,6 +3,8 @@
     "rootNamespace": "DriftPaint.EditorTools",
     "references": [
         "DriftPaint.Gameplay",
+        "Unity.Localization",
+        "Unity.Localization.Editor",
         "Unity.TextMeshPro",
         "Unity.InputSystem",
         "UnityEngine.UI",

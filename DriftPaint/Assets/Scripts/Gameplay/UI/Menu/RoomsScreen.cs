@@ -66,8 +66,18 @@ namespace DriftPaint.UI.Menu
             _createCancelButton?.onClick.AddListener(() => _createPanel.SetActive(false));
         }
 
+        float _nextPing;
+
+        void Update()
+        {
+            if (_mediator == null || Time.unscaledTime < _nextPing) return;
+            _nextPing = Time.unscaledTime + 1f;
+            foreach (var row in _rows) if (row.gameObject.activeSelf) row.SetPing(_mediator.Ping);
+        }
+
         void OnEnable()
         {
+            GameLanguage.Changed += RefreshLanguage;
             if (_createPanel != null) _createPanel.SetActive(false);
 
             _mediator = NetworkServices.Mediator;
@@ -75,8 +85,21 @@ namespace DriftPaint.UI.Menu
             Render();
         }
 
+        void RefreshLanguage()
+        {
+            Render();
+            RefreshPlaceholder();
+        }
+
+        void RefreshPlaceholder()
+        {
+            if (_createTitleInput != null && _createTitleInput.placeholder is TMP_Text label)
+                label.text = string.Format(GameLanguage.Text("Sala de {0}"), PlayerProfile.LoadNickname());
+        }
+
         void OnDisable()
         {
+            GameLanguage.Changed -= RefreshLanguage;
             if (_mediator != null) _mediator.RoomListChanged -= Render;
         }
 
@@ -134,8 +157,7 @@ namespace DriftPaint.UI.Menu
             if (_createTitleInput != null)
             {
                 _createTitleInput.text = "";
-                if (_createTitleInput.placeholder is TMP_Text placeholder)
-                    placeholder.text = $"Sala de {PlayerProfile.LoadNickname()}";
+                RefreshPlaceholder();
             }
             ChangeCreateDuration(0);
         }

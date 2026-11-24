@@ -29,7 +29,7 @@ namespace DriftPaint.UI.Menu
 
             if (_nameText != null)
             {
-                _nameText.text = player.IsInactive ? $"{player.Nickname} (reconectando)" : player.Nickname;
+                _nameText.text = player.IsInactive ? string.Format(GameLanguage.Text("{0} (reconectando)"), player.Nickname) : player.Nickname;
                 _nameText.color = player.IsInactive ? _emptyColor : _nameColor;
             }
         }
@@ -43,7 +43,7 @@ namespace DriftPaint.UI.Menu
 
             if (_nameText != null)
             {
-                _nameText.text = "Esperando jugador...";
+                _nameText.text = GameLanguage.Text("Esperando jugador...");
                 _nameText.color = _emptyColor;
             }
         }

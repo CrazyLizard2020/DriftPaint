@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Localization-Assets-Shared
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Localization-Assets-Shared
+  m_GUID: 032cc399c5e343549aceb21f09633d9b
+  m_SerializeEntries:
+  - m_GUID: cf96c4dc7480cd84b9a53cb6fda7f356
+    m_Address: Assets/Localization/DriftPaint Shared Data.asset
+    m_ReadOnly: 1
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 1
+  m_Settings: {fileID: 11400000, guid: ec6a915fec314c54aa2fe2db49cc9367, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 609aa071c6bbcb4439ed29fed79648d1, type: 2}
+    - {fileID: 11400000, guid: 8eb32c113fbe77d48b48a97ef6bc5d36, type: 2}
+    - {fileID: 11400000, guid: dc1c66343a784fd49af65722f4ee2115, type: 2}
