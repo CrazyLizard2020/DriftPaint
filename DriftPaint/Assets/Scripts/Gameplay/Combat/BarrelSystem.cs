@@ -23,7 +23,7 @@ namespace DriftPaint.Combat
         [SerializeField] TeamPaletteSO _palette;
         [Tooltip("Inventario, explosión y pickups. Sin asset se usan los valores por defecto.")]
         [SerializeField] BarrelSettingsSO _settings;
-        [Tooltip("Pickups de la escena. Cada uno necesita un id distinto.")]
+        [Tooltip("Pickups extra. Los de la misma escena se suman solos al empezar; cada uno necesita un id distinto.")]
         [SerializeField] BarrelPickup[] _pickups;
 
         [Header("Salida del barril")]
@@ -78,6 +78,32 @@ namespace DriftPaint.Combat
         void Awake()
         {
             if (_settings == null) _settings = ScriptableObject.CreateInstance<BarrelSettingsSO>();
+            CollectPickups();
+        }
+
+        /// <summary>
+        /// Suma a la lista todos los pickups de esta escena, así uno agregado o duplicado en el editor funciona
+        /// sin cargarlo a mano. Avisa si dos comparten id: el id es lo que viaja por red y tiene que ser único.
+        /// </summary>
+        void CollectPickups()
+        {
+            var found = new List<BarrelPickup>();
+            if (_pickups != null)
+                foreach (BarrelPickup pickup in _pickups)
+                    if (pickup != null && !found.Contains(pickup)) found.Add(pickup);
+
+            foreach (BarrelPickup pickup in FindObjectsByType<BarrelPickup>(FindObjectsInactive.Include, FindObjectsSortMode.None))
+                if (pickup.gameObject.scene == gameObject.scene && !found.Contains(pickup)) found.Add(pickup);
+
+            var ids = new Dictionary<int, BarrelPickup>();
+            foreach (BarrelPickup pickup in found)
+            {
+                if (ids.TryGetValue(pickup.Id, out BarrelPickup other))
+                    Debug.LogError($"Los pickups {other.name} y {pickup.name} comparten el id {pickup.Id}: solo funciona uno.", pickup);
+                else
+                    ids.Add(pickup.Id, pickup);
+            }
+            _pickups = found.ToArray();
         }
 
         void OnEnable()
