@@ -30,6 +30,12 @@ namespace DriftPaint.Audio
         [Tooltip("Desde esta distancia (m) los efectos dejan de bajar de volumen.")]
         [SerializeField, Min(1f)] float _maxDistance = 140f;
 
+        [Tooltip("Versión del generador con la que se hicieron los sonidos. Si el generador cambia, rehace los que cambiaron.")]
+        [SerializeField, HideInInspector] int _generatorVersion;
+
+        public int GeneratorVersion => _generatorVersion;
+        public void MarkGenerated(int version) => _generatorVersion = version;
+
         public SfxClip Shot => _shot;
         public SfxClip ProjectileImpact => _projectileImpact;
         public SfxClip BarrelExplosion => _barrelExplosion;

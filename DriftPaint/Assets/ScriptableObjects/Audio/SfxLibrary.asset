@@ -14,37 +14,51 @@ MonoBehaviour:
   m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Audio.SfxLibrarySO
   _shot:
     _clips:
-    - {fileID: 8300000, guid: 6cf9e44829d2d25429147aedfad28315, type: 3}
-    - {fileID: 8300000, guid: c05f748f4d7813a4b8d42cca96fc6bd0, type: 3}
-    _volume: 0.55
-    _pitchVariation: 0.06
+    - {fileID: 8300000, guid: 5ae2893564b218f4a9b583e88eee68bf, type: 3}
+    - {fileID: 8300000, guid: c1283f7dd23b50845a3bee7341864590, type: 3}
+    - {fileID: 8300000, guid: 17945dc1e30cb3942ad47bec0b5a36c0, type: 3}
+    _selection: 2
+    _volume: 0.65
+    _volumeVariation: 0
+    _pitchVariation: 0.05
   _projectileImpact:
     _clips:
     - {fileID: 8300000, guid: 7970e777ee7484c42ac9eb515fdb8a0f, type: 3}
     - {fileID: 8300000, guid: bd2f40828c7345940b4e7e06b7f79d01, type: 3}
     - {fileID: 8300000, guid: a04988f01ab27274bb5712e418b17aeb, type: 3}
+    _selection: 1
     _volume: 0.8
+    _volumeVariation: 0
     _pitchVariation: 0.08
   _barrelExplosion:
     _clips:
     - {fileID: 8300000, guid: 4784feacc755ef348b0e6c2ebf969e7c, type: 3}
     - {fileID: 8300000, guid: 3b51c2c6b91c12043a49f40f66cde855, type: 3}
+    _selection: 1
     _volume: 1
+    _volumeVariation: 0
     _pitchVariation: 0.05
   _barrelDrop:
     _clips:
     - {fileID: 8300000, guid: 489645f977baeeb4187b2f0868024183, type: 3}
+    _selection: 1
     _volume: 0.7
+    _volumeVariation: 0
     _pitchVariation: 0.08
   _countdownTick:
     _clips:
     - {fileID: 8300000, guid: b4d1d2c86b0d1dd42936e79c5016de3a, type: 3}
+    _selection: 1
     _volume: 0.6
+    _volumeVariation: 0
     _pitchVariation: 0
   _countdownGo:
     _clips:
     - {fileID: 8300000, guid: c1db0a830fe652447b3c6b7915e3b2ab, type: 3}
+    _selection: 1
     _volume: 0.7
+    _volumeVariation: 0
     _pitchVariation: 0
   _minDistance: 8
   _maxDistance: 140
+  _generatorVersion: 3

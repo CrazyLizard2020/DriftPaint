@@ -104,16 +104,13 @@ namespace DriftPaint.Audio
 
             int index = FreeSource();
             AudioSource source = _sources[index];
-            source.Stop();
-            source.clip = sfx.Pick();
-            source.volume = sfx.Volume * VolumeSettings.EffectsGain;
-            source.pitch = sfx.PickPitch();
             source.spatialBlend = position.HasValue ? 1f : 0f;
             source.minDistance = _library.MinDistance;
             source.maxDistance = _library.MaxDistance;
             if (position.HasValue) source.transform.position = position.Value;
             else source.transform.localPosition = Vector3.zero;
-            source.Play();
+            // La variante, el tono y el volumen los elige el efecto según cómo está configurado.
+            sfx.Play(source, VolumeSettings.EffectsGain);
             _startTimes[index] = Time.unscaledTime;
         }
 

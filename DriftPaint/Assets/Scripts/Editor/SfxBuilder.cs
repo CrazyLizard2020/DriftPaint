@@ -22,6 +22,22 @@ namespace DriftPaint.EditorTools
         const string Folder = GeneratedAudioImport.EffectsFolder;
         const string ObjectName = "Efectos de sonido";
 
+        /// <summary>
+        /// Versión de los sonidos generados. Al subirla se rehacen los que cambiaron, sobre el mismo archivo:
+        /// el WAV conserva su .meta y las referencias de la biblioteca siguen apuntando a él.
+        /// </summary>
+        const int Version = 3;
+        /// <summary>Desde esta versión el disparo tiene chasquido y golpe medio al arrancar.</summary>
+        const int PunchierShotVersion = 2;
+        /// <summary>Desde esta versión el disparo usa los clips grabados de la carpeta <see cref="RecordedShotsFolder"/>.</summary>
+        const int RecordedShotsVersion = 3;
+        const float PreviousShotVolume = 0.55f;
+        const float ShotVolume = 0.65f;
+        const float ShotPitchVariation = 0.05f;
+
+        /// <summary>Disparos grabados a mano. Si la carpeta tiene clips, reemplazan a los generados.</summary>
+        public const string RecordedShotsFolder = Folder + "/paint_shots";
+
         static string Wav(string name) => $"{Folder}/{name}.wav";
 
         static readonly string[] Shots = { "Shot_0", "Shot_1" };
@@ -41,7 +57,7 @@ namespace DriftPaint.EditorTools
         {
             if (AllNames.Any(name => !File.Exists(Wav(name)))) return true;
             var library = AssetDatabase.LoadAssetAtPath<SfxLibrarySO>(ScriptableObjectPaths.SfxLibrary);
-            if (library == null || !library.Shot.HasClips) return true;
+            if (library == null || !library.Shot.HasClips || library.GeneratorVersion < Version) return true;
             foreach (CarPrefabBuilder.CarModelSpec spec in CarPrefabBuilder.Models)
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>($"{CarPrefabBuilder.PrefabFolder}/Car_{spec.Name}.prefab");
@@ -52,8 +68,17 @@ namespace DriftPaint.EditorTools
 
         public static void Apply()
         {
-            GenerateMissing();
+            var existing = AssetDatabase.LoadAssetAtPath<SfxLibrarySO>(ScriptableObjectPaths.SfxLibrary);
+            int generated = existing != null ? existing.GeneratorVersion : Version;
+            GenerateMissing(remakeShots: generated < PunchierShotVersion);
             SfxLibrarySO library = EnsureLibrary();
+            if (library != null && library.GeneratorVersion < Version)
+            {
+                if (generated < PunchierShotVersion) RaiseShotVolume(library);
+                if (generated < RecordedShotsVersion) UseRecordedShots(library);
+                library.MarkGenerated(Version);
+                EditorUtility.SetDirty(library);
+            }
             foreach (CarPrefabBuilder.CarModelSpec spec in CarPrefabBuilder.Models)
                 ConnectCar($"{CarPrefabBuilder.PrefabFolder}/Car_{spec.Name}.prefab");
             AssetDatabase.SaveAssets();
@@ -110,8 +135,9 @@ namespace DriftPaint.EditorTools
             SfxLibrarySO library = EditorAssetUtility.LoadOrCreate(ScriptableObjectPaths.SfxLibrary, ScriptableObject.CreateInstance<SfxLibrarySO>);
             if (library.Shot.HasClips) return library;
 
+            AudioClip[] recorded = RecordedShots();
             library.Set(
-                new SfxClip(LoadAll(Shots), 0.55f, 0.06f),
+                new SfxClip(recorded.Length > 0 ? recorded : LoadAll(Shots), ShotVolume, ShotPitchVariation, SfxSelection.Shuffle),
                 new SfxClip(LoadAll(Impacts), 0.8f, 0.08f),
                 new SfxClip(LoadAll(Explosions), 1f, 0.05f),
                 new SfxClip(new[] { Load(BarrelDrop) }, 0.7f, 0.08f),
@@ -121,11 +147,55 @@ namespace DriftPaint.EditorTools
             return library;
         }
 
-        static void GenerateMissing()
+        /// <summary>
+        /// El disparo nuevo pierde algo de cuerpo al normalizar porque el golpe del arranque ocupa el pico:
+        /// se compensa con el volumen, solo si todavía estaba en el valor original (no se pisa un ajuste a mano).
+        /// </summary>
+        static void RaiseShotVolume(SfxLibrarySO library)
+        {
+            var serialized = new SerializedObject(library);
+            SerializedProperty volume = serialized.FindProperty("_shot._volume");
+            if (volume == null || !Mathf.Approximately(volume.floatValue, PreviousShotVolume)) return;
+            volume.floatValue = ShotVolume;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        /// <summary>Clips de la carpeta de disparos grabados, ordenados por nombre.</summary>
+        static AudioClip[] RecordedShots()
+        {
+            if (!AssetDatabase.IsValidFolder(RecordedShotsFolder)) return new AudioClip[0];
+            return AssetDatabase.FindAssets("t:AudioClip", new[] { RecordedShotsFolder })
+                .Select(AssetDatabase.GUIDToAssetPath)
+                .OrderBy(path => path, StringComparer.Ordinal)
+                .Select(AssetDatabase.LoadAssetAtPath<AudioClip>)
+                .Where(clip => clip != null)
+                .ToArray();
+        }
+
+        /// <summary>
+        /// El disparo pasa a los clips grabados, mezclados para que no se repita uno seguido y con una leve
+        /// variación de tono. Conserva el volumen que ya tenía la biblioteca.
+        /// </summary>
+        static void UseRecordedShots(SfxLibrarySO library)
+        {
+            AudioClip[] recorded = RecordedShots();
+            if (recorded.Length == 0) return;
+
+            var serialized = new SerializedObject(library);
+            SerializedProperty clips = serialized.FindProperty("_shot._clips");
+            clips.arraySize = recorded.Length;
+            for (int i = 0; i < recorded.Length; i++)
+                clips.GetArrayElementAtIndex(i).objectReferenceValue = recorded[i];
+            serialized.FindProperty("_shot._selection").enumValueIndex = (int)SfxSelection.Shuffle;
+            serialized.FindProperty("_shot._pitchVariation").floatValue = ShotPitchVariation;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static void GenerateMissing(bool remakeShots)
         {
             var random = new System.Random(4242);
-            Write(Shots[0], () => Shot(random, 1f));
-            Write(Shots[1], () => Shot(random, 0.9f));
+            Write(Shots[0], () => Shot(random, 1f), remakeShots);
+            Write(Shots[1], () => Shot(random, 0.9f), remakeShots);
             Write(Impacts[0], () => Impact(random, 1f));
             Write(Impacts[1], () => Impact(random, 0.85f));
             Write(Impacts[2], () => Impact(random, 1.15f));
@@ -139,35 +209,59 @@ namespace DriftPaint.EditorTools
             Synth.ImportWritten();
         }
 
-        static void Write(string name, Func<float[]> make)
+        static void Write(string name, Func<float[]> make, bool replace = false)
         {
-            if (File.Exists(Wav(name))) return;
+            if (File.Exists(Wav(name)) && !replace) return;
             Synth.WriteWav(Wav(name), make());
         }
 
         static float Seconds(int i) => i / (float)Synth.SampleRate;
 
-        /// <summary>CaÃ±Ã³n de pintura: golpe grave que cae de tono, mÃ¡s el chasquido del aire y un "splurt" hÃºmedo.</summary>
+        /// <summary>
+        /// Cañón de pintura. El cuerpo es un golpe grave que cae de tono con un sub que le da peso, más el aire
+        /// y el "splurt" húmedo. Encima, al principio, van las capas que le dan impacto: un chasquido agudo de
+        /// pocos milisegundos y un golpe medio que se oye también en parlantes chicos. El cuerpo se satura
+        /// por separado y las capas de ataque se suman después, para que el arranque sobresalga del resto.
+        /// </summary>
         static float[] Shot(System.Random random, float pitch)
         {
-            int length = Synth.Samples(0.35f);
+            int length = Synth.Samples(0.4f);
             float[] noise = Synth.Noise(length, random);
             float[] air = Synth.Filter(noise, Synth.Biquad.BandPass(900f * pitch, 1.2f));
             float[] wet = Synth.Filter(noise, Synth.Biquad.BandPass(420f * pitch, 3f));
-            var output = new float[length];
-            float phase = 0f;
+            float[] crack = Synth.Filter(Synth.Filter(noise, Synth.Biquad.HighPass(2800f * pitch)), Synth.Biquad.HighPass(2800f * pitch));
+            float[] knock = Synth.Filter(noise, Synth.Biquad.BandPass(650f * pitch, 1.4f));
+
+            var body = new float[length];
+            float kickPhase = 0f;
+            float subPhase = 0f;
             for (int i = 0; i < length; i++)
             {
                 float t = Seconds(i);
-                float frequency = Mathf.Lerp(60f, 170f, Mathf.Exp(-t / 0.03f)) * pitch;
-                phase += 2f * Mathf.PI * frequency / Synth.SampleRate;
-                float thump = Mathf.Sin(phase) * Mathf.Exp(-t / 0.07f);
+                // Arranca agudo y cae enseguida: el barrido rápido es lo que se siente como "patada".
+                float kickFrequency = Mathf.Lerp(58f, 320f, Mathf.Exp(-t / 0.012f)) * pitch;
+                kickPhase += 2f * Mathf.PI * kickFrequency / Synth.SampleRate;
+                // El golpe pega fuerte al principio y se apaga rápido: así el arranque se despega de la cola.
+                float accent = 1f + 1.2f * Mathf.Exp(-t / 0.018f);
+                float kick = Mathf.Sin(kickPhase) * Mathf.Exp(-t / 0.065f) * accent;
+                subPhase += 2f * Mathf.PI * 46f * pitch / Synth.SampleRate;
+                float sub = Mathf.Sin(subPhase) * (1f - Mathf.Exp(-t / 0.006f)) * Mathf.Exp(-t / 0.1f) * 0.6f;
                 float wobble = 0.6f + 0.4f * Mathf.Sin(2f * Mathf.PI * 38f * t);
-                output[i] = thump + air[i] * Mathf.Exp(-t / 0.025f) * 0.9f + wet[i] * Mathf.Exp(-t / 0.09f) * wobble * 0.6f;
+                body[i] = kick + sub + air[i] * Mathf.Exp(-t / 0.025f) * 0.6f + wet[i] * Mathf.Exp(-t / 0.07f) * wobble * 0.45f;
             }
-            Synth.Saturate(output, 1.6f);
-            Synth.FadeEdges(output, 0.001f, 0.05f);
-            Synth.NormalizePeak(output, 0.85f);
+            Synth.Saturate(body, 1.5f);
+
+            var output = new float[length];
+            for (int i = 0; i < length; i++)
+            {
+                float t = Seconds(i);
+                float snap = (1f - Mathf.Exp(-t / 0.0003f)) * Mathf.Exp(-t / 0.005f);
+                float punch = (1f - Mathf.Exp(-t / 0.0006f)) * Mathf.Exp(-t / 0.015f);
+                output[i] = body[i] * 0.6f + crack[i] * snap * 2.2f + knock[i] * punch * 1.8f;
+            }
+            Synth.Saturate(output, 1.1f);
+            Synth.FadeEdges(output, 0.0003f, 0.06f);
+            Synth.NormalizePeak(output, 0.95f);
             return output;
         }
 
