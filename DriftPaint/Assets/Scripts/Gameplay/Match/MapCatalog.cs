@@ -14,6 +14,9 @@ namespace DriftPaint.Match
 
         static readonly string[] MapIds = { GraffithasiaId, RoyalDriftRoadId };
 
+        /// <summary>Todos los mapas del juego, en el orden en que se ofrecen.</summary>
+        public static System.Collections.Generic.IReadOnlyList<string> All => MapIds;
+
         public static bool IsKnown(string mapId) => System.Array.IndexOf(MapIds, mapId) >= 0;
 
         /// <summary>Mapa que se juega en la escena, o null si la escena no es de partida.</summary>

@@ -301,6 +301,24 @@ namespace DriftPaint.Audio
 
         public static void ClearContextOverrides() => ContextOverrides.Clear();
 
+        /// <summary>
+        /// Reemplaza todos los cambios de pista por los indicados. Si el contexto que suena ganó, cambió o
+        /// perdió su cambio, la música pasa enseguida a la pista que corresponde.
+        /// </summary>
+        public static void ReplaceContextOverrides(IReadOnlyDictionary<string, string> overrides)
+        {
+            ContextOverrides.Clear();
+            if (overrides != null)
+                foreach (KeyValuePair<string, string> pair in overrides)
+                    if (!string.IsNullOrEmpty(pair.Key) && !string.IsNullOrEmpty(pair.Value))
+                        ContextOverrides[pair.Key] = pair.Value;
+
+            if (_instance == null || _instance.HasOverride || string.IsNullOrEmpty(_instance._context)) return;
+            MusicTrack track = _instance.ResolveContext(_instance._context);
+            // Pedir la pista que ya suena no la reinicia.
+            if (track != null) _instance.Play(track);
+        }
+
         void Update()
         {
             float deltaTime = Mathf.Min(Time.unscaledDeltaTime, MaxFadeStep);

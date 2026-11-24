@@ -269,6 +269,8 @@ namespace DriftPaint.Networking
             options.Properties[RoomKeys.State] = (byte)MatchPhase.Lobby;
             options.Properties[RoomKeys.Duration] = ClampDuration(settings.DurationSeconds);
             options.Properties[RoomKeys.Map] = string.IsNullOrEmpty(settings.MapId) ? RoomRules.DefaultMapId : settings.MapId;
+            // La copia de LiveOps queda fija en la sala: todos los jugadores usan los mismos valores.
+            options.Properties[RoomKeys.Config] = settings.Config ?? "";
             options.Properties[RoomKeys.Round] = 0;
             options.Properties[RoomKeys.ScoreA] = 0;
             options.Properties[RoomKeys.ScoreB] = 0;
@@ -398,6 +400,13 @@ namespace DriftPaint.Networking
         {
             if (!IsMaster || !_phase.IsBetweenMatches()) return;
             _provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.Duration, ClampDuration(seconds) } });
+        }
+
+        public void SetRoomMap(string mapId)
+        {
+            if (!IsMaster || !_phase.IsBetweenMatches() || mapId == _currentRoom.MapId) return;
+            if (!DriftPaint.Match.MapCatalog.IsKnown(mapId)) return;
+            _provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.Map, mapId } });
         }
 
         public void RequestTeamChange()
@@ -1194,7 +1203,8 @@ namespace DriftPaint.Networking
                 room.IsOpen,
                 string.IsNullOrEmpty(map) ? RoomRules.DefaultMapId : map,
                 ToInt(Get(room.Properties, RoomKeys.Duration), RoomRules.DefaultDurationSeconds),
-                (MatchPhase)ToInt(Get(room.Properties, RoomKeys.State), (int)MatchPhase.Lobby));
+                (MatchPhase)ToInt(Get(room.Properties, RoomKeys.State), (int)MatchPhase.Lobby),
+                Get(room.Properties, RoomKeys.Config) as string);
         }
 
         static int ClampDuration(int seconds)

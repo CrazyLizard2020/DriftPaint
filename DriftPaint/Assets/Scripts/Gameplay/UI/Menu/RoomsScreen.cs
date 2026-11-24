@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using DriftPaint.LiveOperations;
+using DriftPaint.Match;
 using DriftPaint.Net;
 using DriftPaint.Profile;
 using TMPro;
@@ -17,7 +19,6 @@ namespace DriftPaint.UI.Menu
         const int MinDuration = 120;
         const int MaxDuration = 300;
         const int DurationStep = 60;
-        const string DefaultMapId = DriftPaint.Match.MapCatalog.DefaultMapId;
 
         [Header("Lista")]
         [SerializeField] RoomRowView _rowTemplate;
@@ -174,12 +175,16 @@ namespace DriftPaint.UI.Menu
         {
             if (_mediator == null) return;
 
+            // La sala nace con la configuración que bajó el host y arranca en el primer mapa habilitado.
+            LiveOpsConfig config = LiveOps.Local;
+            IReadOnlyList<string> maps = config.EnabledMaps(MapCatalog.All);
             var settings = new RoomSettings
             {
                 Title = _createTitleInput != null ? _createTitleInput.text : "",
                 MaxPlayers = 8,
                 DurationSeconds = _createDuration,
-                MapId = DefaultMapId
+                MapId = maps.Count > 0 ? maps[0] : MapCatalog.DefaultMapId,
+                Config = config.Serialize()
             };
             if (_mediator.CreateRoom(settings)) _createPanel.SetActive(false);
         }

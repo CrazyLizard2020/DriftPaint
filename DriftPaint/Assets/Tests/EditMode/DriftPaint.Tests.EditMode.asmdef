@@ -3,6 +3,7 @@
     "rootNamespace": "DriftPaint.Tests",
     "references": [
         "DriftPaint.Gameplay",
+        "DriftPaint.LiveOps",
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner"
     ],

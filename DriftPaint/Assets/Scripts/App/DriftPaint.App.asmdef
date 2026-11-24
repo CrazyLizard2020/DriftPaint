@@ -3,6 +3,8 @@
     "rootNamespace": "DriftPaint.App",
     "references": [
         "DriftPaint.Gameplay",
+        "DriftPaint.LiveOps",
+        "DriftPaint.LiveOps.Services",
         "DriftPaint.Network",
         "DriftPaint.Transport"
     ],

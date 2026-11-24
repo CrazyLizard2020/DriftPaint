@@ -7,7 +7,8 @@ namespace DriftPaint.App
 {
     /// <summary>
     /// Arma las capas de red antes de cargar la primera escena: crea el transporte de Photon,
-    /// lo envuelve en el NetworkManager y lo registra como mediator del juego.
+    /// lo envuelve en el NetworkManager y lo registra como mediator del juego. Después arranca LiveOps,
+    /// que necesita el mediator para seguir la copia de configuración de la sala.
     /// Es el único lugar que conoce las tres capas a la vez.
     /// </summary>
     public static class NetworkBootstrap
@@ -29,6 +30,7 @@ namespace DriftPaint.App
             var manager = new NetworkManager(transport);
             host.AddComponent<NetworkTicker>().Bind(manager);
             NetworkServices.Register(manager);
+            LiveOpsBootstrap.Start(manager);
         }
     }
 }

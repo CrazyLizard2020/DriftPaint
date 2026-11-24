@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DriftPaint.Cars;
+using DriftPaint.LiveOperations;
 using DriftPaint.Net;
 using DriftPaint.Teams;
 using TMPro;
@@ -10,7 +11,8 @@ namespace DriftPaint.UI.Menu
 {
     /// <summary>
     /// Ventana para elegir auto desde el lobby. Muestra el auto marcado en grande y una tarjeta por cada
-    /// auto del catálogo (clonada de la plantilla de la escena). Confirmar guarda la elección del jugador.
+    /// auto del catálogo habilitado por LiveOps en la sala (clonada de la plantilla de la escena).
+    /// Confirmar guarda la elección del jugador.
     /// </summary>
     public class CarSelectPanel : MonoBehaviour
     {
@@ -33,6 +35,8 @@ namespace DriftPaint.UI.Menu
         [SerializeField] Button _confirmButton;
 
         readonly List<CarCardView> _cards = new List<CarCardView>();
+        // Posiciones en el catálogo de los autos habilitados por LiveOps, en el orden en que se muestran.
+        readonly List<int> _visible = new List<int>();
         INetworkMediator _mediator;
         int _selected;
         int _current;
@@ -46,22 +50,40 @@ namespace DriftPaint.UI.Menu
             _confirmButton?.onClick.AddListener(Confirm);
         }
 
+        void OnEnable() => LiveOps.Changed += Reload;
+        void OnDisable() => LiveOps.Changed -= Reload;
+
         public void Open()
         {
             _mediator = NetworkServices.Mediator;
             if (_catalog == null || _catalog.Count == 0) return;
 
-            PlayerSummary local = LocalPlayer();
-            _team = local.Team == TeamId.B ? TeamId.B : TeamId.A;
-            _current = Mathf.Max(0, _catalog.IndexFor(local.CarId, local.ActorId));
-            _selected = _current;
-
             gameObject.SetActive(true);
-            BuildCards();
-            Refresh();
+            Reload();
         }
 
         public void Close() => gameObject.SetActive(false);
+
+        /// <summary>Arma las tarjetas con los autos habilitados. Si la sala cambia de configuración con la ventana abierta, se rearma.</summary>
+        void Reload()
+        {
+            if (!gameObject.activeInHierarchy || _catalog == null || _catalog.Count == 0) return;
+
+            var ids = new List<string>(_catalog.Count);
+            for (int i = 0; i < _catalog.Count; i++) ids.Add(_catalog.Get(i).Id);
+            IReadOnlyList<string> enabled = LiveOps.Room.EnabledCars(ids);
+            _visible.Clear();
+            foreach (string id in enabled) _visible.Add(_catalog.IndexOf(id));
+
+            PlayerSummary local = LocalPlayer();
+            _team = local.Team == TeamId.B ? TeamId.B : TeamId.A;
+            // El auto puesto es el que va a usar en la partida: el elegido si sigue habilitado, o el de reemplazo.
+            _current = Mathf.Max(0, _catalog.IndexOf(CarChoice.Resolve(local.CarId, local.ActorId, enabled)));
+            _selected = _current;
+
+            BuildCards();
+            Refresh();
+        }
 
         void Confirm()
         {
@@ -74,7 +96,7 @@ namespace DriftPaint.UI.Menu
         {
             if (_cardTemplate == null) return;
 
-            while (_cards.Count < _catalog.Count)
+            while (_cards.Count < _visible.Count)
             {
                 CarCardView card = Instantiate(_cardTemplate, _cardTemplate.transform.parent);
                 card.gameObject.SetActive(true);
@@ -84,12 +106,12 @@ namespace DriftPaint.UI.Menu
             Color accent = _teamPalette != null ? _teamPalette.Get(_team).Main : Color.white;
             for (int i = 0; i < _cards.Count; i++)
             {
-                bool used = i < _catalog.Count;
+                bool used = i < _visible.Count;
                 _cards[i].gameObject.SetActive(used);
                 if (!used) continue;
 
-                int index = i;
-                CarCatalogSO.Entry entry = _catalog.Get(i);
+                int index = _visible[i];
+                CarCatalogSO.Entry entry = _catalog.Get(index);
                 _cards[i].name = $"Card {entry.Id}";
                 _cards[i].Bind(entry.DisplayName, entry.PreviewFor(_team), accent, () => Select(index));
             }
@@ -113,8 +135,8 @@ namespace DriftPaint.UI.Menu
             }
             if (_currentBadge != null) _currentBadge.SetActive(_selected == _current);
 
-            for (int i = 0; i < _cards.Count && i < _catalog.Count; i++)
-                _cards[i].SetState(i == _selected, i == _current);
+            for (int i = 0; i < _cards.Count && i < _visible.Count; i++)
+                _cards[i].SetState(_visible[i] == _selected, _visible[i] == _current);
         }
 
         PlayerSummary LocalPlayer()

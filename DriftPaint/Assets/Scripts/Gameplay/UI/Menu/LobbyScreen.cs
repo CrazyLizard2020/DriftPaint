@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using DriftPaint.LiveOperations;
+using DriftPaint.Match;
 using DriftPaint.Net;
 using DriftPaint.Teams;
 using TMPro;
@@ -11,7 +13,8 @@ namespace DriftPaint.UI.Menu
 {
     /// <summary>
     /// Sala de espera: jugadores por equipo, configuración, chat y botón de inicio.
-    /// Solo el host puede cambiar la duración e iniciar la partida; alcanza con un jugador.
+    /// Solo el host puede cambiar el mapa y la duración e iniciar la partida; alcanza con un jugador.
+    /// Los mapas que se pueden elegir son los que habilita LiveOps en la copia de la sala.
     /// </summary>
     public class LobbyScreen : MonoBehaviour
     {
@@ -30,6 +33,9 @@ namespace DriftPaint.UI.Menu
 
         [Header("Configuración")]
         [SerializeField] TMP_Text _mapText;
+        [Tooltip("Flechas del mapa. Solo las ve el host, y solo si LiveOps habilita más de un mapa.")]
+        [SerializeField] Button _mapPrevious;
+        [SerializeField] Button _mapNext;
         [SerializeField] TMP_Text _modeText;
         [SerializeField] TMP_Text _maxPlayersText;
         [SerializeField] TMP_Text _durationText;
@@ -68,6 +74,8 @@ namespace DriftPaint.UI.Menu
             _copyIdButton?.onClick.AddListener(CopyRoomId);
             _durationMinus?.onClick.AddListener(() => ChangeDuration(-DurationStep));
             _durationPlus?.onClick.AddListener(() => ChangeDuration(DurationStep));
+            _mapPrevious?.onClick.AddListener(() => ChangeMap(-1));
+            _mapNext?.onClick.AddListener(() => ChangeMap(1));
             _chatSendButton?.onClick.AddListener(SendChat);
             _chatInput?.onSubmit.AddListener(_ => SendChat());
             _backButton?.onClick.AddListener(() => _mediator?.LeaveRoom());
@@ -82,6 +90,7 @@ namespace DriftPaint.UI.Menu
             if (_mediator == null) return;
 
             GameLanguage.Changed += RefreshLanguage;
+            LiveOps.Changed += RefreshRoom;
             _mediator.RoomChanged += RefreshRoom;
             _mediator.PlayersChanged += RefreshPlayers;
             _mediator.ChatReceived += AppendChat;
@@ -94,6 +103,7 @@ namespace DriftPaint.UI.Menu
             _carPanel?.Close();
             if (_mediator == null) return;
             GameLanguage.Changed -= RefreshLanguage;
+            LiveOps.Changed -= RefreshRoom;
             _mediator.RoomChanged -= RefreshRoom;
             _mediator.PlayersChanged -= RefreshPlayers;
             _mediator.ChatReceived -= AppendChat;
@@ -128,6 +138,9 @@ namespace DriftPaint.UI.Menu
             bool canEdit = _mediator.IsMaster && _mediator.Phase.IsBetweenMatches();
             SetVisible(_durationMinus, canEdit);
             SetVisible(_durationPlus, canEdit);
+            bool canPickMap = canEdit && EnabledMaps().Count > 1;
+            SetVisible(_mapPrevious, canPickMap);
+            SetVisible(_mapNext, canPickMap);
 
             if (_startButton != null) _startButton.interactable = canEdit;
             if (_startLabel != null) _startLabel.text = GameLanguage.Text(_mediator.IsMaster ? "INICIAR PARTIDA" : "ESPERANDO AL HOST");
@@ -186,6 +199,22 @@ namespace DriftPaint.UI.Menu
         void ChangeDuration(int delta)
         {
             _mediator.SetRoomDuration(_mediator.CurrentRoom.DurationSeconds + delta);
+        }
+
+        static IReadOnlyList<string> EnabledMaps() => LiveOps.Room.EnabledMaps(MapCatalog.All);
+
+        /// <summary>Pasa al mapa habilitado anterior o siguiente, dando la vuelta al llegar a un extremo.</summary>
+        void ChangeMap(int step)
+        {
+            IReadOnlyList<string> maps = EnabledMaps();
+            if (maps.Count == 0) return;
+
+            int index = -1;
+            for (int i = 0; i < maps.Count; i++)
+                if (maps[i] == _mediator.CurrentRoom.MapId) index = i;
+            // Si el mapa actual no está habilitado, la flecha lleva al primero o al último.
+            int next = index < 0 ? (step > 0 ? 0 : maps.Count - 1) : (index + step + maps.Count) % maps.Count;
+            _mediator.SetRoomMap(maps[next]);
         }
 
         void CopyRoomId()
@@ -252,7 +281,7 @@ namespace DriftPaint.UI.Menu
             _chatScroll.verticalNormalizedPosition = 0f;
         }
 
-        static string MapDisplayName(string mapId) => DriftPaint.Match.MapCatalog.DisplayName(mapId);
+        static string MapDisplayName(string mapId) => MapCatalog.DisplayName(mapId);
 
         static void SetVisible(Component component, bool visible)
         {

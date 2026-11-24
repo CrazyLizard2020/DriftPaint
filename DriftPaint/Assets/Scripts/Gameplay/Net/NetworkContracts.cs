@@ -45,6 +45,8 @@ namespace DriftPaint.Net
         public int MaxPlayers;
         public int DurationSeconds;
         public string MapId;
+        /// <summary>Copia de la configuración de LiveOps que usará toda la sala.</summary>
+        public string Config;
     }
 
     /// <summary>Datos de una sala tal como los ve el juego.</summary>
@@ -58,10 +60,13 @@ namespace DriftPaint.Net
         public readonly string MapId;
         public readonly int DurationSeconds;
         public readonly MatchPhase Phase;
+        /// <summary>Copia de LiveOps que dejó el host al crear la sala. Solo se conoce estando adentro.</summary>
+        public readonly string Config;
 
         public RoomSummary(string id, string title, int playerCount, int maxPlayers, bool isOpen,
-            string mapId, int durationSeconds, MatchPhase phase)
+            string mapId, int durationSeconds, MatchPhase phase, string config = null)
         {
+            Config = config;
             Id = id;
             Title = title;
             PlayerCount = playerCount;
@@ -293,6 +298,8 @@ namespace DriftPaint.Net
 
         /// <summary>Solo el Master y en el lobby: cambia la duración de la partida.</summary>
         void SetRoomDuration(int seconds);
+        /// <summary>Solo el Master y entre partidas: cambia el mapa de la próxima partida.</summary>
+        void SetRoomMap(string mapId);
         /// <summary>
         /// Pide pasar al jugador local al otro equipo. El Master lo acepta solo entre partidas y si los
         /// equipos no quedan desparejos.

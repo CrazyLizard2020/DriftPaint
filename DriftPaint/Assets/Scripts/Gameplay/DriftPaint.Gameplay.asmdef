@@ -2,6 +2,7 @@
     "name": "DriftPaint.Gameplay",
     "rootNamespace": "DriftPaint",
     "references": [
+        "DriftPaint.LiveOps",
         "Unity.InputSystem",
         "Unity.Localization",
         "Unity.TextMeshPro",

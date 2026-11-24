@@ -69,6 +69,7 @@ namespace DriftPaint.EditorTools
             new Step(MatchSceneBuilder.ScenePath, "panel de habilidades que se adapta al idioma", AbilitiesLayoutBuilder.Pending, AbilitiesLayoutBuilder.Install),
             new Step(RoyalDriftRoadMap.ScenePath, "panel de habilidades que se adapta al idioma", AbilitiesLayoutBuilder.Pending, AbilitiesLayoutBuilder.Install),
             new Step(MenuSceneBuilder.ScenePath, "chat de sala desplazable", ChatScrollBuilder.Pending, ChatScrollBuilder.Install),
+            new Step(MenuSceneBuilder.ScenePath, "flechas para elegir mapa en el lobby", LobbyMapSelectorBuilder.Pending, LobbyMapSelectorBuilder.Install),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>

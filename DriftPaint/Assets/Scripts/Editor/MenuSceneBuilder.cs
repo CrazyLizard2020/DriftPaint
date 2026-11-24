@@ -535,6 +535,7 @@ namespace DriftPaint.EditorTools
                 slotsProperty.GetArrayElementAtIndex(i).objectReferenceValue = slots[i];
             so.ApplyModifiedPropertiesWithoutUndo();
             ChatScrollBuilder.Connect(view);
+            LobbyMapSelectorBuilder.Connect(view);
 
             return screen.gameObject;
         }

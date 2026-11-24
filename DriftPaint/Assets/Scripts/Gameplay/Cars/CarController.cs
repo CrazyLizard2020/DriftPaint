@@ -1,4 +1,5 @@
 using System;
+using DriftPaint.LiveOperations;
 using UnityEngine;
 
 namespace DriftPaint.Cars
@@ -115,7 +116,10 @@ namespace DriftPaint.Cars
                 return;
             }
 
-            Initialize(new CarStats(_carData));
+            var stats = new CarStats(_carData);
+            // Los valores de LiveOps de la sala pisan los de la ficha. Todos los jugadores usan la misma copia.
+            stats.ApplyOverrides(LiveOps.Room.StatsFor(CarChoice.IdFromObjectName(name)));
+            Initialize(stats);
             _movementInput.RespawnRequested += Respawn;
         }
 

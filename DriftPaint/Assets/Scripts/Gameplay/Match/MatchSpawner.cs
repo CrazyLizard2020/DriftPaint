@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DriftPaint.Cars;
+using DriftPaint.LiveOperations;
 using DriftPaint.Net;
 using DriftPaint.Teams;
 using UnityEngine;
@@ -111,8 +112,9 @@ namespace DriftPaint.Match
         void OnRejoined() => _rejoinCarDeadline = Time.unscaledTime + _rejoinCarTimeout;
 
         /// <summary>
-        /// El auto que eligió el jugador en el lobby. Si no eligió (o el auto ya no existe), uno según su
-        /// orden de entrada, con el mismo reparto que muestra la pantalla de selección.
+        /// El auto que eligió el jugador en el lobby, si está habilitado en la sala. Si no eligió, o el auto
+        /// ya no existe o no está habilitado, uno de los habilitados con el mismo reparto que muestra la
+        /// pantalla de selección.
         /// </summary>
         GameObject PickCarPrefab()
         {
@@ -120,9 +122,13 @@ namespace DriftPaint.Match
             foreach (PlayerSummary player in _mediator.Players)
                 if (player.IsLocal) carId = player.CarId;
 
-            if (!string.IsNullOrEmpty(carId))
-                foreach (GameObject prefab in _carPrefabs)
-                    if (prefab != null && prefab.name == carId) return prefab;
+            var available = new List<string>();
+            foreach (GameObject prefab in _carPrefabs)
+                if (prefab != null) available.Add(prefab.name);
+
+            string picked = CarChoice.Resolve(carId, _mediator.LocalActorId, LiveOps.Room.EnabledCars(available));
+            foreach (GameObject prefab in _carPrefabs)
+                if (prefab != null && prefab.name == picked) return prefab;
 
             return _carPrefabs[CarCatalogSO.DefaultIndex(_mediator.LocalActorId, _carPrefabs.Length)];
         }
