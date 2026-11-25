@@ -1,0 +1,245 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e97dd6ffd37020c4db61cf7659f047d7, type: 3}
+  m_Name: CarData_RX7
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarDataSO
+  _maxSpeed: 33.333
+  _timeToMaxSpeed: 6
+  _accelerationBySpeed:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: -0.3
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.35
+      value: 0.85
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.7
+      value: 0.55
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.32
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _brakeDeceleration: 19
+  _maxReverseSpeed: 11.11
+  _reverseAcceleration: 3.7
+  _coastDeceleration: 5
+  _setpointLead: 3
+  _maxYawRate: 2.4
+  _turnBySpeed:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 12
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.12
+      value: 0.85
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.3
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 0.8
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  _maxGrip: 30
+  _stability:
+    _extraGravity: 10
+    _adhesionBySlope:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0.007272727
+        outSlope: 0.007272727
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 55
+        value: 1.4
+        inSlope: 0.007272727
+        outSlope: 0.007272727
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _adhesionBySpeed:
+      serializedVersion: 2
+      m_Curve:
+      - serializedVersion: 3
+        time: 0
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      - serializedVersion: 3
+        time: 33.333
+        value: 1
+        inSlope: 0
+        outSlope: 0
+        tangentMode: 0
+        weightedMode: 0
+        inWeight: 0
+        outWeight: 0
+      m_PreInfinity: 2
+      m_PostInfinity: 2
+      m_RotationOrder: 4
+    _lowSpeedAdhesionFactor: 1
+    _adhesionSpeedThreshold: 3
+    _maxAdhesionAcceleration: 30
+    _flightGravity: 10
+    _airAlignKp: 64
+    _airAlignKd: 16
+    _airPitchDamping: 0
+    _airRollDamping: 0
+    _airYawDamping: 0
+    _preLandingPredictionTime: 0.25
+    _maxGroundSlope: 55
+    _minGroundedWheels: 3
+    _groundedConfirmationTime: 0.06
+    _contactGraceTime: 0.04
+    _landingAdhesionAcceleration: 20
+    _landingAdhesionDuration: 0.25
+    _landingAlignKp: 196
+    _landingAlignKd: 28
+    _landingGripBlendTime: 0.12
+    _landingReboundDamping: 0.2
+    _maxLandingCorrection: 60
+    _landingBounciness: 0
+    _suspensionStiffness: 70
+    _suspensionDamping: 5
+    _suspensionRebound: 1.8
+    _suspensionTravel: 0.3
+    _maxSuspensionAcceleration: 120
+    _maxAngularAcceleration: 60
+    _maxAngularVelocity: 5.5
+    _maxPitchRate: 3
+    _maxRollRate: 3
+    _centerOfMassOffsetY: 0
+    _inertiaTensorScale: {x: 1, y: 1, z: 1}
+    _autoRollAcceleration: 15
+    _autoRollKp: 0
+    _autoRollKd: 0
+    _autoRollMaxAngle: 70
+    _flippedAngle: 75
+    _flipDetectTime: 1.5
+    _flipBlinkTime: 1.5
+    _selfRecoveryMaxTime: 1
+    _recoveryImpulse: 3.5
+    _recoveryCooldown: 2
+  _paintBoostMultiplier: 1.5
+  _driftMinSpeed: 11.11
+  _driftGripFactor: 0.3
+  _driftYawMultiplier: 1.5
+  _driftSpeedLoss: 3
+  _driftChargeTiers: {x: 0.5, y: 1.5}
+  _driftTurboMultiplier: 2
+  _driftTurboDuration: {x: 0.5, y: 1}
+  _respawnHoldTime: 1
+  _engine:
+    _idleRpm: 850
+    _redlineRpm: 8000
+    _limiterRpm: 8200
+    _gearTopSpeeds:
+    - 0.19
+    - 0.35
+    - 0.53
+    - 0.75
+    - 1.07
+    _reverseTopSpeed: 1.3
+    _shiftTime: 0.2
+    _downshiftFraction: 0.45
+    _launchRpm: 3800
+    _revRiseRate: 18000
+    _revDropRate: 8000
+    _wheelspinBoost: 0.15
+  _engineSound: {fileID: 11400000, guid: 20682a094143d0c47ade9878ac2ae695, type: 2}
+  _speedPid:
+    _proportional: 8
+    _integral: 2
+    _derivative: 0
+    _integralLimit: 4
+    _outputLimit: 40
+  _yawRatePid:
+    _proportional: 14
+    _integral: 0
+    _derivative: 0.4
+    _integralLimit: 1
+    _outputLimit: 45
+  _gripPid:
+    _proportional: 12
+    _integral: 0
+    _derivative: 0
+    _integralLimit: 1
+    _outputLimit: 200

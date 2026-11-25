@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0fa5acfebe05d104d8a55e8b5e97cf47, type: 3}
+  m_Name: BarrelSettings
+  m_EditorClassIdentifier: 
+  _startBarrels: 3
+  _maxBarrels: 4
+  _lifetime: 15
+  _dropSpeedKmh: 5
+  _slideTime: 0.6
+  _triggerRadius: 1.6
+  _armDelay: 0.4
+  _impact:
+    _explosionRadius: 8
+    _paintPrioritySeconds: 1.5
+    _stunDuration: 2
+    _stunSpeedFactor: 0.2
+    _slowDuration: 2
+    _slowDeceleration: 8
+  _pickupRadius: 2.2
+  _pickupRespawnSeconds: 20

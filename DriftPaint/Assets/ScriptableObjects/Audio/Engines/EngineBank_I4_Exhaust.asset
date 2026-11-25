@@ -1,0 +1,51 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4f63ca316b3d52a43b7626457dfd2ef2, type: 3}
+  m_Name: EngineBank_I4_Exhaust
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.EngineSoundBankSO
+  _accelerating:
+  - _clip: {fileID: 8300000, guid: 00d05894789917146b442aae68eeb968, type: 3}
+    _rpm: 700
+  - _clip: {fileID: 8300000, guid: aa315d4becf6dde449ccecf8fb6471e0, type: 3}
+    _rpm: 902
+  - _clip: {fileID: 8300000, guid: e99c17da78b08904eb04195ce52898bd, type: 3}
+    _rpm: 1161
+  - _clip: {fileID: 8300000, guid: c62cfc89ddca56c4aaf18db0c9dc1d46, type: 3}
+    _rpm: 1496
+  - _clip: {fileID: 8300000, guid: be8e372ee007ab84f8d854a94ac58992, type: 3}
+    _rpm: 1927
+  - _clip: {fileID: 8300000, guid: cc6005bd5fa34a5498868ba643c4d46c, type: 3}
+    _rpm: 2482
+  - _clip: {fileID: 8300000, guid: 5a1386b8e164c8d42a46194a8e52422d, type: 3}
+    _rpm: 3197
+  - _clip: {fileID: 8300000, guid: f6b4b13946feb1b47b5a24625f95c67d, type: 3}
+    _rpm: 4118
+  - _clip: {fileID: 8300000, guid: 48c4bc41304e48c4fa604dc1cc85defc, type: 3}
+    _rpm: 5304
+  - _clip: {fileID: 8300000, guid: 97e4715804aafcb488a4fbaa62cf408a, type: 3}
+    _rpm: 6832
+  - _clip: {fileID: 8300000, guid: 3b37f00a932476e4899adb4a64d1ad95, type: 3}
+    _rpm: 8800
+  _decelerating:
+  - _clip: {fileID: 8300000, guid: cfc82755d968fbc45b81944c98ef0d64, type: 3}
+    _rpm: 980
+  - _clip: {fileID: 8300000, guid: 828e5edaa60fbfa49a90e74a6331d78a, type: 3}
+    _rpm: 1520
+  - _clip: {fileID: 8300000, guid: c2e3087f5aa18724daa692c8d2273c4d, type: 3}
+    _rpm: 2358
+  - _clip: {fileID: 8300000, guid: 8dbb16ecb0c4e7649924370e44a2e339, type: 3}
+    _rpm: 3658
+  - _clip: {fileID: 8300000, guid: ac87f3dbafb85b647a36873c2d7aea3d, type: 3}
+    _rpm: 5673
+  - _clip: {fileID: 8300000, guid: 7709f1f7a15fd4a4badeb930d22cb7b9, type: 3}
+    _rpm: 8800
+  _generatorVersion: 1

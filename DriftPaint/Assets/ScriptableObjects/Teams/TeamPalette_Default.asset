@@ -1,0 +1,80 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4b29567d12514fa4d81a3966286da1cb, type: 3}
+  m_Name: TeamPalette_Default
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Teams.TeamPaletteSO
+  _teamA:
+    DisplayName: CYAN
+    Main: {r: 0.094, g: 0.874, b: 0.941, a: 1}
+    Glow: {r: 0.349, g: 0.953, b: 1, a: 1}
+    Detail: {r: 0.055, g: 0.663, b: 0.745, a: 1}
+  _teamB:
+    DisplayName: NARANJA
+    Main: {r: 1, g: 0.478, b: 0.102, a: 1}
+    Glow: {r: 1, g: 0.631, b: 0.227, a: 1}
+    Detail: {r: 0.847, g: 0.357, b: 0.027, a: 1}
+  _neutral:
+    DisplayName: SIN EQUIPO
+    Main: {r: 0.957, g: 0.969, b: 0.984, a: 1}
+    Glow: {r: 1, g: 1, b: 1, a: 1}
+    Detail: {r: 0.325, g: 0.314, b: 0.392, a: 1}
+  _alternatives:
+  - A:
+      DisplayName: LIMA
+      Main: {r: 0.65882355, g: 0.90588236, b: 0.18039216, a: 1}
+      Glow: {r: 0.768, g: 0.936, b: 0.44266665, a: 1}
+      Detail: {r: 0.48690197, g: 0.6599216, b: 0.19294117, a: 1}
+    B:
+      DisplayName: "P\xDARPURA"
+      Main: {r: 0.47843137, g: 0.16862746, b: 0.8862745, a: 1}
+      Glow: {r: 0.64533335, g: 0.43466666, b: 0.92266667, a: 1}
+      Detail: {r: 0.3642353, g: 0.15858825, b: 0.6729412, a: 1}
+  - A:
+      DisplayName: AMARILLO
+      Main: {r: 0.95686275, g: 0.8235294, b: 0.12156863, a: 1}
+      Glow: {r: 0.97066665, g: 0.88, b: 0.40266666, a: 1}
+      Detail: {r: 0.68956864, g: 0.6039216, b: 0.15294118, a: 1}
+    B:
+      DisplayName: VIOLETA
+      Main: {r: 0.5411765, g: 0.11764706, b: 0.9490196, a: 1}
+      Glow: {r: 0.688, g: 0.4, b: 0.96533334, a: 1}
+      Detail: {r: 0.406902, g: 0.12392157, b: 0.7156078, a: 1}
+  - A:
+      DisplayName: TURQUESA
+      Main: {r: 0.12156863, g: 0.83137256, b: 0.7882353, a: 1}
+      Glow: {r: 0.40266666, g: 0.88533336, b: 0.856, a: 1}
+      Detail: {r: 0.12156863, g: 0.6092549, b: 0.60627455, a: 1}
+    B:
+      DisplayName: ROSA
+      Main: {r: 0.90588236, g: 0.24705882, b: 0.54509807, a: 1}
+      Glow: {r: 0.936, g: 0.488, b: 0.6906667, a: 1}
+      Detail: {r: 0.654902, g: 0.21192157, b: 0.44094118, a: 1}
+  - A:
+      DisplayName: VERDE
+      Main: {r: 0.4117647, g: 0.9607843, b: 0.101960786, a: 1}
+      Glow: {r: 0.6, g: 0.97333336, b: 0.38933334, a: 1}
+      Detail: {r: 0.31890196, g: 0.6972549, b: 0.13960785, a: 1}
+    B:
+      DisplayName: FUCSIA
+      Main: {r: 0.8039216, g: 0.14117648, b: 0.9372549, a: 1}
+      Glow: {r: 0.8666667, g: 0.416, b: 0.9573333, a: 1}
+      Detail: {r: 0.58556867, g: 0.13992158, b: 0.70760787, a: 1}
+  - A:
+      DisplayName: AGUA
+      Main: {r: 0.1254902, g: 0.8117647, b: 0.7647059, a: 1}
+      Glow: {r: 0.40533334, g: 0.872, b: 0.84000003, a: 1}
+      Detail: {r: 0.1242353, g: 0.5959216, b: 0.5902745, a: 1}
+    B:
+      DisplayName: ROJO
+      Main: {r: 0.9137255, g: 0.2901961, b: 0.22745098, a: 1}
+      Glow: {r: 0.94133335, g: 0.5173333, b: 0.47466666, a: 1}
+      Detail: {r: 0.6602353, g: 0.24125491, b: 0.22494118, a: 1}

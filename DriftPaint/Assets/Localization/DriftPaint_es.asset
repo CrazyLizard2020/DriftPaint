@@ -1,0 +1,766 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9620f8c34305754d8cc9a7e49e852d9, type: 3}
+  m_Name: DriftPaint_es
+  m_EditorClassIdentifier: Unity.Localization::UnityEngine.Localization.Tables.StringTable
+  m_LocaleId:
+    m_Code: es
+  m_SharedData: {fileID: 11400000, guid: cf96c4dc7480cd84b9a53cb6fda7f356, type: 2}
+  m_Metadata:
+    m_Items: []
+  m_TableData:
+  - m_Id: 1067339321344
+    m_Localized: SALAS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681472
+    m_Localized: SALIR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681473
+    m_Localized: OPCIONES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681474
+    m_Localized: Opciones
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681475
+    m_Localized: JUGADOR  /
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681476
+    m_Localized: EDITAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681477
+    m_Localized: VOLVER A LA PARTIDA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681478
+    m_Localized: SALA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681479
+    m_Localized: BUSCAR Y UNIRTE A UNA PARTIDA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681480
+    m_Localized: Buscar sala o ID...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681481
+    m_Localized: +  CREAR SALA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681482
+    m_Localized: CREAR SALA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681483
+    m_Localized: MODO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681484
+    m_Localized: JUGADORES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681485
+    m_Localized: PING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681486
+    m_Localized: Pintura
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681487
+    m_Localized: PINTURA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681488
+    m_Localized: UNIRSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681489
+    m_Localized: EN JUEGO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681490
+    m_Localized: LLENA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681491
+    m_Localized: VOLVER
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681492
+    m_Localized: ACTUALIZAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681493
+    m_Localized: "No hay salas abiertas. Cre\xE1 una para empezar."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681494
+    m_Localized: NOMBRE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681495
+    m_Localized: "DURACI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681496
+    m_Localized: "Mapa: Drift Arena   /   Modo: Pintura   /   M\xE1x. 8 jugadores"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681497
+    m_Localized: CREAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681498
+    m_Localized: CANCELAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681499
+    m_Localized: Sala de {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681500
+    m_Localized: "CONFIGURACI\xD3N DE LA SALA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681501
+    m_Localized: JUGADORES  <color=#18DFF0>({0} / {1})</color>
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681502
+    m_Localized: Esperando jugador...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681503
+    m_Localized: '{0} (reconectando)'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681504
+    m_Localized: COPIAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681505
+    m_Localized: HOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681506
+    m_Localized: Modo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681507
+    m_Localized: "M\xE1x. jugadores"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681508
+    m_Localized: "Duraci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681509
+    m_Localized: CHAT DE SALA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681510
+    m_Localized: "Escrib\xED un mensaje..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681511
+    m_Localized: ENVIAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681512
+    m_Localized: Sistema
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681513
+    m_Localized: CAMBIAR EQUIPO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681514
+    m_Localized: CAMBIAR AUTO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681515
+    m_Localized: INICIAR PARTIDA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681516
+    m_Localized: ESPERANDO AL HOST
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681517
+    m_Localized: ELEGIR AUTO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681518
+    m_Localized: ACTUAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681519
+    m_Localized: CONFIRMAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681520
+    m_Localized: Auto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681521
+    m_Localized: "Idioma: Espa\xF1ol"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681522
+    m_Localized: "La partida sigue mientras el men\xFA est\xE1 abierto.  Esc / Start
+      para cerrar."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681523
+    m_Localized: Esc / Start para cerrar.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681524
+    m_Localized: VOLUMEN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681525
+    m_Localized: GENERAL
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681526
+    m_Localized: "M\xDASICA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681527
+    m_Localized: EFECTOS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681528
+    m_Localized: PANTALLA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681529
+    m_Localized: "Resoluci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681530
+    m_Localized: "{0} \xD7 {1} (Nativa)"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681531
+    m_Localized: PANTALLA COMPLETA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681532
+    m_Localized: VENTANA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681533
+    m_Localized: CERRAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681534
+    m_Localized: SALIR DE LA PARTIDA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681535
+    m_Localized: "\xBFQuieres reiniciar las opciones a default?"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681536
+    m_Localized: "S\xED"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681537
+    m_Localized: No
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681538
+    m_Localized: CONTROLES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681539
+    m_Localized: "ACCI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681540
+    m_Localized: TECLADO Y MOUSE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681541
+    m_Localized: JOYSTICK
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681542
+    m_Localized: Acelerar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681543
+    m_Localized: Frenar / reversa
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681544
+    m_Localized: Girar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681545
+    m_Localized: Drift
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681546
+    m_Localized: Disparar pintura
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681547
+    m_Localized: Soltar barril
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681548
+    m_Localized: "Mover c\xE1mara"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681549
+    m_Localized: "Mirar atr\xE1s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681550
+    m_Localized: Reaparecer (mantener)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681551
+    m_Localized: Tabla de puntajes
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681552
+    m_Localized: "\xA1VICTORIA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681553
+    m_Localized: "\xA1DERROTA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681554
+    m_Localized: GANA EL EQUIPO {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681555
+    m_Localized: EQUIPO {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681556
+    m_Localized: PUNTAJE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681557
+    m_Localized: REVANCHA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681558
+    m_Localized: "SALIR AL MEN\xDA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681559
+    m_Localized: Saliendo en {0} s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681560
+    m_Localized: "\xA1TIEMPO!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681561
+    m_Localized: Contando celdas...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681562
+    m_Localized: "\xA1EMPATE!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681563
+    m_Localized: Preparando ronda de desempate...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681564
+    m_Localized: "SIN CONEXI\xD3N"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681565
+    m_Localized: Volviendo a la partida... {0} s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681566
+    m_Localized: LISTO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681567
+    m_Localized: "\xA1YA!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681568
+    m_Localized: REUBICANDO AUTO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681569
+    m_Localized: DESCONECTADO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681570
+    m_Localized: CONECTANDO...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681571
+    m_Localized: ENTRANDO A LA SALA...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681572
+    m_Localized: SALIENDO DE LA SALA...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681573
+    m_Localized: RECONECTANDO...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681574
+    m_Localized: CARGANDO PARTIDA...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681575
+    m_Localized: ACEPTAR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681576
+    m_Localized: Error
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681577
+    m_Localized: "La red no est\xE1 inicializada. Revis\xE1 que el ensamblado DriftPaint.App
+      est\xE9 en el proyecto."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681578
+    m_Localized: "La escena \"{0}\" no est\xE1 en la lista de escenas del build.
+      Generala con DriftPaint > Generar escena de partida."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681579
+    m_Localized: "No se pudo iniciar la conexi\xF3n con el servidor."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681580
+    m_Localized: No se pudo volver a la partida.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681581
+    m_Localized: No hay un prefab registrado como "{0}".
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681582
+    m_Localized: No se pudo entrar a la lista de salas.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681583
+    m_Localized: "Se perdi\xF3 la conexi\xF3n con el servidor."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681584
+    m_Localized: "Se perdi\xF3 la conexi\xF3n con el servidor ({0})."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681585
+    m_Localized: Entraste a la sala {0}.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681586
+    m_Localized: No se pudo crear la sala. {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681587
+    m_Localized: No se pudo entrar a la sala. {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681588
+    m_Localized: Ya no se puede volver a esa partida.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681589
+    m_Localized: "{0} entr\xF3 a la sala."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681590
+    m_Localized: "{0} se desconect\xF3."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681591
+    m_Localized: "{0} sali\xF3 de la sala."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681592
+    m_Localized: '{0} ahora es el host.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681593
+    m_Localized: "La sala est\xE1 llena."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681594
+    m_Localized: La sala ya no acepta jugadores.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681595
+    m_Localized: La sala no existe.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681596
+    m_Localized: Jugador {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681597
+    m_Localized: CYAN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681598
+    m_Localized: NARANJA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681599
+    m_Localized: SIN EQUIPO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681600
+    m_Localized: LIMA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681601
+    m_Localized: "P\xDARPURA"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681602
+    m_Localized: AMARILLO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681603
+    m_Localized: VIOLETA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681604
+    m_Localized: TURQUESA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681605
+    m_Localized: ROSA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681606
+    m_Localized: VERDE
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681607
+    m_Localized: FUCSIA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681608
+    m_Localized: AGUA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681609
+    m_Localized: ROJO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681610
+    m_Localized: "Marcha atr\xE1s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681611
+    m_Localized: Adelante
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681612
+    m_Localized: DRIFT  nivel {0}  ({1:0.0} s)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681613
+    m_Localized: BOOST de pintura
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681614
+    m_Localized: En el aire
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681615
+    m_Localized: Dado vuelta
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681616
+    m_Localized: Enderezando en {0:0.0} s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681617
+    m_Localized: MEDICIONES
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681618
+    m_Localized: "M\xE1xima alcanzada: "
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681619
+    m_Localized: sin medir
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681620
+    m_Localized: esperado
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681621
+    m_Localized: Flecha Arriba
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681622
+    m_Localized: Flecha Abajo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681623
+    m_Localized: Flecha Izquierda
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681624
+    m_Localized: Flecha Derecha
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681625
+    m_Localized: Barra Espaciadora
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681626
+    m_Localized: "May\xFAsculas"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681627
+    m_Localized: "Tabulaci\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681628
+    m_Localized: Clic izquierdo
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681629
+    m_Localized: Clic derecho
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681630
+    m_Localized: Pulsar stick derecho
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681631
+    m_Localized: "Rat\xF3n"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681632
+    m_Localized: Seleccionar
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681633
+    m_Localized: Inicio
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681634
+    m_Localized: Piloto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681635
+    m_Localized: EQUIPO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681636
+    m_Localized: JUGADORES  (0 / 8)
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681637
+    m_Localized: Saliendo en 30 s
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681638
+    m_Localized: GANA EL EQUIPO NARANJA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681639
+    m_Localized: Sala de Piloto
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067368681640
+    m_Localized: Nickname
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875776
+    m_Localized: "<b>CONTROLES</b>\nW / RT  acelerar\nS / LT  frenar y marcha atr\xE1s\nA
+      D / stick izq.  girar\nShift / RB  drift (mantener)\nMouse / stick der.  panear
+      c\xE1mara\nC / R3  mirar atr\xE1s\nR / Y (1 s)  reubicar auto\n\n<b>PRUEBAS</b>\nF4
+      cambiar modelo   F5 volver al spawn\nF6 cambiar equipo\nEsc liberar / bloquear
+      cursor"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875777
+    m_Localized: Volviste a la partida.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875778
+    m_Localized: "Se cort\xF3 la conexi\xF3n. Volviendo a la partida..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875779
+    m_Localized: OPCIONES DE JUEGO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875780
+    m_Localized: Idioma
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875781
+    m_Localized: ALERTA
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875782
+    m_Localized: "Espa\xF1ol"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875783
+    m_Localized: "Ingl\xE9s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875784
+    m_Localized: "Izq./Der."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875785
+    m_Localized: "ATURDIDO  {0:0.0} s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875786
+    m_Localized: "LENTO  {0:0.0} s"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875787
+    m_Localized: "CANCELAR LISTO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875788
+    m_Localized: "ESPERANDO · {0}/{1} LISTOS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 1067372875789
+    m_Localized: "{0} · Preparándose"
+    m_Metadata:
+      m_Items: []
+  references:
+    version: 2
+    RefIds: []

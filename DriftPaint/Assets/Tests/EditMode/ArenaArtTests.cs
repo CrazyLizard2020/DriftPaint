@@ -1,0 +1,109 @@
+using System.Collections.Generic;
+using DriftPaint.Cars;
+using DriftPaint.Combat;
+using DriftPaint.Teams;
+using NUnit.Framework;
+using UnityEditor;
+using UnityEditor.SceneManagement;
+using UnityEngine;
+
+namespace DriftPaint.Tests
+{
+    /// <summary>Comprueba los recursos que comparten el selector, los clientes de red y la escena.</summary>
+    public class ArenaArtTests
+    {
+        [Test]
+        public void LaCurvaDeVelocidadRespetaElTopeElFrenoYElTurbo()
+        {
+            var art = ScriptableObject.CreateInstance<DrivingArtProfile>();
+            try
+            {
+                art.response = AnimationCurve.Linear(0, 0, 1, 1);
+                art.fullSpeedKmh = 120;
+                art.streakStartKmh = 90;
+                Assert.That(art.FovOffset(60, false, false), Is.EqualTo(art.speedFov / 2).Within(.001f));
+                Assert.That(art.FovOffset(160, false, true), Is.EqualTo(art.speedFov + art.turboFov));
+                Assert.That(art.FovOffset(120, true, true), Is.Zero);
+                Assert.That(art.StreakDensity(90), Is.Zero);
+                Assert.That(art.StreakDensity(105), Is.EqualTo(.5f).Within(.001f));
+                Assert.That(art.StreakDensity(160), Is.EqualTo(1));
+            }
+            finally { Object.DestroyImmediate(art); }
+        }
+
+        [Test]
+        public void CadaDuplaTienePigmentosDistintosYUnaAlternativaParaSalasAntiguas()
+        {
+            var palette = AssetDatabase.LoadAssetAtPath<TeamPaletteSO>("Assets/ScriptableObjects/Teams/TeamPalette_Default.asset");
+            var pigments = new HashSet<Color32>();
+            for (int index = 0; index < TeamPaletteSO.PairCount; index++)
+            {
+                foreach (byte team in new[] { TeamId.A, TeamId.B })
+                {
+                    var ink = palette.Get(team, index);
+                    Assert.That(pigments.Add(ink.Main), Is.True, $"Pigmento repetido en la dupla {index}.");
+                    Assert.That(ink.Glow.grayscale, Is.GreaterThan(ink.Main.grayscale));
+                    Assert.That(ink.Detail.grayscale, Is.LessThan(ink.Main.grayscale));
+                }
+            }
+            Assert.That(palette.Get(TeamId.A, 100).Main, Is.EqualTo(palette.Get(TeamId.A, 0).Main));
+        }
+
+        [Test]
+        public void LaArenaComparteLaPaletaEntrePinturaCombateYMarcadores()
+        {
+            var scene = EditorSceneManager.OpenPreviewScene("Assets/Scenes/Match_DriftArena.unity");
+            try
+            {
+                var palette = AssetDatabase.LoadAssetAtPath<TeamPaletteSO>("Assets/ScriptableObjects/Teams/TeamPalette_Default.asset");
+                int links = 0;
+                foreach (var root in scene.GetRootGameObjects())
+                    foreach (var component in root.GetComponentsInChildren<MonoBehaviour>(true))
+                    {
+                        if (component == null) continue;
+                        var property = new SerializedObject(component).FindProperty("_palette");
+                        if (property == null) continue;
+                        Assert.That(property.objectReferenceValue, Is.EqualTo(palette), component.GetType().Name);
+                        links++;
+                    }
+                Assert.That(links, Is.GreaterThan(6));
+                foreach (var root in scene.GetRootGameObjects())
+                {
+                    var projectile = root.GetComponentInChildren<ProjectileView>(true);
+                    if (projectile == null) continue;
+                    var wake = (MeshRenderer)new SerializedObject(projectile).FindProperty("_wake").objectReferenceValue;
+                    Assert.That(wake, Is.Not.Null);
+                    Assert.That(wake.GetComponent<MeshFilter>().sharedMesh, Is.Not.Null);
+                    Assert.That(wake.sharedMaterial.shader.name, Is.EqualTo("DriftPaint/Estela ondulada"));
+                }
+            }
+            finally
+            {
+                EditorSceneManager.ClosePreviewScene(scene);
+            }
+        }
+
+        [TestCase("AE86")]
+        [TestCase("RX7")]
+        public void ElModeloTieneCuatroPivotesYAmbosEscapesConectados(string model)
+        {
+            var car = AssetDatabase.LoadAssetAtPath<GameObject>($"Assets/Prefabs/Cars/Car_{model}.prefab");
+            var visuals = new SerializedObject(car.GetComponent<CarVisuals>());
+            var pivots = new HashSet<Transform>();
+            foreach (string field in new[] { "_wheelFrontLeft", "_wheelFrontRight", "_wheelRearLeft", "_wheelRearRight" })
+            {
+                var pivot = (Transform)visuals.FindProperty(field).objectReferenceValue;
+                Assert.That(pivots.Add(pivot), Is.True);
+                Assert.That(pivot.GetComponentInChildren<MeshFilter>(), Is.Not.Null);
+            }
+            var fx = new SerializedObject(car.GetComponent<CarPaintEffects>());
+            foreach (string field in new[] { "_leftJet", "_rightJet", "_drift", "_leftTrack", "_rightTrack", "_leftStream", "_rightStream" })
+                Assert.That(fx.FindProperty(field).objectReferenceValue, Is.Not.Null, field);
+            var contact = (ParticleSystem)fx.FindProperty("_contactSplash").objectReferenceValue;
+            Assert.That(contact, Is.Not.Null);
+            Assert.That(contact.main.simulationSpace, Is.EqualTo(ParticleSystemSimulationSpace.World));
+            Assert.That(contact.sizeOverLifetime.separateAxes, Is.True);
+            Assert.That(contact.GetComponent<ParticleSystemRenderer>().mesh, Is.Not.Null);
+        }
+    }
+}

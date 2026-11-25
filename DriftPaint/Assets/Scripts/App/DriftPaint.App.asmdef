@@ -1,0 +1,20 @@
+{
+    "name": "DriftPaint.App",
+    "rootNamespace": "DriftPaint.App",
+    "references": [
+        "DriftPaint.Gameplay",
+        "DriftPaint.LiveOps",
+        "DriftPaint.LiveOps.Services",
+        "DriftPaint.Network",
+        "DriftPaint.Transport"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

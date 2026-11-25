@@ -1,0 +1,21 @@
+{
+    "name": "DriftPaint.Transport",
+    "rootNamespace": "DriftPaint.Transport",
+    "references": [
+        "DriftPaint.Network",
+        "DriftPaint.Gameplay",
+        "PhotonUnityNetworking",
+        "PhotonRealtime",
+        "PhotonUnityNetworking.Utilities",
+        "Unity.InputSystem"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

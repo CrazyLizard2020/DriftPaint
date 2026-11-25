@@ -1,0 +1,429 @@
+using System.Collections.Generic;
+using DriftPaint.Cars;
+using DriftPaint.Teams;
+using UnityEditor;
+using UnityEngine;
+
+namespace DriftPaint.EditorTools
+{
+    /// <summary>
+    /// Arma los prefabs de autos a partir de los modelos modulares (carrocería, llantas y alerón).
+    /// Las piezas vienen sin ubicar entre sí, así que el builder las acomoda usando los bounds
+    /// de la carrocería: orienta el largo sobre Z, apoya la carrocería en el piso, crea un pivote
+    /// por rueda (X = eje) y ubica el alerón atrás. Todo queda editable en el prefab.
+    /// </summary>
+    public static class CarPrefabBuilder
+    {
+        public const string PrefabFolder = "Assets/Prefabs/Cars";
+        const string ModelsRoot = "Assets/3D_Models/Cars/";
+
+        /// <summary>Piezas y ajustes de ubicación de un modelo.</summary>
+        public class CarModelSpec
+        {
+            public string Name;
+            public string Body;
+            public string RimLeft;
+            public string RimRight;
+            public string Spoiler;
+            /// <summary>Posición de cada eje como fracción del largo, medida desde el centro.</summary>
+            public float AxleFraction = 0.31f;
+            /// <summary>Metros que la rueda entra hacia adentro desde el borde de la carrocería.</summary>
+            public float WheelInset = 0.04f;
+            /// <summary>Altura del fondo de la carrocería sobre el piso.</summary>
+            public float BodyClearance = 0.05f;
+            /// <summary>Invierte el frente si la detección automática lo deja al revés.</summary>
+            public bool FlipForward;
+        }
+
+        public static readonly CarModelSpec[] Models =
+        {
+            new CarModelSpec
+            {
+                Name = "CC96",
+                Body = ModelsRoot + "CC96/Body/CC96_Body_1.fbx",
+                RimLeft = ModelsRoot + "CC96/Rims/Rims1_L.fbx",
+                RimRight = ModelsRoot + "CC96/Rims/Rims1_R.fbx",
+                Spoiler = ModelsRoot + "CC96/Spoiler/CC96_Spoiler.fbx"
+            },
+            new CarModelSpec
+            {
+                Name = "Gc14",
+                Body = ModelsRoot + "Gc14_Coupe/Body/Gc14_Body_1.fbx",
+                RimLeft = ModelsRoot + "Gc14_Coupe/Rims/Gc14_Rims_1_L.fbx",
+                RimRight = ModelsRoot + "Gc14_Coupe/Rims/Gc14_Rims_1_R.fbx",
+                Spoiler = ModelsRoot + "Gc14_Coupe/Spoiler/Gc14_Spoiler.fbx"
+            },
+            new CarModelSpec
+            {
+                Name = "A_R7",
+                Body = ModelsRoot + "A_R7/Body/A_R7_Body_1.fbx",
+                RimLeft = ModelsRoot + "A_R7/Rims/Rims_2_L.fbx",
+                RimRight = ModelsRoot + "A_R7/Rims/Rims_1_R.fbx",
+                Spoiler = ModelsRoot + "A_R7/Spoilers/A_R7_Spoiler_1fbx.fbx"
+            },
+            new CarModelSpec { Name = "AE86", Body = ModelsRoot + "AE86/Body.fbx",
+                RimLeft = ModelsRoot + "AE86/Rim_L.fbx", RimRight = ModelsRoot + "AE86/Rim_R.fbx", AxleFraction = 0.285f, BodyClearance = 0.15f },
+            new CarModelSpec { Name = "RX7", Body = ModelsRoot + "RX7/Body.fbx",
+                RimLeft = ModelsRoot + "RX7/Rim_L.fbx", RimRight = ModelsRoot + "RX7/Rim_R.fbx", AxleFraction = 0.285f, BodyClearance = 0.08f }
+        };
+
+        public static List<GameObject> BuildAll(CarDataSO carData, TeamPaletteSO palette)
+        {
+            EditorAssetUtility.EnsureFolder(PrefabFolder);
+            var prefabs = new List<GameObject>();
+            foreach (CarModelSpec spec in Models)
+            {
+                GameObject prefab = Build(spec, carData, palette);
+                if (prefab != null) prefabs.Add(prefab);
+            }
+            return prefabs;
+        }
+
+        public static GameObject Build(CarModelSpec spec, CarDataSO carData, TeamPaletteSO palette)
+        {
+            var bodyAsset = AssetDatabase.LoadAssetAtPath<GameObject>(spec.Body);
+            var rimLeftAsset = AssetDatabase.LoadAssetAtPath<GameObject>(spec.RimLeft);
+            var rimRightAsset = AssetDatabase.LoadAssetAtPath<GameObject>(spec.RimRight);
+            var spoilerAsset = string.IsNullOrEmpty(spec.Spoiler) ? null : AssetDatabase.LoadAssetAtPath<GameObject>(spec.Spoiler);
+
+            if (bodyAsset == null || rimLeftAsset == null || rimRightAsset == null)
+            {
+                Debug.LogError($"CarPrefabBuilder: faltan piezas del modelo {spec.Name}.");
+                return null;
+            }
+
+            var root = new GameObject("Car_" + spec.Name);
+            try
+            {
+                var visual = new GameObject("Visual").transform;
+                visual.SetParent(root.transform, false);
+
+                // Carrocería: largo sobre Z, frente hacia +Z, centrada y apoyada en el piso.
+                var model = new GameObject("Model").transform;
+                model.SetParent(visual, false);
+                var body = (GameObject)PrefabUtility.InstantiatePrefab(bodyAsset, model);
+                body.name = "Body";
+                OrientBody(body.transform, spec.FlipForward);
+
+                Bounds bodyBounds = EditorAssetUtility.GetRendererBounds(body);
+                body.transform.position -= new Vector3(bodyBounds.center.x, bodyBounds.min.y - spec.BodyClearance, bodyBounds.center.z);
+                bodyBounds = EditorAssetUtility.GetRendererBounds(body);
+
+                float length = bodyBounds.size.z;
+                float width = bodyBounds.size.x;
+                float height = bodyBounds.size.y;
+
+                // Ruedas: un pivote por rueda con X como eje de giro.
+                var wheelsRoot = new GameObject("Wheels").transform;
+                wheelsRoot.SetParent(visual, false);
+
+                Bounds rimBounds = MeasureAlignedRim(rimLeftAsset);
+                float wheelRadius = Mathf.Max(rimBounds.extents.y, rimBounds.extents.z);
+                float wheelHalfWidth = rimBounds.extents.x;
+                float axleZ = length * spec.AxleFraction;
+                float wheelX = width * 0.5f - wheelHalfWidth - spec.WheelInset;
+
+                Transform fl = CreateWheel(wheelsRoot, "Wheel_FL", rimLeftAsset, new Vector3(-wheelX, wheelRadius, axleZ));
+                Transform fr = CreateWheel(wheelsRoot, "Wheel_FR", rimRightAsset, new Vector3(wheelX, wheelRadius, axleZ));
+                Transform rl = CreateWheel(wheelsRoot, "Wheel_RL", rimLeftAsset, new Vector3(-wheelX, wheelRadius, -axleZ));
+                Transform rr = CreateWheel(wheelsRoot, "Wheel_RR", rimRightAsset, new Vector3(wheelX, wheelRadius, -axleZ));
+
+                if (spoilerAsset != null)
+                    PlaceSpoiler(model, spoilerAsset, bodyBounds);
+
+                // Puntos de salida de la pintura (caños de escape).
+                CreateMarker(root.transform, "Exhaust_L", new Vector3(-width * 0.22f, 0.3f, bodyBounds.min.z));
+                CreateMarker(root.transform, "Exhaust_R", new Vector3(width * 0.22f, 0.3f, bodyBounds.min.z));
+
+                // Física: el auto lo sostiene la suspensión de las ruedas. La carrocería es un casco
+                // convexo que arranca por encima del piso y tiene la nariz, la cola y los costados
+                // inferiores biselados, para que al tocar una rampa o un borde se deslice hacia arriba
+                // en lugar de frenar de golpe contra una cara vertical.
+                var rb = root.AddComponent<Rigidbody>();
+                rb.mass = 1200f;
+
+                float hullBottom = wheelRadius * 0.85f;
+                float hullTop = Mathf.Max(hullBottom + 0.3f, bodyBounds.max.y * 0.85f);
+                Mesh hullMesh = BuildBodyHull(width * 0.95f, length * 0.92f, hullBottom, hullTop);
+                hullMesh.name = $"Car_{spec.Name}_Hull";
+                hullMesh = SaveMeshAsset(hullMesh, $"{PrefabFolder}/Car_{spec.Name}_Hull.asset");
+
+                var hull = root.AddComponent<MeshCollider>();
+                hull.sharedMesh = hullMesh;
+                hull.convex = true;
+
+                root.AddComponent<CarMovementInput>();
+                root.AddComponent<CarAbilityInput>();
+                var ground = root.AddComponent<CarGroundSensor>();
+                root.AddComponent<CarStatusEffects>();
+                root.AddComponent<CarStabilityController>();
+                root.AddComponent<CarMotorLocomotion>();
+                var controller = root.AddComponent<CarController>();
+                var visuals = root.AddComponent<CarVisuals>();
+                root.AddComponent<CarBlinkEffect>();
+                root.AddComponent<CarFlipWarning>();
+                root.AddComponent<CarLandingFeedback>();
+                var teamColor = root.AddComponent<CarTeamColor>();
+                root.AddComponent<CarEngineAudio>();
+                SfxBuilder.ConfigureTires(root);
+
+                // Cada modelo usa su propio CarData (física y motor) si ya existe; si no, el base.
+                var controllerSo = new SerializedObject(controller);
+                controllerSo.FindProperty("_carData").objectReferenceValue = EngineAudioBuilder.CarDataFor(spec.Name, carData);
+                controllerSo.ApplyModifiedPropertiesWithoutUndo();
+
+                var teamColorSo = new SerializedObject(teamColor);
+                teamColorSo.FindProperty("_palette").objectReferenceValue = palette;
+                if (spec.Name == "AE86")
+                {
+                    var glass = teamColorSo.FindProperty("_glassSlots");
+                    glass.arraySize = 1;
+                    glass.GetArrayElementAtIndex(0).stringValue = "Material.005";
+                }
+                teamColorSo.ApplyModifiedPropertiesWithoutUndo();
+
+                var groundSo = new SerializedObject(ground);
+                SerializedProperty probes = groundSo.FindProperty("_probes");
+                probes.arraySize = 4;
+                probes.GetArrayElementAtIndex(0).objectReferenceValue = fl;
+                probes.GetArrayElementAtIndex(1).objectReferenceValue = fr;
+                probes.GetArrayElementAtIndex(2).objectReferenceValue = rl;
+                probes.GetArrayElementAtIndex(3).objectReferenceValue = rr;
+                groundSo.FindProperty("_wheelRadius").floatValue = wheelRadius;
+                groundSo.ApplyModifiedPropertiesWithoutUndo();
+
+                var visualsSo = new SerializedObject(visuals);
+                visualsSo.FindProperty("_wheelFrontLeft").objectReferenceValue = fl;
+                visualsSo.FindProperty("_wheelFrontRight").objectReferenceValue = fr;
+                visualsSo.FindProperty("_wheelRearLeft").objectReferenceValue = rl;
+                visualsSo.FindProperty("_wheelRearRight").objectReferenceValue = rr;
+                visualsSo.FindProperty("_wheelRadius").floatValue = wheelRadius;
+                visualsSo.ApplyModifiedPropertiesWithoutUndo();
+
+                StripColliders(visual);
+                ArenaArtBuilder.ConnectCar(root);
+
+                string path = $"{PrefabFolder}/Car_{spec.Name}.prefab";
+                GameObject prefab = PrefabUtility.SaveAsPrefabAsset(root, path);
+                Debug.Log($"CarPrefabBuilder: {path} (largo {length:0.00} m, ancho {width:0.00} m, radio de rueda {wheelRadius:0.00} m).");
+                return prefab;
+            }
+            finally
+            {
+                Object.DestroyImmediate(root);
+            }
+        }
+
+        /// <summary>
+        /// Gira la carrocería para que el largo quede sobre Z y el frente hacia +Z.
+        /// El frente se estima por la cabina: el techo suele estar detrás del centro del auto.
+        /// </summary>
+        static void OrientBody(Transform body, bool flip)
+        {
+            Bounds bounds = EditorAssetUtility.GetRendererBounds(body.gameObject);
+            if (bounds.size.x > bounds.size.z)
+                body.rotation = Quaternion.Euler(0f, 90f, 0f) * body.rotation;
+
+            bounds = EditorAssetUtility.GetRendererBounds(body.gameObject);
+            float roofZ = AverageZOfTopVertices(body.gameObject, bounds, 0.2f);
+            bool roofIsBehindCenter = roofZ < bounds.center.z;
+
+            bool rotate = !roofIsBehindCenter;
+            if (flip) rotate = !rotate;
+            if (rotate)
+                body.rotation = Quaternion.Euler(0f, 180f, 0f) * body.rotation;
+        }
+
+        static float AverageZOfTopVertices(GameObject go, Bounds bounds, float topFraction)
+        {
+            float threshold = bounds.max.y - bounds.size.y * topFraction;
+            double sum = 0;
+            int count = 0;
+            foreach (MeshFilter filter in go.GetComponentsInChildren<MeshFilter>())
+            {
+                Mesh mesh = filter.sharedMesh;
+                if (mesh == null) continue;
+                Matrix4x4 matrix = filter.transform.localToWorldMatrix;
+                foreach (Vector3 vertex in mesh.vertices)
+                {
+                    Vector3 world = matrix.MultiplyPoint3x4(vertex);
+                    if (world.y < threshold) continue;
+                    sum += world.z;
+                    count++;
+                }
+            }
+            return count > 0 ? (float)(sum / count) : bounds.center.z;
+        }
+
+        /// <summary>Bounds de la llanta ya alineada (X = eje) y centrada.</summary>
+        static Bounds MeasureAlignedRim(GameObject rimAsset)
+        {
+            var temp = new GameObject("RimProbe");
+            try
+            {
+                var rim = (GameObject)PrefabUtility.InstantiatePrefab(rimAsset, temp.transform);
+                AlignRim(rim.transform);
+                return EditorAssetUtility.GetRendererBounds(rim);
+            }
+            finally
+            {
+                Object.DestroyImmediate(temp);
+            }
+        }
+
+        static Transform CreateWheel(Transform parent, string wheelName, GameObject rimAsset, Vector3 localPosition)
+        {
+            var pivot = new GameObject(wheelName).transform;
+            pivot.SetParent(parent, false);
+            pivot.localPosition = localPosition;
+
+            var rim = (GameObject)PrefabUtility.InstantiatePrefab(rimAsset, pivot);
+            rim.name = "Rim";
+            AlignRim(rim.transform);
+            return pivot;
+        }
+
+        /// <summary>
+        /// Rota la llanta para que su lado más angosto (el eje) quede sobre X del pivote
+        /// y la centra en el pivote.
+        /// </summary>
+        static void AlignRim(Transform rim)
+        {
+            Transform pivot = rim.parent;
+            rim.localPosition = Vector3.zero;
+
+            Bounds b = BoundsInSpace(rim.gameObject, pivot);
+            Vector3 size = b.size;
+            if (size.y < size.x && size.y <= size.z)
+                rim.localRotation = Quaternion.Euler(0f, 0f, 90f) * rim.localRotation;
+            else if (size.z < size.x && size.z < size.y)
+                rim.localRotation = Quaternion.Euler(0f, 90f, 0f) * rim.localRotation;
+
+            b = BoundsInSpace(rim.gameObject, pivot);
+            rim.localPosition -= b.center;
+        }
+
+        static Bounds BoundsInSpace(GameObject go, Transform space)
+        {
+            Bounds world = EditorAssetUtility.GetRendererBounds(go);
+            if (space == null) return world;
+            Vector3 center = space.InverseTransformPoint(world.center);
+            Vector3 size = space.InverseTransformVector(world.size);
+            return new Bounds(center, new Vector3(Mathf.Abs(size.x), Mathf.Abs(size.y), Mathf.Abs(size.z)));
+        }
+
+        /// <summary>
+        /// Casco de colisión de la carrocería: tres anillos de cuatro vértices (fondo, cintura y techo).
+        /// El fondo es más corto y angosto que la cintura, lo que deja la nariz, la cola y los costados
+        /// inferiores en pendiente; el techo es un poco más chico para redondear los cantos de arriba.
+        /// </summary>
+        static Mesh BuildBodyHull(float width, float length, float bottom, float top)
+        {
+            float halfWidth = width * 0.5f;
+            float halfLength = length * 0.5f;
+            float height = top - bottom;
+
+            // Bisel de nariz y cola: avanza hasta 0.6 m en el largo con una pendiente de 25°
+            // (sin pasar el 60% de la altura), así un golpe de frente empuja el auto hacia arriba.
+            float noseRun = Mathf.Min(0.6f, halfLength * 0.35f);
+            float bevelRise = Mathf.Min(height * 0.6f, noseRun * Mathf.Tan(25f * Mathf.Deg2Rad));
+            float sideRun = Mathf.Min(0.15f, halfWidth * 0.25f);
+
+            float beltY = bottom + bevelRise;
+            float bottomHalfLength = halfLength - noseRun;
+            float bottomHalfWidth = halfWidth - sideRun;
+            float topHalfLength = halfLength * 0.88f;
+            float topHalfWidth = halfWidth * 0.88f;
+
+            var vertices = new Vector3[12];
+            SetRing(vertices, 0, bottomHalfWidth, bottom, bottomHalfLength);
+            SetRing(vertices, 4, halfWidth, beltY, halfLength);
+            SetRing(vertices, 8, topHalfWidth, top, topHalfLength);
+
+            var triangles = new List<int>
+            {
+                0, 2, 1, 0, 3, 2,   // fondo
+                8, 9, 10, 8, 10, 11 // techo
+            };
+            for (int i = 0; i < 4; i++)
+            {
+                int next = (i + 1) % 4;
+                AddQuad(triangles, i, next, 4 + next, 4 + i);
+                AddQuad(triangles, 4 + i, 4 + next, 8 + next, 8 + i);
+            }
+
+            var mesh = new Mesh { vertices = vertices, triangles = triangles.ToArray() };
+            mesh.RecalculateNormals();
+            mesh.RecalculateBounds();
+            return mesh;
+        }
+
+        /// <summary>Anillo horizontal en orden: atrás izquierda, atrás derecha, adelante derecha, adelante izquierda.</summary>
+        static void SetRing(Vector3[] vertices, int start, float halfWidth, float y, float halfLength)
+        {
+            vertices[start] = new Vector3(-halfWidth, y, -halfLength);
+            vertices[start + 1] = new Vector3(halfWidth, y, -halfLength);
+            vertices[start + 2] = new Vector3(halfWidth, y, halfLength);
+            vertices[start + 3] = new Vector3(-halfWidth, y, halfLength);
+        }
+
+        static void AddQuad(List<int> triangles, int a, int b, int c, int d)
+        {
+            triangles.Add(a); triangles.Add(b); triangles.Add(c);
+            triangles.Add(a); triangles.Add(c); triangles.Add(d);
+        }
+
+        /// <summary>
+        /// Guarda la malla como asset. Si ya existe, reemplaza su contenido para conservar
+        /// la referencia de los prefabs que la usan.
+        /// </summary>
+        static Mesh SaveMeshAsset(Mesh mesh, string path)
+        {
+            var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
+            if (existing == null)
+            {
+                AssetDatabase.CreateAsset(mesh, path);
+                return mesh;
+            }
+
+            existing.Clear();
+            existing.vertices = mesh.vertices;
+            existing.triangles = mesh.triangles;
+            existing.RecalculateNormals();
+            existing.RecalculateBounds();
+            EditorUtility.SetDirty(existing);
+            Object.DestroyImmediate(mesh);
+            return existing;
+        }
+
+        static void PlaceSpoiler(Transform model, GameObject spoilerAsset, Bounds bodyBounds)
+        {
+            var spoiler = (GameObject)PrefabUtility.InstantiatePrefab(spoilerAsset, model);
+            spoiler.name = "Spoiler";
+
+            Bounds b = EditorAssetUtility.GetRendererBounds(spoiler);
+            if (b.size.z > b.size.x)
+                spoiler.transform.rotation = Quaternion.Euler(0f, 90f, 0f) * spoiler.transform.rotation;
+
+            b = EditorAssetUtility.GetRendererBounds(spoiler);
+            Vector3 target = new Vector3(
+                bodyBounds.center.x,
+                bodyBounds.min.y + bodyBounds.size.y * 0.72f,
+                bodyBounds.min.z + Mathf.Max(0.15f, b.size.z * 0.5f));
+            spoiler.transform.position += new Vector3(target.x - b.center.x, target.y - b.min.y, target.z - b.center.z);
+        }
+
+        static void CreateMarker(Transform parent, string markerName, Vector3 localPosition)
+        {
+            var marker = new GameObject(markerName).transform;
+            marker.SetParent(parent, false);
+            marker.localPosition = localPosition;
+        }
+
+        static void StripColliders(Transform root)
+        {
+            foreach (Collider col in root.GetComponentsInChildren<Collider>(true))
+                Object.DestroyImmediate(col);
+        }
+    }
+}

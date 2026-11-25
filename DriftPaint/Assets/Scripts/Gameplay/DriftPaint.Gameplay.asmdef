@@ -1,0 +1,21 @@
+{
+    "name": "DriftPaint.Gameplay",
+    "rootNamespace": "DriftPaint",
+    "references": [
+        "DriftPaint.LiveOps",
+        "Unity.InputSystem",
+        "Unity.Localization",
+        "Unity.TextMeshPro",
+        "UnityEngine.UI",
+        "ATG.VehicleNoiseSynthesizer"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

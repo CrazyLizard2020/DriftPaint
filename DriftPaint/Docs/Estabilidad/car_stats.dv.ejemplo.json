@@ -1,0 +1,21 @@
+{
+  "Car_RX7": {
+    "stability": {
+      "flightGravity": 8,
+      "landingAdhesionAcceleration": 22,
+      "landingGripBlendTime": 0.1,
+      "adhesionBySlope": [
+        { "x": 0, "y": 1 },
+        { "x": 30, "y": 1.2 },
+        { "x": 55, "y": 1.4 }
+      ],
+      "inertiaTensorScale": { "x": 1, "y": 1, "z": 1 }
+    }
+  },
+  "Car_Gc14": {
+    "stability": {
+      "landingReboundDamping": 0.4,
+      "recoveryImpulse": 3.2
+    }
+  }
+}
