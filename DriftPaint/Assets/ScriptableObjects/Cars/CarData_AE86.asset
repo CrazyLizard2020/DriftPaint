@@ -159,8 +159,8 @@ MonoBehaviour:
     _adhesionSpeedThreshold: 3
     _maxAdhesionAcceleration: 30
     _flightGravity: 10
-    _airAlignKp: 64
-    _airAlignKd: 16
+    _airAlignKp: 35
+    _airAlignKd: 10
     _airPitchDamping: 0
     _airRollDamping: 0
     _airYawDamping: 0
@@ -188,7 +188,7 @@ MonoBehaviour:
     _maxRollRate: 3
     _centerOfMassOffsetY: 0
     _inertiaTensorScale: {x: 1, y: 1, z: 1}
-    _autoRollAcceleration: 15
+    _autoRollAcceleration: 6.1
     _autoRollKp: 0
     _autoRollKd: 0
     _autoRollMaxAngle: 70
