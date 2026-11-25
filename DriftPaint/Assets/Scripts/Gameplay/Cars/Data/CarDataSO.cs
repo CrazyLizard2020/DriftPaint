@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 namespace DriftPaint.Cars
 {
@@ -53,32 +53,8 @@ namespace DriftPaint.Cars
         [Tooltip("Aceleración lateral máxima que puede hacer el agarre (m/s²). Si la curva pide más, el auto derrapa.")]
         [SerializeField, Min(0f)] float _maxGrip = 30f;
 
-        [Tooltip("Gravedad extra (m/s²) para que el auto se sienta pegado al piso.")]
-        [SerializeField, Min(0f)] float _extraGravity = 10f;
-
-        [Header("Suspensión")]
-        [Tooltip("Rigidez de cada rueda: aceleración (m/s²) por metro de compresión. Más alta, auto más duro.")]
-        [SerializeField, Min(1f)] float _suspensionStiffness = 70f;
-
-        [Tooltip("Amortiguación de cada rueda: aceleración (m/s²) por m/s de velocidad vertical. Evita que rebote.")]
-        [SerializeField, Min(0f)] float _suspensionDamping = 7f;
-
-        [Tooltip("Multiplicador de la amortiguación cuando la rueda se estira después de comprimirse. " +
-                 "Mayor que 1 frena el rebote al aterrizar sin endurecer la entrada a los pozos.")]
-        [SerializeField, Min(1f)] float _suspensionReboundRatio = 2.5f;
-
-        [Tooltip("Recorrido de la rueda por debajo de su altura normal antes de perder contacto (m).")]
-        [SerializeField, Min(0.01f)] float _suspensionTravel = 0.3f;
-
-        [Header("Auto dado vuelta")]
-        [Tooltip("Ángulo entre el techo del auto y la vertical a partir del cual se considera dado vuelta.")]
-        [SerializeField, Range(30f, 180f)] float _flippedAngle = 75f;
-
-        [Tooltip("Segundos dado vuelta antes de empezar a titilar.")]
-        [SerializeField, Min(0f)] float _flipDetectTime = 2f;
-
-        [Tooltip("Segundos de titileo antes de enderezar el auto.")]
-        [SerializeField, Min(0f)] float _flipBlinkTime = 2f;
+        [Tooltip("Adherencia, suspensión, aterrizaje, enderezado y recuperación.")]
+        [SerializeField] StabilitySettings _stability = new StabilitySettings();
 
         [Header("Estados")]
         [Tooltip("Multiplica la aceleración sobre pintura propia. MaxSpeed no cambia.")]
@@ -127,14 +103,7 @@ namespace DriftPaint.Cars
         public float MaxYawRate => _maxYawRate;
         public AnimationCurve TurnBySpeed => _turnBySpeed;
         public float MaxGrip => _maxGrip;
-        public float ExtraGravity => _extraGravity;
-        public float SuspensionStiffness => _suspensionStiffness;
-        public float SuspensionDamping => _suspensionDamping;
-        public float SuspensionReboundRatio => _suspensionReboundRatio;
-        public float SuspensionTravel => _suspensionTravel;
-        public float FlippedAngle => _flippedAngle;
-        public float FlipDetectTime => _flipDetectTime;
-        public float FlipBlinkTime => _flipBlinkTime;
+        public StabilitySettings Stability => _stability;
         public float PaintBoostMultiplier => _paintBoostMultiplier;
         public float DriftMinSpeed => _driftMinSpeed;
         public float DriftGripFactor => _driftGripFactor;
@@ -156,5 +125,21 @@ namespace DriftPaint.Cars
             _engine = engine;
             _engineSound = sound;
         }
+
+        /// <summary>Giro más rápido (rad/s) que puede pedir el manejo, con drift incluido.</summary>
+        public float RequiredYawRate(float maxYawRate)
+        {
+            float shape = 0f;
+            const int samples = 32;
+            for (int i = 0; i <= samples; i++) shape = Mathf.Max(shape, _turnBySpeed.Evaluate(i / (float)samples));
+            return maxYawRate * _driftYawMultiplier * shape;
+        }
+
+#if UNITY_EDITOR
+        void OnValidate()
+        {
+            _stability.Sanitize(RequiredYawRate(_maxYawRate), message => Debug.LogWarning($"{name}: {message}.", this));
+        }
+#endif
     }
 }

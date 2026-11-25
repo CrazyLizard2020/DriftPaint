@@ -1,18 +1,21 @@
 using System;
 using DriftPaint.LiveOperations;
+using Unity.Profiling;
 using UnityEngine;
 
 namespace DriftPaint.Cars
 {
     /// <summary>
     /// Raíz del prefab del auto. Arma CarStats, conecta las piezas, implementa ICarState
-    /// e ICarSimulation, y en SetMode prende o apaga input, locomoción y física.
+    /// e ICarSimulation, y en SetMode prende o apaga input, locomoción y física. Su FixedUpdate es el único
+    /// que mueve el auto: lee el piso, decide el estado, aplica las asistencias y después la conducción.
     /// </summary>
     [RequireComponent(typeof(Rigidbody))]
     [RequireComponent(typeof(CarMovementInput))]
     [RequireComponent(typeof(CarAbilityInput))]
     [RequireComponent(typeof(CarGroundSensor))]
     [RequireComponent(typeof(CarStatusEffects))]
+    [RequireComponent(typeof(CarStabilityController))]
     [RequireComponent(typeof(CarMotorLocomotion))]
     public class CarController : MonoBehaviour, ICarState, ICarSimulation
     {
@@ -41,11 +44,20 @@ namespace DriftPaint.Cars
         float _safePoseTimer;
         Pose _initialPose;
 
+        static readonly ProfilerMarker SenseMarker = new ProfilerMarker("Car.Sense");
+        static readonly ProfilerMarker StateMarker = new ProfilerMarker("Car.Stability");
+        static readonly ProfilerMarker AssistMarker = new ProfilerMarker("Car.Assist");
+        static readonly ProfilerMarker DriveMarker = new ProfilerMarker("Car.Drive");
+
         Rigidbody _rb;
+        PhysicsMaterial _bodyMaterial;
+        MeshCollider _hull;
+        bool _inertiaScaled;
         CarMovementInput _movementInput;
         CarAbilityInput _abilityInput;
         CarGroundSensor _groundSensor;
         CarStatusEffects _statusEffects;
+        CarStabilityController _stability;
         CarMotorLocomotion _locomotion;
         float _remoteSteer;
 
@@ -57,6 +69,7 @@ namespace DriftPaint.Cars
         public CarAbilityInput AbilityInput => _abilityInput;
         public CarGroundSensor GroundSensor => _groundSensor;
         public CarStatusEffects StatusEffects => _statusEffects;
+        public CarStabilityController Stability => _stability;
         public CarMotorLocomotion Locomotion => _locomotion;
         public Rigidbody Body => _rb;
 
@@ -103,7 +116,9 @@ namespace DriftPaint.Cars
             _abilityInput = GetComponent<CarAbilityInput>();
             _groundSensor = GetComponent<CarGroundSensor>();
             _statusEffects = GetComponent<CarStatusEffects>();
+            _stability = GetComponent<CarStabilityController>();
             _locomotion = GetComponent<CarMotorLocomotion>();
+            _hull = GetComponent<MeshCollider>();
 
             ConfigureRigidbody();
             ApplyFrictionlessMaterial();
@@ -118,7 +133,9 @@ namespace DriftPaint.Cars
 
             var stats = new CarStats(_carData);
             // Los valores de LiveOps de la sala pisan los de la ficha. Todos los jugadores usan la misma copia.
-            stats.ApplyOverrides(LiveOps.Room.StatsFor(CarChoice.IdFromObjectName(name)));
+            string carId = CarChoice.IdFromObjectName(name);
+            stats.ApplyOverrides(LiveOps.Room.StatsFor(carId));
+            stats.ApplyOverrides(LiveOps.Room.StabilityFor(carId), message => Debug.LogWarning($"{carId}: {message}.", this));
             Initialize(stats);
             _movementInput.RespawnRequested += Respawn;
         }
@@ -131,12 +148,46 @@ namespace DriftPaint.Cars
         void OnDestroy()
         {
             if (_movementInput != null) _movementInput.RespawnRequested -= Respawn;
+            if (_bodyMaterial != null) Destroy(_bodyMaterial);
         }
 
         void FixedUpdate()
         {
-            if (Mode == CarSimulationMode.Local && Stats != null)
-                TrackSafePose(Time.fixedDeltaTime);
+            if (Mode == CarSimulationMode.Local && Stats != null && !_rb.isKinematic) Simulate(Time.fixedDeltaTime);
+        }
+
+        /// <summary>Un paso del auto local, siempre en el mismo orden.</summary>
+        void Simulate(float dt)
+        {
+            using (SenseMarker.Auto()) _groundSensor.Sense(dt);
+            _statusEffects.Tick(dt);
+            using (StateMarker.Auto()) _stability.Evaluate(dt);
+
+            if (_stability.Frame.RequestRespawn)
+            {
+                RespawnStuck();
+                return;
+            }
+
+            using (AssistMarker.Auto()) _stability.ApplyAssistForces(dt);
+            using (DriveMarker.Auto()) _locomotion.Tick(_stability.Frame, dt);
+            TrackSafePose(dt);
+        }
+
+        /// <summary>
+        /// Reubica un auto que no pudo recuperarse. Si está derecho pero trabado, volver al mismo lugar no sirve:
+        /// va a la última posición segura.
+        /// </summary>
+        void RespawnStuck()
+        {
+            bool upright = Vector3.Angle(_rb.rotation * Vector3.up, Vector3.up) < Stats.Stability.AutoRollMaxAngle;
+            if (!upright || _safePoseCount == 0)
+            {
+                Respawn();
+                return;
+            }
+            Pose pose = GetFallRespawnPose();
+            Teleport(pose.position, pose.rotation);
         }
 
         /// <summary>
@@ -152,7 +203,7 @@ namespace DriftPaint.Cars
             int wheelCount = _groundSensor.Probes != null ? _groundSensor.Probes.Length : 0;
             bool allWheelsDown = wheelCount > 0 && _groundSensor.GroundedWheels >= wheelCount;
             bool upright = Vector3.Angle(transform.up, Vector3.up) < SafeMaxTilt;
-            bool flatGround = Vector3.Angle(_groundSensor.GroundNormal, Vector3.up) < SafeMaxSlope;
+            bool flatGround = _stability.IsGrounded && _groundSensor.Sample.SlopeAngle < SafeMaxSlope;
             if (!allWheelsDown || !upright || !flatGround) return;
 
             _safePoseTimer = 0f;
@@ -194,16 +245,16 @@ namespace DriftPaint.Cars
         }
 
         /// <summary>
-        /// Avisa si al auto le faltan piezas que arma el generador de prefabs (recuperación de vuelco,
+        /// Avisa si al auto le faltan piezas que arma el generador de prefabs (aviso de vuelco, estabilidad,
         /// color de equipo o casco de colisión). Pasa cuando el prefab se generó con una versión
         /// anterior del generador y hay que regenerarlo.
         /// </summary>
         void WarnIfIncomplete()
         {
             bool hasHull = TryGetComponent(out MeshCollider hull) && hull.convex;
-            if (TryGetComponent(out CarFlipRecovery _) && TryGetComponent(out CarTeamColor _) && hasHull) return;
+            if (TryGetComponent(out CarFlipWarning _) && TryGetComponent(out CarTeamColor _) && hasHull) return;
 
-            Debug.LogWarning($"{name}: el prefab está desactualizado (le falta recuperación de vuelco, color de equipo o casco de colisión). " +
+            Debug.LogWarning($"{name}: el prefab está desactualizado (le falta aviso de vuelco, color de equipo o casco de colisión). " +
                              "Regeneralo con DriftPaint > Regenerar prefabs de autos.", this);
         }
 
@@ -214,9 +265,39 @@ namespace DriftPaint.Cars
         {
             Stats = stats;
             _movementInput.SetRespawnHoldTime(stats.RespawnHoldTime);
-            _groundSensor.SetSuspensionTravel(stats.SuspensionTravel);
-            _statusEffects.Initialize(stats, _movementInput, _groundSensor, _rb);
-            _locomotion.Initialize(stats, _movementInput, _statusEffects, _groundSensor, _rb);
+            _groundSensor.Configure(stats.Stability);
+            _stability.Initialize(stats, _groundSensor, _movementInput, _rb);
+            _statusEffects.Initialize(stats, _movementInput, _groundSensor, _stability, _rb);
+            _locomotion.Initialize(stats, _movementInput, _statusEffects, _rb);
+            ApplyMass(stats.Stability);
+            _bodyMaterial.bounciness = stats.Stability.LandingBounciness;
+        }
+
+        /// <summary>Centro de masa, inercia y tope de giro según la ficha. Siempre parte de los valores originales.</summary>
+        void ApplyMass(StabilitySettings settings)
+        {
+            float height = _centerOfMassHeight + settings.CenterOfMassOffsetY;
+            if (_hull != null && _hull.sharedMesh != null)
+            {
+                Bounds bounds = _hull.sharedMesh.bounds;
+                float margin = bounds.size.y * 0.02f;
+                height = Mathf.Clamp(height, Mathf.Min(_centerOfMassHeight, bounds.min.y + margin), Mathf.Max(_centerOfMassHeight, bounds.max.y - margin));
+            }
+
+            _rb.automaticCenterOfMass = false;
+            if (_inertiaScaled)
+            {
+                _rb.ResetInertiaTensor();
+                _inertiaScaled = false;
+            }
+            _rb.centerOfMass = new Vector3(0f, height, 0f);
+            _rb.maxAngularVelocity = settings.MaxAngularVelocity;
+
+            if (settings.InertiaTensorScale == Vector3.one) return;
+            Quaternion axes = _rb.inertiaTensorRotation;
+            _rb.inertiaTensor = Vector3.Scale(_rb.inertiaTensor, settings.InertiaTensorScale);
+            _rb.inertiaTensorRotation = axes;
+            _inertiaScaled = true;
         }
 
         void ConfigureRigidbody()
@@ -226,15 +307,12 @@ namespace DriftPaint.Cars
             _rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
             _rb.linearDamping = 0f;
             _rb.angularDamping = 0.5f;
-            _rb.maxAngularVelocity = 12f;
-            _rb.automaticCenterOfMass = false;
-            _rb.centerOfMass = new Vector3(0f, _centerOfMassHeight, 0f);
         }
 
         void ApplyFrictionlessMaterial()
         {
             // Sin fricción física: el agarre y el frenado los controlan los PID.
-            var material = new PhysicsMaterial("CarBody")
+            _bodyMaterial = new PhysicsMaterial("CarBody")
             {
                 dynamicFriction = 0f,
                 staticFriction = 0f,
@@ -245,7 +323,7 @@ namespace DriftPaint.Cars
 
             foreach (Collider col in GetComponentsInChildren<Collider>())
             {
-                if (!col.isTrigger) col.sharedMaterial = material;
+                if (!col.isTrigger) col.sharedMaterial = _bodyMaterial;
             }
         }
 
@@ -258,11 +336,13 @@ namespace DriftPaint.Cars
             _abilityInput.enabled = local;
             _groundSensor.enabled = local;
             _statusEffects.enabled = local;
+            _stability.enabled = local;
             _locomotion.enabled = local;
 
             _rb.isKinematic = !local;
             _rb.interpolation = local ? RigidbodyInterpolation.Interpolate : RigidbodyInterpolation.None;
 
+            _stability.ResetState();
             if (local)
             {
                 _locomotion.ResetControllers();
@@ -297,6 +377,7 @@ namespace DriftPaint.Cars
         {
             _statusEffects.ClearAll();
             _locomotion.Teleport(position, rotation);
+            _stability.ResetState();
             Teleported?.Invoke(position, rotation);
         }
 

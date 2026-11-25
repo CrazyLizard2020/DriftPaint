@@ -156,11 +156,13 @@ namespace DriftPaint.EditorTools
                 root.AddComponent<CarAbilityInput>();
                 var ground = root.AddComponent<CarGroundSensor>();
                 root.AddComponent<CarStatusEffects>();
+                root.AddComponent<CarStabilityController>();
                 root.AddComponent<CarMotorLocomotion>();
                 var controller = root.AddComponent<CarController>();
                 var visuals = root.AddComponent<CarVisuals>();
                 root.AddComponent<CarBlinkEffect>();
-                root.AddComponent<CarFlipRecovery>();
+                root.AddComponent<CarFlipWarning>();
+                root.AddComponent<CarLandingFeedback>();
                 var teamColor = root.AddComponent<CarTeamColor>();
                 root.AddComponent<CarEngineAudio>();
                 SfxBuilder.ConfigureTires(root);

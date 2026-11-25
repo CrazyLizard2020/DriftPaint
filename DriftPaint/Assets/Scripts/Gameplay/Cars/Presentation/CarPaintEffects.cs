@@ -137,7 +137,7 @@ namespace DriftPaint.Cars
             _cycle = Mathf.Repeat(_cycle + Time.deltaTime * Mathf.Lerp(1.2f, 4.5f, _flow), 1f);
             bool left = UpdateOutlet(_leftStream, _leftJet, ref _leftGround, probe, reach, canPaint, 0f);
             bool right = UpdateOutlet(_rightStream, _rightJet, ref _rightGround, probe, reach, canPaint, .37f);
-            bool grounded = _car.Mode == CarSimulationMode.Remote || _car.GroundSensor.IsGrounded;
+            bool grounded = _car.Mode == CarSimulationMode.Remote || _car.Stability.IsGrounded;
             bool contact = grounded && (left || right);
             bool slide = _wheels.IsSliding || _car.StatusEffects.IsDrifting;
             _slide = contact ? Mathf.MoveTowards(_slide, slide ? 1 : 0, Time.deltaTime / .18f) : 0;

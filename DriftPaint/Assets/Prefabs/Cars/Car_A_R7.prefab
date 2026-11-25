@@ -4924,6 +4924,8 @@ GameObject:
   - component: {fileID: 8885009043976705264}
   - component: {fileID: 1244754270351578357}
   - component: {fileID: 8444904057836089714}
+  - component: {fileID: 7864069894049560421}
+  - component: {fileID: 2962697436184591831}
   m_Layer: 0
   m_Name: Car_A_R7
   m_TagString: Untagged
@@ -5047,9 +5049,7 @@ MonoBehaviour:
   - {fileID: 3025114025240727049}
   _wheelRadius: 0.25000012
   _contactTolerance: 0.12
-  _minGroundedWheels: 2
   _castRadiusFactor: 0.9
-  _maxGroundAngle: 75
   _groundMask:
     serializedVersion: 2
     m_Bits: 4294967295
@@ -5140,7 +5140,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 28b5db43df232c14ba2807c3f16fdb38, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarFlipRecovery
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarFlipWarning
 --- !u!114 &4205843170029042993
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5161,6 +5161,9 @@ MonoBehaviour:
   _detailSlots:
   - Hood
   - Hood2
+  _glassSlots:
+  - Glass
+  - Glass.002
 --- !u!114 &8885009043976705264
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5215,6 +5218,36 @@ MonoBehaviour:
   _fullSpeed: 14
   _driftBoost: {fileID: 8300000, guid: c7a67731b7930804d988e39785d9384e, type: 3}
   _driftBoostVolume: 0.6
+--- !u!114 &7864069894049560421
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2607641468622744200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 048eecfb81895f9459d065ccc81be536, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarStabilityController
+--- !u!114 &2962697436184591831
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2607641468622744200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2b731614c2c452b4f98ffe471562da76, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Cars.CarLandingFeedback
+  _body: {fileID: 0}
+  _minFallSpeed: 3
+  _maxFallSpeed: 12
+  _maxDip: 0.06
+  _frequency: 16
+  _debounce: 0.4
 --- !u!1 &2723986022242442012
 GameObject:
   m_ObjectHideFlags: 0

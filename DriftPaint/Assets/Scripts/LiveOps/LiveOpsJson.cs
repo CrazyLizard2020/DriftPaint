@@ -149,9 +149,22 @@ namespace DriftPaint.LiveOperations
             int start = index;
             while (index < json.Length && "+-0123456789.eE".IndexOf(json[index]) >= 0) index++;
             string text = json.Substring(start, index - start);
-            if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value))
+            if (!double.TryParse(text, NumberStyles.Float, CultureInfo.InvariantCulture, out double value) && !IsOverflow(text, out value))
                 throw new FormatException($"Número inválido '{text}'.");
             return value;
+        }
+
+        /// <summary>
+        /// Un número bien escrito pero fuera de rango (1e999) vale infinito: así se descarta solo ese campo
+        /// y no toda la configuración.
+        /// </summary>
+        static bool IsOverflow(string text, out double value)
+        {
+            int exponent = text.IndexOfAny(new[] { 'e', 'E' });
+            value = text.StartsWith("-", StringComparison.Ordinal) ? double.NegativeInfinity : double.PositiveInfinity;
+            return exponent > 0 && exponent < text.Length - 1
+                   && double.TryParse(text.Substring(0, exponent), NumberStyles.Float, CultureInfo.InvariantCulture, out _)
+                   && int.TryParse(text.Substring(exponent + 1), NumberStyles.AllowLeadingSign, CultureInfo.InvariantCulture, out _);
         }
 
         static object ReadWord(string json, ref int index, string word, object value)

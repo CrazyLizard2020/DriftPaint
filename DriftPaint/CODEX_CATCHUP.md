@@ -65,6 +65,7 @@ Leé todo este documento antes de tocar código. Respondé y comentá siempre en
 | `DriftPaint.App` | `App/` | las tres | `NetworkBootstrap` crea el host "Network" (DontDestroyOnLoad) con el transporte, `NetworkManager` y `NetworkTicker`, y lo registra en `NetworkServices`. |
 | `DriftPaint.Editor` | `Editor/` | Gameplay, TMP, Input System, UI | Builders de escenas, prefabs y assets. |
 | `DriftPaint.Tests.EditMode` | `Assets/Tests/EditMode` | Gameplay | Tests de reglas puras: Paint, Score, Team, Combat. |
+| `DriftPaint.Tests.PlayMode` | `Assets/Tests/PlayMode` | Gameplay, LiveOps | Física del auto: aterrizajes, vuelcos y reportes explícitos. |
 
 ### Modelo de autoridad
 
@@ -92,6 +93,7 @@ Leé todo este documento antes de tocar código. Respondé y comentá siempre en
 - **Autos** (`Gameplay/Cars`):
   - `CarController`: PID de velocidad, yaw y agarre, con capas de input, locomoción y estados (drift, turbo, stun, slow).
   - Datos en `CarDataSO` y `CarStats`. Modos `Local` y `Remote`; los remotos son cinemáticos.
+  - Apoyo, vuelo, aterrizaje y vuelco: `CarStabilityController` es el único que aplica fuerzas de estabilidad, según `VehicleStabilityFSM`. Se configura en el bloque Stability de `CarDataSO` y en `car_stats.<modelo>.stability`. Ver `Docs/Estabilidad/EstabilidadDelAuto.md`.
   - `CarNetworkSync` interpola 100 ms en el pasado y extrapola hasta 250 ms. Ante un teletransporte, salta y llama a `CarController.NotifyRemoteTeleport()`.
 - **Partida** (`Gameplay/Match`):
   - `MatchController`: fases Lobby, Countdown, Playing, Tiebreak y Results. Cada cliente calcula el reloj con la hora del servidor. El Master resuelve el ganador o arranca un desempate, y aplica la victoria por abandono.

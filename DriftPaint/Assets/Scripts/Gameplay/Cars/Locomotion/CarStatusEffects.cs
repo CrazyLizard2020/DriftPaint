@@ -6,9 +6,8 @@ namespace DriftPaint.Cars
     /// <summary>
     /// Paso 2 de la locomoción: guarda los efectos activos (boost, stun, slow, drift y turbo)
     /// con sus timers y expone multiplicadores que CarMotorLocomotion lee.
-    /// Los aplica el dueño del auto, porque es el dueño de su física.
+    /// Los aplica el dueño del auto, porque es el dueño de su física. CarController llama a Tick una vez por paso.
     /// </summary>
-    [DefaultExecutionOrder(-30)]
     public class CarStatusEffects : MonoBehaviour
     {
         [Tooltip("Tiempo con la dirección derecha antes de cortar el drift. Evita cortarlo al contravolantear.")]
@@ -17,6 +16,7 @@ namespace DriftPaint.Cars
         CarStats _stats;
         CarMovementInput _input;
         CarGroundSensor _ground;
+        CarStabilityController _stability;
         Rigidbody _rb;
 
         float _stunTimer;
@@ -30,7 +30,7 @@ namespace DriftPaint.Cars
         public bool IsSlowed => _slowTimer > 0f;
         public bool IsDrifting { get; private set; }
         public float DriftTime { get; private set; }
-        public bool IsBoosting => _ground != null && _ground.OnOwnPaint;
+        public bool IsBoosting => _stability != null && _stability.IsGrounded && _ground != null && _ground.OnOwnPaint;
         public bool IsTurboActive => _turboTimer > 0f;
         public float StunTimeLeft => _stunTimer;
         public float SlowTimeLeft => _slowTimer;
@@ -72,20 +72,21 @@ namespace DriftPaint.Cars
         /// <summary>Nivel de carga con el que terminó el drift (0 si no dio turbo).</summary>
         public event Action<int> DriftEnded;
 
-        public void Initialize(CarStats stats, CarMovementInput input, CarGroundSensor ground, Rigidbody rb)
+        public void Initialize(CarStats stats, CarMovementInput input, CarGroundSensor ground, CarStabilityController stability, Rigidbody rb)
         {
             _stats = stats;
             _input = input;
             _ground = ground;
+            _stability = stability;
             _rb = rb;
         }
 
         float ForwardSpeed => _rb != null ? Vector3.Dot(_rb.linearVelocity, transform.forward) : 0f;
 
-        void FixedUpdate()
+        /// <summary>Avanza los efectos un paso de física.</summary>
+        public void Tick(float dt)
         {
             if (_stats == null) return;
-            float dt = Time.fixedDeltaTime;
 
             if (_stunTimer > 0f)
             {
@@ -106,7 +107,7 @@ namespace DriftPaint.Cars
         void UpdateDrift(float dt)
         {
             FrameInput input = _input != null ? _input.CurrentInput : default;
-            bool grounded = _ground == null || _ground.IsGrounded;
+            bool grounded = _stability == null || _stability.IsGrounded;
             bool fastEnough = ForwardSpeed >= _stats.DriftMinSpeed;
             bool steering = Mathf.Abs(input.Steer) > 0.15f;
 

@@ -55,6 +55,7 @@ namespace DriftPaint.EditorTools
 
         static readonly Step[] Steps =
         {
+            new Step(CarStabilityBuilder.SandboxScene, new[] { typeof(DriftPaint.Sandbox.VehicleStabilityDebugger) }, CarStabilityBuilder.InstallDebugger),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(DriftPaint.Paint.PaintRingSystem) }, PaintRingBuilder.Install),
             new Step(MenuSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
             new Step(MatchSceneBuilder.ScenePath, new[] { typeof(OptionsMenu), typeof(SceneMusic), typeof(DisplayOptions) }, OptionsMenuBuilder.Install),
@@ -92,6 +93,7 @@ namespace DriftPaint.EditorTools
 
         static readonly AssetStep[] AssetSteps =
         {
+            new AssetStep("estabilidad de los autos", CarStabilityBuilder.Outdated, CarStabilityBuilder.Apply),
             new AssetStep("chorros de pintura de los autos", ArenaArtBuilder.ExhaustStreamsOutdated, ArenaArtBuilder.UpdateExhaustStreams),
             new AssetStep("motores de los autos", EngineAudioBuilder.Outdated, EngineAudioBuilder.Apply),
             new AssetStep("efectos de sonido", SfxBuilder.Outdated, SfxBuilder.Apply),

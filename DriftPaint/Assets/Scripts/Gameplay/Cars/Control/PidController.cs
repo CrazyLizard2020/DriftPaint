@@ -100,14 +100,16 @@ namespace DriftPaint.Cars
         /// Derivada sobre la medición: misma amortiguación, sin "derivative kick"
         /// cuando el setpoint salta de golpe (por ejemplo al pasar de A a D).
         /// </summary>
-        public float Evaluate(float setpoint, float measurement, float deltaTime)
+        /// <param name="integrate">False mientras la salida se aplica reducida: no acumula error que el auto no puede corregir.</param>
+        public float Evaluate(float setpoint, float measurement, float deltaTime, bool integrate = true)
         {
             float error = setpoint - measurement;
 
             if (deltaTime <= 0f)
                 return Mathf.Clamp(error * _proportional, -_outputLimit, _outputLimit);
 
-            _integralState = Mathf.Clamp(_integralState + error * deltaTime, -_integralLimit, _integralLimit);
+            float integralState = _integralState;
+            if (integrate) _integralState = Mathf.Clamp(_integralState + error * deltaTime, -_integralLimit, _integralLimit);
 
             float derivative = _hasPreviousMeasurement
                 ? -(measurement - _previousMeasurement) / deltaTime
@@ -117,7 +119,18 @@ namespace DriftPaint.Cars
             _hasPreviousMeasurement = true;
 
             float output = error * _proportional + _integralState * _integral + derivative * _derivative;
-            return Mathf.Clamp(output, -_outputLimit, _outputLimit);
+            float limited = Mathf.Clamp(output, -_outputLimit, _outputLimit);
+            // Saturado y con el error empujando hacia el mismo lado: se descarta lo acumulado en este paso.
+            if (limited != output && error * output > 0f) _integralState = integralState;
+            return limited;
+        }
+
+        /// <summary>Arranca de cero desde la medición actual, sin salto derivativo en el primer paso.</summary>
+        public void ResetFromMeasurement(float measurement)
+        {
+            Reset();
+            _previousMeasurement = measurement;
+            _hasPreviousMeasurement = true;
         }
 
         public void Reset()

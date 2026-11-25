@@ -81,6 +81,8 @@ namespace DriftPaint.EditorTools
             so.FindProperty("_telemetry").objectReferenceValue = telemetry;
             so.ApplyModifiedPropertiesWithoutUndo();
 
+            CarStabilityBuilder.InstallDebugger(scene);
+
             EditorAssetUtility.EnsureFolder("Assets/Scenes");
             LocalizedInterfaceBuilder.Install(scene);
             EditorSceneManager.SaveScene(scene, ScenePath);
@@ -283,7 +285,7 @@ namespace DriftPaint.EditorTools
                 "R / Y (1 s)  reubicar auto\n\n" +
                 "<b>PRUEBAS</b>\n" +
                 "F4 cambiar modelo   F5 volver al spawn\n" +
-                "F6 cambiar equipo\n" +
+                "F6 cambiar equipo   F7 estabilidad\n" +
                 "Esc liberar / bloquear cursor";
 
             // Reubicar auto

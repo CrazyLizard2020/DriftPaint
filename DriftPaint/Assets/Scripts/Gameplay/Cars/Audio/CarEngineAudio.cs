@@ -157,7 +157,7 @@ namespace DriftPaint.Cars
                 Throttle = throttle,
                 MaxSpeed = _car.Stats.MaxSpeed,
                 MaxReverseSpeed = _car.Stats.MaxReverseSpeed,
-                Grounded = _car.GroundSensor == null || _car.GroundSensor.IsGrounded,
+                Grounded = _car.Stability == null || _car.Stability.IsGrounded,
                 Wheelspin = _visuals != null && _visuals.IsSliding && throttle > 0.3f,
                 Boost = boost
             };

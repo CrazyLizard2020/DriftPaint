@@ -71,6 +71,8 @@ namespace DriftPaint.LiveOperations
 
                 string origin = remote.origin == ConfigOrigin.Cached ? "guardada en este equipo" : "descargada";
                 Debug.Log($"[LiveOps] Environment {environment}, configuración {origin}. {config.Describe()}");
+                if (config.Warnings.Count > 0)
+                    Debug.LogWarning("[LiveOps] Valores descartados: " + string.Join("; ", config.Warnings));
             }
             catch (Exception exception)
             {

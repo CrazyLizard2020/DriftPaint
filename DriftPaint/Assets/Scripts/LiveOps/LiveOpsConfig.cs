@@ -19,6 +19,8 @@ namespace DriftPaint.LiveOperations
         const string RoomCars = "cars";
         const string RoomStats = "stats";
         const string RoomMusic = "music";
+        const string StabilityKey = "stability";
+        const int MaxWarnings = 16;
 
         static readonly IReadOnlyDictionary<string, float> NoStats = new Dictionary<string, float>();
 
@@ -28,14 +30,17 @@ namespace DriftPaint.LiveOperations
         readonly string[] _maps;
         readonly string[] _cars;
         readonly Dictionary<string, IReadOnlyDictionary<string, float>> _stats;
+        readonly Dictionary<string, StabilityOverrides> _stability;
+        readonly List<string> _warnings;
         readonly Dictionary<string, string> _music;
 
-        LiveOpsConfig(IEnumerable<string> maps, IEnumerable<string> cars,
-            Dictionary<string, IReadOnlyDictionary<string, float>> stats, Dictionary<string, string> music)
+        LiveOpsConfig(IEnumerable<string> maps, IEnumerable<string> cars, Dictionary<string, object> stats, Dictionary<string, string> music)
         {
             _maps = CleanList(maps);
             _cars = CleanList(cars);
-            _stats = stats ?? new Dictionary<string, IReadOnlyDictionary<string, float>>(StringComparer.Ordinal);
+            _warnings = new List<string>();
+            _stats = ReadStats(stats);
+            _stability = ReadStability(stats);
             _music = music ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
@@ -45,6 +50,10 @@ namespace DriftPaint.LiveOperations
         public IReadOnlyList<string> Cars => _cars;
         /// <summary>Autos que tienen alguna estadística cambiada.</summary>
         public IEnumerable<string> CarsWithStats => _stats.Keys;
+        /// <summary>Autos que tienen algún valor de estabilidad cambiado.</summary>
+        public IEnumerable<string> CarsWithStability => _stability.Keys;
+        /// <summary>Valores de estabilidad que llegaron y se descartaron, hasta un máximo.</summary>
+        public IReadOnlyList<string> Warnings => _warnings;
         /// <summary>Tema de música por contexto (pantalla o mapa).</summary>
         public IReadOnlyDictionary<string, string> MusicOverrides => _music;
 
@@ -55,7 +64,7 @@ namespace DriftPaint.LiveOperations
         public static LiveOpsConfig FromRemote(string mapsEnabled, string carsEnabled, string carStatsJson, string musicJson)
         {
             return new LiveOpsConfig(SplitList(mapsEnabled), SplitList(carsEnabled),
-                ReadStats(LiveOpsJson.ParseObject(carStatsJson)), ReadMusic(LiveOpsJson.ParseObject(musicJson)));
+                LiveOpsJson.ParseObject(carStatsJson), ReadMusic(LiveOpsJson.ParseObject(musicJson)));
         }
 
         /// <summary>
@@ -71,6 +80,10 @@ namespace DriftPaint.LiveOperations
         public IReadOnlyDictionary<string, float> StatsFor(string carId) =>
             !string.IsNullOrEmpty(carId) && _stats.TryGetValue(carId, out IReadOnlyDictionary<string, float> stats) ? stats : NoStats;
 
+        /// <summary>Estabilidad que pisa la de un auto. Sin campos si el auto no tiene cambios.</summary>
+        public StabilityOverrides StabilityFor(string carId) =>
+            !string.IsNullOrEmpty(carId) && _stability.TryGetValue(carId, out StabilityOverrides overrides) ? overrides : StabilityOverrides.None;
+
         #region Copia de la sala
 
         /// <summary>Texto que viaja en la propiedad cfg de la sala.</summary>
@@ -85,20 +98,27 @@ namespace DriftPaint.LiveOperations
             LiveOpsJson.WriteString(builder, RoomStats);
             builder.Append(":{");
             bool firstCar = true;
-            foreach (KeyValuePair<string, IReadOnlyDictionary<string, float>> car in _stats)
+            foreach (string car in _stats.Keys.Union(_stability.Keys, StringComparer.Ordinal))
             {
                 if (!firstCar) builder.Append(',');
                 firstCar = false;
-                LiveOpsJson.WriteString(builder, car.Key);
+                LiveOpsJson.WriteString(builder, car);
                 builder.Append(":{");
                 bool firstStat = true;
-                foreach (KeyValuePair<string, float> stat in car.Value)
+                foreach (KeyValuePair<string, float> stat in StatsFor(car))
                 {
                     if (!firstStat) builder.Append(',');
                     firstStat = false;
                     LiveOpsJson.WriteString(builder, stat.Key);
                     builder.Append(':');
                     LiveOpsJson.WriteNumber(builder, stat.Value);
+                }
+                if (_stability.TryGetValue(car, out StabilityOverrides stability))
+                {
+                    if (!firstStat) builder.Append(',');
+                    LiveOpsJson.WriteString(builder, StabilityKey);
+                    builder.Append(':');
+                    stability.Write(builder);
                 }
                 builder.Append('}');
             }
@@ -125,7 +145,7 @@ namespace DriftPaint.LiveOperations
             if (root == null) return Default;
 
             return new LiveOpsConfig(ReadList(root, RoomMaps), ReadList(root, RoomCars),
-                ReadStats(root.TryGetValue(RoomStats, out object stats) ? stats as Dictionary<string, object> : null),
+                root.TryGetValue(RoomStats, out object stats) ? stats as Dictionary<string, object> : null,
                 ReadMusic(root.TryGetValue(RoomMusic, out object music) ? music as Dictionary<string, object> : null));
         }
 
@@ -152,8 +172,9 @@ namespace DriftPaint.LiveOperations
             string maps = _maps.Length == 0 ? "todos" : string.Join(", ", _maps);
             string cars = _cars.Length == 0 ? "todos" : string.Join(", ", _cars);
             string stats = _stats.Count == 0 ? "sin cambios" : string.Join(", ", _stats.Keys);
+            string stability = _stability.Count == 0 ? "sin cambios" : string.Join(", ", _stability.Select(pair => $"{pair.Key} ({pair.Value.Count})"));
             string music = _music.Count == 0 ? "sin cambios" : string.Join(", ", _music.Select(pair => $"{pair.Key}={pair.Value}"));
-            return $"mapas: {maps} | autos: {cars} | estadísticas: {stats} | música: {music}";
+            return $"mapas: {maps} | autos: {cars} | estadísticas: {stats} | estabilidad: {stability} | música: {music}";
         }
 
         #region Validación
@@ -199,6 +220,41 @@ namespace DriftPaint.LiveOperations
             }
             return result;
         }
+
+        /// <summary>Lee el objeto stability de cada auto. Los campos inválidos se descartan de a uno y quedan anotados.</summary>
+        Dictionary<string, StabilityOverrides> ReadStability(Dictionary<string, object> json)
+        {
+            var result = new Dictionary<string, StabilityOverrides>(StringComparer.Ordinal);
+            if (json == null) return result;
+
+            foreach (KeyValuePair<string, object> car in json)
+            {
+                if (string.IsNullOrWhiteSpace(car.Key) || !(car.Value is Dictionary<string, object> values)) continue;
+                if (!values.TryGetValue(StabilityKey, out object raw)) continue;
+
+                string id = car.Key.Trim();
+                if (!(raw is Dictionary<string, object> fields))
+                {
+                    Warn($"{Shorten(id)}.stability: se esperaba un objeto");
+                    continue;
+                }
+                if (id.Length > StabilitySchema.MaxKeyLength || result.Count >= StabilitySchema.MaxCars)
+                {
+                    Warn($"{Shorten(id)}: estabilidad descartada por nombre largo o exceso de autos");
+                    continue;
+                }
+                StabilityOverrides overrides = StabilityOverrides.Read(fields, id, Warn);
+                if (overrides.Count > 0) result[id] = overrides;
+            }
+            return result;
+        }
+
+        void Warn(string message)
+        {
+            if (_warnings.Count < MaxWarnings) _warnings.Add(message);
+        }
+
+        static string Shorten(string id) => id.Length <= StabilitySchema.MaxKeyLength ? id : id.Substring(0, StabilitySchema.MaxKeyLength) + "…";
 
         static Dictionary<string, string> ReadMusic(Dictionary<string, object> json)
         {

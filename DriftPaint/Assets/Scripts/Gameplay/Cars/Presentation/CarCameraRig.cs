@@ -50,6 +50,12 @@ namespace DriftPaint.Cars
         [Tooltip("Tiempo del giro de la cámara al mirar hacia atrás y al volver.")]
         [SerializeField, Min(0.01f)] float _lookBackSmoothTime = 0.12f;
 
+        [Header("Aterrizaje")]
+        [Tooltip("Cuánto baja la cámara (m) con el aterrizaje más fuerte.")]
+        [SerializeField, Range(0f, 0.6f)] float _landingDip = 0.18f;
+        [Tooltip("Tiempo con el que la cámara vuelve después del golpe.")]
+        [SerializeField, Min(0.01f)] float _landingDipTime = 0.18f;
+
         [Header("Colisión")]
         [SerializeField] LayerMask _obstructionMask = ~0;
         [SerializeField, Min(0f)] float _obstructionPadding = 0.2f;
@@ -58,6 +64,10 @@ namespace DriftPaint.Cars
         DrivingArtProfile _art;
         CameraSpeedLines _lines;
         CarController _car;
+        CarLandingFeedback _landing;
+        float _dip;
+        float _dipTarget;
+        float _dipVelocity;
         float _lineStrength;
         ICarState _target;
         Transform _targetTransform;
@@ -96,6 +106,9 @@ namespace DriftPaint.Cars
             _target = target;
             _car = target as CarController;
             if (_car != null) _car.Teleported += OnTeleported;
+            if (_landing != null) _landing.Landed -= OnLanded;
+            _landing = _car != null ? _car.GetComponent<CarLandingFeedback>() : null;
+            if (_landing != null) _landing.Landed += OnLanded;
             _targetTransform = targetTransform;
             _controls = controls;
             SnapToTarget();
@@ -119,6 +132,7 @@ namespace DriftPaint.Cars
             _lookBackVelocity = 0f;
             _followPosition = _targetTransform.position;
             _followVelocity = Vector3.zero;
+            _dip = _dipTarget = _dipVelocity = 0f;
             _distance = _distanceAtRest;
             LateUpdate();
         }
@@ -172,7 +186,10 @@ namespace DriftPaint.Cars
                 ? Vector3.SmoothDamp(_followPosition, _targetTransform.position, ref _followVelocity, _followSmoothTime)
                 : _targetTransform.position;
 
-            Vector3 lookPoint = _followPosition + Vector3.up * _lookHeight;
+            _dipTarget = Mathf.MoveTowards(_dipTarget, 0f, _landingDip * dt / _landingDipTime);
+            _dip = Mathf.SmoothDamp(_dip, _dipTarget, ref _dipVelocity, _landingDipTime * 0.5f);
+
+            Vector3 lookPoint = _followPosition + Vector3.up * (_lookHeight - _dip);
             Quaternion orbit = Quaternion.Euler(viewPitch, viewYaw, 0f);
             Vector3 desired = lookPoint - orbit * Vector3.forward * _distance;
 
@@ -185,8 +202,11 @@ namespace DriftPaint.Cars
 
         void OnTeleported(Vector3 position, Quaternion rotation) => SnapToTarget();
 
+        void OnLanded(float strength) => _dipTarget = _landingDip * strength;
+
         void OnDestroy()
         {
+            if (_landing != null) _landing.Landed -= OnLanded;
             if (_car != null) _car.Teleported -= OnTeleported;
         }
 

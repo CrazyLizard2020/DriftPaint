@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using DriftPaint.LiveOperations;
 using UnityEngine;
 
 namespace DriftPaint.Cars
@@ -25,6 +27,9 @@ namespace DriftPaint.Cars
             BrakeDeceleration = data.BrakeDeceleration;
             MaxYawRate = data.MaxYawRate;
             SetTimeToMaxSpeed(data.TimeToMaxSpeed);
+            // Copia propia: los cambios de la partida nunca tocan la ficha.
+            Stability = data.Stability.Clone();
+            Stability.Sanitize(RequiredYawRate);
         }
 
         public CarDataSO Data => _data;
@@ -33,20 +38,16 @@ namespace DriftPaint.Cars
         public float TimeToMaxSpeed => _timeToMaxSpeed;
         public float BrakeDeceleration { get; private set; }
         public float MaxYawRate { get; private set; }
+        /// <summary>Estabilidad efectiva del auto en la partida.</summary>
+        public StabilitySettings Stability { get; }
+        /// <summary>Giro más rápido (rad/s) que puede pedir el manejo.</summary>
+        public float RequiredYawRate => _data.RequiredYawRate(MaxYawRate);
 
         public float MaxReverseSpeed => _data.MaxReverseSpeed;
         public float ReverseAcceleration => _data.ReverseAcceleration;
         public float CoastDeceleration => _data.CoastDeceleration;
         public float SetpointLead => _data.SetpointLead;
         public float MaxGrip => _data.MaxGrip;
-        public float ExtraGravity => _data.ExtraGravity;
-        public float SuspensionStiffness => _data.SuspensionStiffness;
-        public float SuspensionDamping => _data.SuspensionDamping;
-        public float SuspensionReboundRatio => _data.SuspensionReboundRatio;
-        public float SuspensionTravel => _data.SuspensionTravel;
-        public float FlippedAngle => _data.FlippedAngle;
-        public float FlipDetectTime => _data.FlipDetectTime;
-        public float FlipBlinkTime => _data.FlipBlinkTime;
         public float PaintBoostMultiplier => _data.PaintBoostMultiplier;
         public float DriftMinSpeed => _data.DriftMinSpeed;
         public float DriftGripFactor => _data.DriftGripFactor;
@@ -88,6 +89,14 @@ namespace DriftPaint.Cars
                 BrakeDeceleration = brake;
             if (overrides.TryGetValue(KeyMaxYawRate, out float yaw) && yaw > 0f)
                 MaxYawRate = yaw;
+        }
+
+        /// <summary>Pisa la estabilidad con la de la sala. Va después de ApplyOverrides, que puede cambiar el giro.</summary>
+        public void ApplyOverrides(StabilityOverrides overrides, Action<string> warn = null)
+        {
+            float yaw = RequiredYawRate;
+            Stability.ApplyOverrides(overrides, yaw, warn);
+            Stability.Sanitize(yaw, warn);
         }
 
         void SetTimeToMaxSpeed(float seconds)

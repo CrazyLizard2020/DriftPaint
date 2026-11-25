@@ -3,17 +3,16 @@ using UnityEngine;
 namespace DriftPaint.Cars
 {
     /// <summary>
-    /// Capa 5: convierte el FrameInput en fuerzas en cada FixedUpdate, siempre en cuatro pasos:
+    /// Capa 5: convierte el FrameInput en fuerzas en cada paso de física, siempre en cuatro pasos:
     /// 1. setpoints, 2. estados, 3. PID (velocidad, yaw rate y agarre), 4. fuerzas.
-    /// Solo corre en el auto local. Todas las fuerzas usan ForceMode.Acceleration.
+    /// CarController llama a Tick solo en el auto local. La suspensión, la adherencia y la orientación son de
+    /// CarStabilityController. Todas las fuerzas usan ForceMode.Acceleration.
     /// </summary>
-    [DefaultExecutionOrder(0)]
     public class CarMotorLocomotion : MonoBehaviour
     {
         CarStats _stats;
         CarMovementInput _movementInput;
         CarStatusEffects _statusEffects;
-        CarGroundSensor _groundSensor;
         Rigidbody _rb;
 
         readonly PidController _speedPid = new PidController();
@@ -29,14 +28,13 @@ namespace DriftPaint.Cars
         public float LateralSpeed { get; private set; }
         public bool IsInitialized => _stats != null;
 
-        public void Initialize(CarStats stats, CarMovementInput input, CarStatusEffects effects, CarGroundSensor ground, Rigidbody rb)
+        public void Initialize(CarStats stats, CarMovementInput input, CarStatusEffects effects, Rigidbody rb)
         {
             if (_statusEffects != null) _statusEffects.StunChanged -= OnStunChanged;
 
             _stats = stats;
             _movementInput = input;
             _statusEffects = effects;
-            _groundSensor = ground;
             _rb = rb;
 
             _speedPid.ApplySettings(stats.SpeedPid);
@@ -58,120 +56,65 @@ namespace DriftPaint.Cars
             _speedPid.Reset();
         }
 
-        void FixedUpdate()
+        /// <summary>
+        /// Un paso de conducción. Todo se mide y se aplica sobre la base del piso; los permisos y la mezcla vienen
+        /// del estado de estabilidad de este mismo paso.
+        /// </summary>
+        public void Tick(in StabilityFrame frame, float dt)
         {
             if (_stats == null || _rb == null || _rb.isKinematic) return;
 
-            float dt = Time.fixedDeltaTime;
-            Vector3 localVelocity = transform.InverseTransformDirection(_rb.linearVelocity);
-            ForwardSpeed = localVelocity.z;
-            LateralSpeed = localVelocity.x;
+            SupportBasis basis = frame.CanDrive && frame.Basis.Valid ? frame.Basis : BodyBasis();
+            Vector3 velocity = _rb.linearVelocity;
+            ForwardSpeed = Vector3.Dot(velocity, basis.Forward);
+            LateralSpeed = Vector3.Dot(velocity, basis.Right);
+            float yawRate = Vector3.Dot(_rb.angularVelocity, basis.Normal);
 
-            // Gravedad extra para que el auto se sienta pegado al piso.
-            if (_stats.ExtraGravity > 0f)
-                _rb.AddForce(Vector3.down * _stats.ExtraGravity, ForceMode.Acceleration);
-
-            // Las ruedas sostienen el auto con resortes; la carrocería no toca el piso.
-            ApplySuspension();
-
-            // Pasos 1 y 2: setpoints ajustados por los estados.
-            UpdateSetpoints(localVelocity.z, dt);
-
-            if (_groundSensor != null && !_groundSensor.IsGrounded)
+            if (frame.JustLostSupport || !frame.CanDrive) ResetPids();
+            if (frame.JustRegainedSupport)
             {
-                // En el aire no hay motor, giro ni agarre, y los PID no acumulan error hasta aterrizar.
-                ResetControllers(keepTargetSpeed: true);
-                return;
+                // Vuelve a manejar con la velocidad que trae: sin tirones por lo que se pidió en el aire.
+                _targetSpeed = ForwardSpeed;
+                _speedPid.ResetFromMeasurement(ForwardSpeed);
+                _yawRatePid.ResetFromMeasurement(yawRate);
+                _gripPid.ResetFromMeasurement(LateralSpeed);
             }
 
-            Vector3 groundNormal = _groundSensor != null ? _groundSensor.GroundNormal : Vector3.up;
-            Vector3 forward = Vector3.ProjectOnPlane(transform.forward, groundNormal).normalized;
-            Vector3 right = Vector3.ProjectOnPlane(transform.right, groundNormal).normalized;
+            // Pasos 1 y 2: setpoints ajustados por los estados.
+            UpdateSetpoints(ForwardSpeed, dt);
+            if (!frame.CanDrive) return;
+
+            float blend = frame.DriveBlend;
+            bool integrate = blend >= 1f;
 
             // Paso 3 y 4: PID de velocidad (PI).
-            float accel = _speedPid.Evaluate(_targetSpeed, localVelocity.z, dt);
-            _rb.AddForce(forward * accel, ForceMode.Acceleration);
+            float accel = _speedPid.Evaluate(_targetSpeed, ForwardSpeed, dt, integrate);
+            _rb.AddForce(basis.Forward * (accel * blend), ForceMode.Acceleration);
 
             // PID de yaw rate (PD).
-            float yawRate = transform.InverseTransformDirection(_rb.angularVelocity).y;
-            float yawAccel = _yawRatePid.Evaluate(_targetYawRate, yawRate, dt);
-            _rb.AddRelativeTorque(0f, yawAccel, 0f, ForceMode.Acceleration);
+            if (frame.CanApplySteering)
+            {
+                float yawAccel = _yawRatePid.Evaluate(_targetYawRate, yawRate, dt, integrate);
+                _rb.AddTorque(basis.Normal * (yawAccel * blend), ForceMode.Acceleration);
+            }
 
             // PID de agarre lateral, limitado por MaxGrip (baja durante el drift).
-            float lateralAccel = _gripPid.Evaluate(0f, localVelocity.x, dt);
-            float grip = _stats.MaxGrip * (_statusEffects != null ? _statusEffects.GripMultiplier : 1f);
-            lateralAccel = Mathf.Clamp(lateralAccel, -grip, grip);
-            _rb.AddForce(right * lateralAccel, ForceMode.Acceleration);
+            if (frame.CanApplyGrip)
+            {
+                float lateralAccel = _gripPid.Evaluate(0f, LateralSpeed, dt, integrate);
+                float grip = _stats.MaxGrip * (_statusEffects != null ? _statusEffects.GripMultiplier : 1f);
+                lateralAccel = Mathf.Clamp(lateralAccel, -grip, grip);
+                _rb.AddForce(basis.Right * (lateralAccel * blend), ForceMode.Acceleration);
+            }
 
             ApplySafetySpeedLimit();
         }
 
-        /// <summary>
-        /// Suspensión por rueda: cada rueda empuja hacia arriba del auto con un resorte amortiguado
-        /// según qué tan comprimida está. La altura de reposo se calcula para que, con el peso
-        /// repartido entre las ruedas, el centro de cada rueda quede a la altura de su radio.
-        /// Así las rampas y los bordes los sube la rueda y no el canto del collider.
-        /// </summary>
-        /// <remarks>
-        /// El resorte solo no alcanza a levantar el auto cuando entra rápido a una rampa: la rueda
-        /// se hunde hasta el tope y la carrocería termina chocando. Para eso hay un tope de
-        /// suspensión: si la rueda se hunde más que BumpStopRatio de su radio, se anula la parte
-        /// de la velocidad de esa rueda que va contra la superficie. La rueda se comporta como un
-        /// contacto rígido y la velocidad se redirige a lo largo de la rampa en lugar de perderse.
-        /// </remarks>
-        void ApplySuspension()
+        SupportBasis BodyBasis()
         {
-            if (_groundSensor == null) return;
-
-            CarGroundSensor.WheelContact[] contacts = _groundSensor.Contacts;
-            Transform[] probes = _groundSensor.Probes;
-            int wheelCount = contacts.Length;
-            if (wheelCount == 0) return;
-
-            float stiffness = _stats.SuspensionStiffness;
-            float totalGravity = -Physics.gravity.y + _stats.ExtraGravity;
-            float restHeight = _groundSensor.WheelRadius + totalGravity / (wheelCount * stiffness);
-            float bumpStopHeight = _groundSensor.WheelRadius * BumpStopRatio;
-            Vector3 up = transform.up;
-
-            for (int i = 0; i < wheelCount; i++)
-            {
-                CarGroundSensor.WheelContact contact = contacts[i];
-                if (!contact.HasHit || probes[i] == null) continue;
-
-                float compression = restHeight - contact.Height;
-                if (compression <= 0f) continue;
-
-                Vector3 wheelPosition = probes[i].position;
-                Vector3 pointVelocity = _rb.GetPointVelocity(wheelPosition);
-
-                if (contact.Height < bumpStopHeight)
-                {
-                    float intoSurface = Vector3.Dot(pointVelocity, contact.Normal);
-                    if (intoSurface < 0f)
-                    {
-                        // Se reparte entre las ruedas: el impulso en un punto también hace girar
-                        // el auto, así que aplicarlo entero en cada rueda lo haría rebotar.
-                        _rb.AddForceAtPosition(contact.Normal * (-intoSurface * BumpStopShare), wheelPosition, ForceMode.VelocityChange);
-                    }
-                }
-
-                // Al estirarse (velocidad hacia arriba) amortigua más: el resorte devuelve la energía
-                // del aterrizaje de a poco en lugar de lanzar el auto hacia arriba.
-                float verticalSpeed = Vector3.Dot(pointVelocity, up);
-                float damping = _stats.SuspensionDamping * (verticalSpeed > 0f ? _stats.SuspensionReboundRatio : 1f);
-                float accel = stiffness * compression - damping * verticalSpeed;
-                if (accel <= 0f) continue;
-
-                _rb.AddForceAtPosition(up * accel, wheelPosition, ForceMode.Acceleration);
-            }
+            Quaternion rotation = _rb.rotation;
+            return new SupportBasis { Valid = true, Normal = rotation * Vector3.up, Forward = rotation * Vector3.forward, Right = rotation * Vector3.right };
         }
-
-        /// <summary>Altura del centro de la rueda, como fracción del radio, a la que actúa el tope de suspensión.</summary>
-        const float BumpStopRatio = 0.6f;
-
-        /// <summary>Parte de la velocidad contra la superficie que anula cada rueda en el tope, por paso de física.</summary>
-        const float BumpStopShare = 0.5f;
 
         void UpdateSetpoints(float forwardSpeed, float dt)
         {
@@ -241,18 +184,19 @@ namespace DriftPaint.Cars
             }
         }
 
-        public void ResetControllers() => ResetControllers(keepTargetSpeed: false);
+        /// <summary>PID y velocidades pedidas en cero.</summary>
+        public void ResetControllers()
+        {
+            ResetPids();
+            _targetSpeed = 0f;
+            _targetYawRate = 0f;
+        }
 
-        void ResetControllers(bool keepTargetSpeed)
+        void ResetPids()
         {
             _speedPid.Reset();
             _yawRatePid.Reset();
             _gripPid.Reset();
-            if (!keepTargetSpeed)
-            {
-                _targetSpeed = 0f;
-                _targetYawRate = 0f;
-            }
         }
 
         /// <summary>Reubicar auto: velocidad en 0 y PID limpios.</summary>

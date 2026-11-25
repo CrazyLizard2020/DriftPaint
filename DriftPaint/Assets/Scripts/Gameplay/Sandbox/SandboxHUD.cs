@@ -45,10 +45,10 @@ namespace DriftPaint.Sandbox
             _car = car;
             _telemetry = telemetry;
             _carName = carName;
-            _flipRecovery = car != null ? car.GetComponent<CarFlipRecovery>() : null;
+            _flipWarning = car != null ? car.GetComponent<CarFlipWarning>() : null;
         }
 
-        CarFlipRecovery _flipRecovery;
+        CarFlipWarning _flipWarning;
 
         void Update()
         {
@@ -82,7 +82,6 @@ namespace DriftPaint.Sandbox
         void UpdateStatus(float kmh)
         {
             CarStatusEffects fx = _car.StatusEffects;
-            CarGroundSensor ground = _car.GroundSensor;
 
             _builder.Clear();
             _builder.Append("<b>").Append(_carName).Append("</b>\n");
@@ -102,14 +101,14 @@ namespace DriftPaint.Sandbox
             if (fx.IsBoosting) AppendColored(DriftPaintPalette.Cyan, GameLanguage.Text("BOOST de pintura"));
             if (fx.IsStunned) AppendColored(DriftPaintPalette.Hex(0xE94A3A), string.Format(GameLanguage.Text("ATURDIDO  {0:0.0} s"), fx.StunTimeLeft));
             if (fx.IsSlowed) AppendColored(DriftPaintPalette.SkyLavender, string.Format(GameLanguage.Text("LENTO  {0:0.0} s"), fx.SlowTimeLeft));
-            if (!ground.IsGrounded) AppendColored(DriftPaintPalette.SunsetGold, GameLanguage.Text("En el aire"));
+            if (!_car.Stability.IsGrounded) AppendColored(DriftPaintPalette.SunsetGold, GameLanguage.Text("En el aire"));
 
-            if (_flipRecovery != null)
+            if (_flipWarning != null)
             {
-                if (_flipRecovery.State == CarFlipRecovery.FlipState.Flipped)
+                if (_flipWarning.IsWarning && _flipWarning.TimeLeft > 0f)
+                    AppendColored(DriftPaintPalette.SunsetGold, string.Format(GameLanguage.Text("Enderezando en {0:0.0} s"), _flipWarning.TimeLeft));
+                else if (_flipWarning.IsFlipped || _flipWarning.IsWarning)
                     AppendColored(DriftPaintPalette.SunsetGold, GameLanguage.Text("Dado vuelta"));
-                else if (_flipRecovery.State == CarFlipRecovery.FlipState.Blinking)
-                    AppendColored(DriftPaintPalette.SunsetGold, string.Format(GameLanguage.Text("Enderezando en {0:0.0} s"), _flipRecovery.TimeToRecover));
             }
 
             _statusText.SetText(_builder);
