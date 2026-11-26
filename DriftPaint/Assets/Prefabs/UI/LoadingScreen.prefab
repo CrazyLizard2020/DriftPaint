@@ -5231,6 +5231,7 @@ GameObject:
   - component: {fileID: 9199418948598302284}
   - component: {fileID: 8990360720921153835}
   - component: {fileID: 9013244345755042162}
+  - component: {fileID: 2952769274381358487}
   m_Layer: 0
   m_Name: Label
   m_TagString: Untagged
@@ -5357,6 +5358,19 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!114 &2952769274381358487
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7643631599656060909}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9bd04e35155f1b8489728b0d82529fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.TranslatedLabel
+  _key: CONSEJO
 --- !u!1 &8089058300790663762
 GameObject:
   m_ObjectHideFlags: 0

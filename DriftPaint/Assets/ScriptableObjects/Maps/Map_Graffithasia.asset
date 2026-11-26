@@ -30,5 +30,5 @@ MonoBehaviour:
       hay desempate."
   _tips:
   - "Cuid\xE1 tus aros: cada rival que los cruza les quita una carga."
-  _minimumSeconds: 8
+  _minimumSeconds: 14
   _maximumWaitSeconds: 20

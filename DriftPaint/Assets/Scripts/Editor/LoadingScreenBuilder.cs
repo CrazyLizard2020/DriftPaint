@@ -137,7 +137,47 @@ namespace DriftPaint.EditorTools
             if (AssetDatabase.LoadAssetAtPath<MapLibrarySO>(LibraryPath) == null) return true;
             if (AssetDatabase.LoadAssetAtPath<MapDefinitionSO>(GraffithasiaPath) == null) return true;
             if (AssetDatabase.LoadAssetAtPath<AudioClip>(StingPath) == null) return true;
-            return TextsMissing() || TipsMissing();
+            return TextsMissing() || TipsMissing() || UntranslatedTipLabel(AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath)) != null;
+        }
+
+        /// <summary>
+        /// El rótulo fijo de los consejos. Si todavía no sigue al idioma elegido, lo devuelve para que se le agregue el
+        /// componente que lo traduce; el resto del prefab, incluidos los ajustes hechos a mano, no se toca.
+        /// </summary>
+        static TMP_Text UntranslatedTipLabel(GameObject prefab)
+        {
+            if (prefab == null) return null;
+            Transform label = prefab.transform.Find("Content/Tips/Label");
+            if (label == null)
+                label = prefab.GetComponentsInChildren<TMP_Text>(true)
+                              .FirstOrDefault(text => text.name == "Label" && text.transform.parent.name == "Tips")?.transform;
+            if (label == null || !label.TryGetComponent(out TMP_Text text)) return null;
+            return text.GetComponent<TranslatedLabel>() == null ? text : null;
+        }
+
+        static void Translate(TMP_Text label, string key)
+        {
+            var binding = label.GetComponent<TranslatedLabel>() ?? label.gameObject.AddComponent<TranslatedLabel>();
+            var data = new SerializedObject(binding);
+            data.FindProperty("_key").stringValue = key;
+            data.ApplyModifiedPropertiesWithoutUndo();
+        }
+
+        static void TranslateTipLabel()
+        {
+            GameObject contents = PrefabUtility.LoadPrefabContents(PrefabPath);
+            try
+            {
+                TMP_Text label = UntranslatedTipLabel(contents);
+                if (label == null) return;
+                // La clave es el texto que tiene el rótulo, así un cambio hecho a mano en el prefab se respeta.
+                Translate(label, string.IsNullOrEmpty(label.text) ? TipLabel : label.text);
+                PrefabUtility.SaveAsPrefabAsset(contents, PrefabPath);
+            }
+            finally
+            {
+                PrefabUtility.UnloadPrefabContents(contents);
+            }
         }
 
         /// <summary>
@@ -155,6 +195,7 @@ namespace DriftPaint.EditorTools
 
             GameObject prefab = AssetDatabase.LoadAssetAtPath<GameObject>(PrefabPath);
             if (PrefabOutdated(prefab)) prefab = BuildPrefab();
+            else if (UntranslatedTipLabel(prefab) != null) TranslateTipLabel();
             MapDefinitionSO graffithasia = EditorAssetUtility.LoadOrCreate(GraffithasiaPath, CreateGraffithasia);
             MapDefinitionSO royal = EditorAssetUtility.LoadOrCreate(RoyalDriftRoadPath, () => CreateMap(MapCatalog.RoyalDriftRoadId));
             FillTips(graffithasia, GraffithasiaTips);
@@ -641,6 +682,7 @@ namespace DriftPaint.EditorTools
                 DriftPaintPalette.Cyan, FontStyles.Bold | FontStyles.Italic, new Vector2(0f, 1f), new Vector2(0f, 1f), Vector2.zero,
                 new Vector2(730f, 30f));
             label.text = TipLabel;
+            Translate(label, TipLabel);
             text = MenuSceneBuilder.CreateLabel(box, "Text", MenuSceneBuilder.BodyFont, 26f, TextAlignmentOptions.TopLeft,
                 DriftPaintPalette.OffWhite.WithAlpha(0.92f), FontStyles.Normal, new Vector2(0f, 1f), new Vector2(0f, 1f),
                 new Vector2(0f, -32f), new Vector2(730f, 68f));

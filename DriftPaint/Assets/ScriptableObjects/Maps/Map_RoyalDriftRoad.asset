@@ -17,5 +17,6 @@ MonoBehaviour:
   _loadingBackground: {fileID: 0}
   _tagline: 
   _steps: []
-  _minimumSeconds: 6
+  _tips: []
+  _minimumSeconds: 12
   _maximumWaitSeconds: 20
