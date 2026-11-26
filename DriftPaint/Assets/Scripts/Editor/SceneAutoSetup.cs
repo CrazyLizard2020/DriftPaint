@@ -74,6 +74,9 @@ namespace DriftPaint.EditorTools
             new Step(MatchSceneBuilder.ScenePath, "postproceso, cámara y luz de atardecer", ArtDirectionBuilder.MatchPending, ArtDirectionBuilder.InstallMatch),
             new Step(RoyalDriftRoadMap.ScenePath, "postproceso, cámara y luz de atardecer", ArtDirectionBuilder.MatchPending, ArtDirectionBuilder.InstallMatch),
             new Step(MenuSceneBuilder.ScenePath, "postproceso del menú", ArtDirectionBuilder.MenuPending, ArtDirectionBuilder.InstallMenu),
+            new Step(MenuSceneBuilder.ScenePath, "miniatura del mapa en el lobby", LoadingScreenBuilder.LobbyPending, LoadingScreenBuilder.InstallLobby),
+            new Step(MatchSceneBuilder.ScenePath, new[] { typeof(DriftPaint.UI.Feed.MatchFeed) }, MatchFeedBuilder.Install),
+            new Step(RoyalDriftRoadMap.ScenePath, new[] { typeof(DriftPaint.UI.Feed.MatchFeed) }, MatchFeedBuilder.Install),
         };
 
         /// <summary>Recursos compartidos (prefabs, mallas generadas) que el código espera en una versión dada.</summary>
@@ -101,6 +104,7 @@ namespace DriftPaint.EditorTools
             new AssetStep("modelo del barril", BarrelArtBuilder.Outdated, BarrelArtBuilder.Apply),
             new AssetStep("japonés y chino", CjkLanguageBuilder.Outdated, CjkLanguageBuilder.Apply),
             new AssetStep("dirección de arte: contorno, materiales entintados y postproceso", ArtDirectionBuilder.Outdated, ArtDirectionBuilder.Apply),
+            new AssetStep("pantallas de carga y miniaturas de los mapas", LoadingScreenBuilder.Outdated, LoadingScreenBuilder.Apply),
         };
 
         static SceneAutoSetup()

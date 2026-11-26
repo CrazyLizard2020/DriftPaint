@@ -44,6 +44,7 @@ namespace DriftPaint.Networking
         RoomSummary _currentRoom;
         MatchPhase _phase = MatchPhase.Lobby;
         double _matchStartTime;
+        double _loadStartTime;
         string _currentMatchId;
         bool _disconnectRequested;
         bool _shuttingDown;
@@ -116,6 +117,7 @@ namespace DriftPaint.Networking
         public IReadOnlyList<PlayerSummary> Players => _players;
         public MatchPhase Phase => _phase;
         public double MatchStartTime => _matchStartTime;
+        public double LoadStartTime => _loadStartTime;
         public int ScoreA => _scoreA;
         public int ScoreB => _scoreB;
         /// <summary>Dupla que acompaña al identificador de partida durante todas sus rondas.</summary>
@@ -163,6 +165,7 @@ namespace DriftPaint.Networking
         public event Action PlayersChanged;
         public event Action<MatchPhase> PhaseChanged;
         public event Action<ChatMessage> ChatReceived;
+        public event Action<RoomNotice> NoticeRaised;
         public event Action<FireInfo> FireReceived;
         public event Action<ImpactInfo> ImpactReceived;
         public event Action<Vector3, bool> RingChargeReceived;
@@ -485,6 +488,57 @@ namespace DriftPaint.Networking
             });
         }
 
+        public bool LocalLoaded => TryGetPlayer(LocalActorId, out var player) && player.IsLoaded;
+
+        // Los desconectados con lugar reservado no frenan el arranque: si vuelven, entran a la partida empezada.
+        public (int loaded, int required) MatchLoading
+        {
+            get
+            {
+                int loaded = 0, required = 0;
+                foreach (var player in _players)
+                {
+                    if (player.IsInactive) continue;
+                    required++;
+                    if (player.IsLoaded) loaded++;
+                }
+                return (loaded, required);
+            }
+        }
+
+        public void SetLocalLoaded()
+        {
+            if (_state != ConnectionState.InRoom || !_provider.InRoom || string.IsNullOrEmpty(_currentMatchId) || LocalLoaded) return;
+            _provider.SetPlayerProperties(LocalActorId, new Dictionary<string, object> { { PlayerKeys.Loaded, _currentMatchId } });
+        }
+
+        public bool LocalDoneReading => TryGetPlayer(LocalActorId, out var player) && player.HasRead;
+
+        public int MatchDoneReading
+        {
+            get
+            {
+                int read = 0;
+                foreach (var player in _players)
+                    if (!player.IsInactive && player.IsLoaded && player.HasRead) read++;
+                return read;
+            }
+        }
+
+        public void SetLocalDoneReading()
+        {
+            if (_state != ConnectionState.InRoom || !_provider.InRoom || _phase != MatchPhase.Countdown ||
+                string.IsNullOrEmpty(_currentMatchId) || LocalDoneReading) return;
+            _provider.SetPlayerProperties(LocalActorId, new Dictionary<string, object> { { PlayerKeys.Read, _currentMatchId } });
+        }
+
+        public bool BeginCountdown(double startTime)
+        {
+            if (_state != ConnectionState.InRoom || !IsMaster || _phase != MatchPhase.Countdown) return false;
+            if (_matchStartTime > 0 && startTime >= _matchStartTime) return false;
+            return _provider.SetRoomProperties(new Dictionary<string, object> { { RoomKeys.StartTime, startTime } });
+        }
+
         public bool RequestStartMatch()
         {
             if (_state != ConnectionState.InRoom || !IsMaster || !_phase.IsBetweenMatches()) return false;
@@ -505,7 +559,9 @@ namespace DriftPaint.Networking
             {
                 { RoomKeys.State, (byte)MatchPhase.Countdown },
                 { RoomKeys.MatchId, Guid.NewGuid().ToString("N") },
-                { RoomKeys.StartTime, ServerTime + RoomRules.CountdownSeconds },
+                // Sin hora de arranque: la cuenta regresiva se fija cuando todos terminan de cargar la escena.
+                { RoomKeys.StartTime, 0d },
+                { RoomKeys.LoadStart, ServerTime },
                 { RoomKeys.Round, 1 },
                 { RoomKeys.Roster, CountRoundTeams() },
                 { RoomKeys.Rings, "" },
@@ -833,6 +889,7 @@ namespace DriftPaint.Networking
             ResetSentScores();
             SetState(ConnectionState.Reconnecting);
             ChatReceived?.Invoke(ChatMessage.System("Se cortó la conexión. Volviendo a la partida..."));
+            NoticeRaised?.Invoke(new RoomNotice(RoomNoticeKind.LocalConnectionLost));
             TryRejoin();
         }
 
@@ -910,6 +967,7 @@ namespace DriftPaint.Networking
             if (rejoined)
             {
                 ChatReceived?.Invoke(ChatMessage.System("Volviste a la partida."));
+                NoticeRaised?.Invoke(new RoomNotice(RoomNoticeKind.LocalRejoined));
                 Rejoined?.Invoke();
             }
             else
@@ -1005,16 +1063,22 @@ namespace DriftPaint.Networking
 
         void OnPlayerEntered(int actorId)
         {
+            // Un jugador que estaba desconectado con el lugar reservado vuelve como el mismo actor.
+            bool returning = TryGetPlayer(actorId, out PlayerSummary before) && before.IsInactive;
             RefreshPlayers();
             if (IsMaster) EnsureTeams();
 
             PlayersChanged?.Invoke();
             ChatReceived?.Invoke(ChatMessage.System("{0} entró a la sala.", NameOf(actorId)));
+            TryGetPlayer(actorId, out PlayerSummary player);
+            NoticeRaised?.Invoke(new RoomNotice(returning ? RoomNoticeKind.Rejoined : RoomNoticeKind.Joined, actorId,
+                NameOf(actorId), player.Team));
         }
 
         void OnPlayerLeft(int actorId)
         {
             string name = NameOf(actorId);
+            bool wasInactive = TryGetPlayer(actorId, out PlayerSummary before) && before.IsInactive;
             RefreshPlayers();
             bool stillReserved = TryGetPlayer(actorId, out PlayerSummary player) && player.IsInactive;
             if (stillReserved && IsMaster && _phase.IsBetweenMatches())
@@ -1023,6 +1087,8 @@ namespace DriftPaint.Networking
 
             PlayersChanged?.Invoke();
             ChatReceived?.Invoke(ChatMessage.System(stillReserved ? "{0} se desconectó." : "{0} salió de la sala.", name));
+            RoomNoticeKind kind = stillReserved ? RoomNoticeKind.Disconnected : wasInactive ? RoomNoticeKind.TimedOut : RoomNoticeKind.Left;
+            NoticeRaised?.Invoke(new RoomNotice(kind, actorId, name, before.Team));
         }
 
         void OnMasterSwitched(int newMasterActorId)
@@ -1036,6 +1102,8 @@ namespace DriftPaint.Networking
             PlayersChanged?.Invoke();
             RoomChanged?.Invoke();
             ChatReceived?.Invoke(ChatMessage.System("{0} ahora es el host.", NameOf(newMasterActorId)));
+            TryGetPlayer(newMasterActorId, out PlayerSummary host);
+            NoticeRaised?.Invoke(new RoomNotice(RoomNoticeKind.NewHost, newMasterActorId, NameOf(newMasterActorId), host.Team));
         }
 
         void OnRoomPropertiesChanged(IReadOnlyDictionary<string, object> changed)
@@ -1180,6 +1248,7 @@ namespace DriftPaint.Networking
             _players.Clear();
             _phase = MatchPhase.Lobby;
             _matchStartTime = 0;
+            _loadStartTime = 0;
             _scoreA = 0;
             _scoreB = 0;
             _round = 0;
@@ -1206,6 +1275,7 @@ namespace DriftPaint.Networking
             RingSnapshot = Get(room.Properties, RoomKeys.Rings) as string;
             _roundTeams = Get(room.Properties, RoomKeys.Roster) as int[];
             _matchStartTime = ToDouble(Get(room.Properties, RoomKeys.StartTime), 0);
+            _loadStartTime = ToDouble(Get(room.Properties, RoomKeys.LoadStart), 0);
             _scoreA = ToInt(Get(room.Properties, RoomKeys.ScoreA), 0);
             _scoreB = ToInt(Get(room.Properties, RoomKeys.ScoreB), 0);
             _round = ToInt(Get(room.Properties, RoomKeys.Round), 0);
@@ -1237,8 +1307,13 @@ namespace DriftPaint.Networking
                 string car = Get(player.Properties, PlayerKeys.Car) as string;
                 bool ready = _phase.IsBetweenMatches() && !player.IsMaster && !player.IsInactive &&
                     Get(player.Properties, PlayerKeys.Ready) is string token && token == ReadyToken;
+                // El identificador de partida es nuevo en cada arranque: una carga de la partida anterior no cuenta.
+                bool loaded = !string.IsNullOrEmpty(_currentMatchId) &&
+                    Get(player.Properties, PlayerKeys.Loaded) is string match && match == _currentMatchId;
+                bool read = !string.IsNullOrEmpty(_currentMatchId) &&
+                    Get(player.Properties, PlayerKeys.Read) is string readMatch && readMatch == _currentMatchId;
                 _players.Add(new PlayerSummary(player.ActorNumber, name, team, player.IsMaster, player.IsLocal, player.IsInactive,
-                    points, standing, barrels, car, ready));
+                    points, standing, barrels, car, ready, loaded, read));
             }
             _players.Sort((a, b) => a.ActorId.CompareTo(b.ActorId));
         }
@@ -1264,7 +1339,7 @@ namespace DriftPaint.Networking
                 PlayerSummary p = _players[i];
                 if (p.ActorId != actorId) continue;
                 _players[i] = new PlayerSummary(p.ActorId, p.Nickname, team, p.IsMaster, p.IsLocal, p.IsInactive,
-                    p.Points, p.Standing, p.Barrels, p.CarId, p.IsReady);
+                    p.Points, p.Standing, p.Barrels, p.CarId, p.IsReady, p.IsLoaded, p.HasRead);
                 break;
             }
             _provider.SetPlayerProperties(actorId, new Dictionary<string, object> { { PlayerKeys.Team, team } });

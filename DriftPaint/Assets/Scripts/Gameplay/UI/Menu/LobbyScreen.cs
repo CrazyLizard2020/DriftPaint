@@ -33,6 +33,8 @@ namespace DriftPaint.UI.Menu
 
         [Header("Configuración")]
         [SerializeField] TMP_Text _mapText;
+        [Tooltip("Miniatura del mapa elegido, tomada de su MapDefinitionSO.")]
+        [SerializeField] Image _mapThumbnail;
         [Tooltip("Flechas del mapa. Solo las ve el host, y solo si LiveOps habilita más de un mapa.")]
         [SerializeField] Button _mapPrevious;
         [SerializeField] Button _mapNext;
@@ -131,6 +133,12 @@ namespace DriftPaint.UI.Menu
             if (_roomTitleText != null) _roomTitleText.text = room.Title;
             if (_roomIdText != null) _roomIdText.text = $"ID: {room.Id}";
             if (_mapText != null) _mapText.text = MapDisplayName(room.MapId);
+            if (_mapThumbnail != null)
+            {
+                Sprite thumbnail = MapLibrarySO.Find(room.MapId)?.Thumbnail;
+                _mapThumbnail.sprite = thumbnail;
+                _mapThumbnail.enabled = thumbnail != null;
+            }
             if (_modeText != null) _modeText.text = GameLanguage.Text("Pintura");
             if (_maxPlayersText != null) _maxPlayersText.text = room.MaxPlayers.ToString();
             if (_durationText != null) _durationText.text = RoomsScreen.FormatDuration(room.DurationSeconds);

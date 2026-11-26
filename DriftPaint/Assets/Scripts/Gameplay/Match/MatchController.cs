@@ -21,6 +21,16 @@ namespace DriftPaint.Match
         public const int TiebreakSeconds = 60;
         /// <summary>Segundos entre el empate y el arranque del desempate, para que todos entiendan qué pasó.</summary>
         public const float TiebreakPauseSeconds = 3f;
+        /// <summary>Largo del 3, 2, 1 después de que todos cargan.</summary>
+        public const float CountdownSeconds = 3f;
+        /// <summary>
+        /// Margen entre que el Master publica la hora de arranque y el final de la pantalla de carga, para que
+        /// la publicación llegue a todos antes de que la pantalla se levante.
+        /// </summary>
+        const double RevealLeadSeconds = 0.75;
+        /// <summary>Tiempos de carga si el mapa no tiene presentación propia.</summary>
+        const float DefaultMinimumLoadingSeconds = 5f;
+        const float DefaultMaximumLoadingSeconds = 20f;
 
         [SerializeField] MatchScore _score;
         [Tooltip("Segundos en la pantalla de resultados sin elegir nada antes de salir solo.")]
@@ -54,6 +64,12 @@ namespace DriftPaint.Match
         // Equipos que tuvieron jugadores en esta partida: si uno se queda sin nadie, pierde por abandono.
         bool _seenTeamA;
         bool _seenTeamB;
+        // Carga: cuándo se vio empezar (si la sala no lo publicó), el último aviso propio y el último pedido de arranque.
+        double _loadSeenAt = -1;
+        double _loadedReportAt = -1;
+        double _countdownRequestedAt = -1;
+        int _firstFrame;
+        MapDefinitionSO _map;
 
         /// <summary>Estado efectivo: el publicado, adelantado si la cuenta regresiva ya terminó.</summary>
         public MatchPhase Phase => _phase;
@@ -79,6 +95,10 @@ namespace DriftPaint.Match
 
         /// <summary>Segundos hasta que termina la cuenta regresiva.</summary>
         public float CountdownRemaining => Mathf.Max(0f, (float)(StartTime - Now));
+        /// <summary>Se esperan las cargas de los jugadores: todavía no hay hora de arranque.</summary>
+        public bool WaitingForPlayers => _online && _phase == MatchPhase.Countdown && StartTime <= 0;
+        /// <summary>Se ve el 3, 2, 1: hay hora de arranque y quedan como mucho CountdownSeconds.</summary>
+        public bool ShowsCountdown => _phase == MatchPhase.Countdown && StartTime > 0 && CountdownRemaining <= CountdownSeconds;
         /// <summary>Segundos desde que arrancó la ronda (negativo durante la cuenta regresiva).</summary>
         public float TimeSinceStart => (float)(Now - StartTime);
         public float TimeRemaining => Mathf.Clamp(DurationSeconds - TimeSinceStart, 0f, DurationSeconds);
@@ -96,6 +116,8 @@ namespace DriftPaint.Match
             _online = _mediator != null && _mediator.State == ConnectionState.InRoom;
             if (!_online) TeamPaletteSO.StartSoloMatch();
             _offlineStartTime = Time.timeAsDouble + _offlineCountdown;
+            _firstFrame = Time.frameCount;
+            _map = MapLibrarySO.Find(_online ? _mediator.CurrentRoom.MapId : MapCatalog.MapForScene(gameObject.scene.name));
         }
 
         void OnDestroy()
@@ -123,9 +145,11 @@ namespace DriftPaint.Match
 
             if (_phase == MatchPhase.Results)
             {
-                // El host ya arrancó otra partida: se pasa por el menú, que carga la escena de nuevo.
+                // El host ya arrancó otra partida: se pasa por el menú, que carga la escena de nuevo. La pantalla
+                // de carga se levanta ya, así el paso por el menú no se ve.
                 if (_online && (published == MatchPhase.Countdown || published.IsRound()))
                 {
+                    if (published == MatchPhase.Countdown) UI.Loading.LoadingScreen.Show(_mediator.CurrentRoom.MapId);
                     Close();
                     return;
                 }
@@ -139,6 +163,8 @@ namespace DriftPaint.Match
                 return;
             }
 
+            if (_online && published == MatchPhase.Countdown) TickLoading();
+
             MatchPhase effective = published;
             if (published == MatchPhase.Countdown && StartTime > 0 && Now >= StartTime)
             {
@@ -149,6 +175,55 @@ namespace DriftPaint.Match
 
             if (_online && CheckForfeit()) return;
             if (TimeUp && IsAuthority) Resolve();
+        }
+
+        /// <summary>
+        /// Carga sincronizada. Cada cliente avisa a la sala cuando su escena ya corrió un cuadro completo (todos
+        /// los Start hechos y el auto pedido). El Master espera a que avisen todos los conectados, respeta el
+        /// mínimo de la pantalla de carga del mapa para que se puedan leer las instrucciones y publica la hora
+        /// de arranque; si alguien no termina en el máximo del mapa, arranca igual sin él.
+        /// </summary>
+        void TickLoading()
+        {
+            double now = Time.unscaledTimeAsDouble;
+            // El aviso se repite si no se ve reflejado (por ejemplo, si se cortó y se volvió a la sala).
+            if (Time.frameCount > _firstFrame + 1 && !_mediator.LocalLoaded &&
+                (_loadedReportAt < 0 || now - _loadedReportAt >= RequestRetrySeconds))
+            {
+                _loadedReportAt = now;
+                _mediator.SetLocalLoaded();
+            }
+
+            if (!IsAuthority) return;
+
+            var (loaded, required) = _mediator.MatchLoading;
+            bool everyone = _mediator.LocalLoaded && loaded >= required;
+            // Todos cargaron y marcaron las instrucciones como leídas: no hace falta esperar el mínimo.
+            bool everyoneRead = everyone && _mediator.MatchDoneReading >= required;
+            double earliest = Now + RevealLeadSeconds + CountdownSeconds;
+
+            if (StartTime > 0)
+            {
+                // La hora ya está publicada: solo se adelanta mientras la pantalla de carga sigue a la vista.
+                if (!everyoneRead || StartTime <= earliest + RevealLeadSeconds) return;
+                if (_countdownRequestedAt >= 0 && now - _countdownRequestedAt < RequestRetrySeconds) return;
+                _countdownRequestedAt = now;
+                _mediator.BeginCountdown(earliest);
+                return;
+            }
+
+            if (_loadSeenAt < 0) _loadSeenAt = Now;
+            double loadStart = _mediator.LoadStartTime > 0 ? _mediator.LoadStartTime : _loadSeenAt;
+            float minimum = _map != null ? _map.MinimumSeconds : DefaultMinimumLoadingSeconds;
+            float maximum = _map != null ? _map.MaximumWaitSeconds : DefaultMaximumLoadingSeconds;
+
+            bool timedOut = Now - loadStart >= maximum;
+            if (!everyone && !timedOut) return;
+            if (_countdownRequestedAt >= 0 && now - _countdownRequestedAt < RequestRetrySeconds) return;
+            _countdownRequestedAt = now;
+
+            double reveal = everyoneRead ? Now + RevealLeadSeconds : Math.Max(Now + RevealLeadSeconds, loadStart + minimum);
+            _mediator.BeginCountdown(reveal + CountdownSeconds);
         }
 
         /// <summary>

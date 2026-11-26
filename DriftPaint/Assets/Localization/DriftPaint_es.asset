@@ -738,27 +738,174 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875784
-    m_Localized: "Izq./Der."
+    m_Localized: Izq./Der.
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875785
-    m_Localized: "ATURDIDO  {0:0.0} s"
+    m_Localized: ATURDIDO  {0:0.0} s
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875786
-    m_Localized: "LENTO  {0:0.0} s"
+    m_Localized: LENTO  {0:0.0} s
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875787
-    m_Localized: "CANCELAR LISTO"
+    m_Localized: CANCELAR LISTO
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875788
-    m_Localized: "ESPERANDO · {0}/{1} LISTOS"
+    m_Localized: "ESPERANDO \xB7 {0}/{1} LISTOS"
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875789
-    m_Localized: "{0} · Preparándose"
+    m_Localized: "{0} \xB7 Prepar\xE1ndose"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519143686144
+    m_Localized: "Cubr\xED la arena con tu color antes de que se acabe el tiempo."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989312
+    m_Localized: "PINT\xC1 EL PISO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989313
+    m_Localized: "Tu auto pinta todo lo que pisa. Pas\xE1 sobre la pintura rival
+      para robarla."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989314
+    m_Localized: "US\xC1 LOS AROS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989315
+    m_Localized: "Salt\xE1 desde la rampa y cruz\xE1 el aro para cargarlo. Cargado,
+      gira y ba\xF1a la zona con tu color. Si lo cruza el rival, le quita una carga."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989316
+    m_Localized: "GAN\xC1 EL TERRITORIO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989317
+    m_Localized: "Al terminar el tiempo gana el equipo con m\xE1s piso pintado. Si
+      empatan, hay desempate."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989318
+    m_Localized: ESPERANDO JUGADORES {0}/{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989319
+    m_Localized: "\xA1TODOS LISTOS! ARRANCA EN {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267884781568
+    m_Localized: CARGANDO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918912
+    m_Localized: CARGADO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918913
+    m_Localized: "\xA1LISTO!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918914
+    m_Localized: ESPERANDO AL RESTO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918915
+    m_Localized: "\xBFSALIR? TOC\xC1 DE NUEVO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918916
+    m_Localized: CONSEJO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918917
+    m_Localized: "Manten\xE9 el drift m\xE1s tiempo: al soltarlo, el turbo es m\xE1s
+      fuerte."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918918
+    m_Localized: "Sobre tu propia pintura aceler\xE1s m\xE1s r\xE1pido."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918919
+    m_Localized: 'Un disparo directo aturde al rival: no acelera ni pinta por un
+      momento.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918920
+    m_Localized: "Junt\xE1 barriles y soltalos en el camino rival: explotan cuando
+      los pisa."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918921
+    m_Localized: "La explosi\xF3n de un barril frena a todos los que agarra cerca."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918922
+    m_Localized: "\xBFQuedaste trabado o dado vuelta? Manten\xE9 Reaparecer para
+      volver a la pista."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918923
+    m_Localized: "Robar pintura rival tambi\xE9n suma a tu puntaje."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918924
+    m_Localized: "Cuid\xE1 tus aros: cada rival que los cruza les quita una carga."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918925
+    m_Localized: '{0} se ha conectado'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918926
+    m_Localized: '{0} se ha reconectado'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918927
+    m_Localized: '{0} se ha desconectado'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918928
+    m_Localized: "{0} abandon\xF3 la partida"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918929
+    m_Localized: "{0} no volvi\xF3 a tiempo"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918930
+    m_Localized: '{0} es ahora el host'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918931
+    m_Localized: "Se perdi\xF3 la conexi\xF3n. Reconectando..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918932
+    m_Localized: Volviste a la partida
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918933
+    m_Localized: '{0} es ahora el MVP'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918934
+    m_Localized: '{0} le ha arrebatado el MVP a {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918935
+    m_Localized: "\xA1El equipo {0} toma la delantera!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918936
+    m_Localized: "\xA1\xDAltimo minuto!"
     m_Metadata:
       m_Items: []
   references:

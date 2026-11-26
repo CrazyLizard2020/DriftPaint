@@ -30,6 +30,8 @@ namespace DriftPaint.Networking
         public const string Title = "title";
         public const string State = "state";
         public const string StartTime = "startTime";
+        /// <summary>Hora del servidor en la que el host arrancó la partida y empezó la carga de todos.</summary>
+        public const string LoadStart = "loadStart";
         public const string Duration = "duration";
         public const string Round = "round";
         public const string Roster = "roundTeams";
@@ -56,9 +58,13 @@ namespace DriftPaint.Networking
         public const string LastPosition = "lastPos";
         public const string Points = "pts";
         public const string Ready = "readyFor";
+        /// <summary>Identificador de la partida cuya escena ya terminó de cargar este jugador.</summary>
+        public const string Loaded = "loadedFor";
+        /// <summary>Identificador de la partida cuyas instrucciones este jugador ya marcó como leídas.</summary>
+        public const string Read = "readFor";
 
         /// <summary>Propiedades que valen solo para una sala. El auto elegido sí se conserva entre salas.</summary>
-        public static readonly string[] RoomScoped = { Team, Barrels, LastPosition, Points, Ready };
+        public static readonly string[] RoomScoped = { Team, Barrels, LastPosition, Points, Ready, Loaded, Read };
     }
 
     /// <summary>Valores fijos de las salas.</summary>
@@ -70,7 +76,6 @@ namespace DriftPaint.Networking
         public const int DurationStepSeconds = 60;
         public const int DefaultDurationSeconds = 120;
         public const int PlayerTtlMs = 30000;
-        public const double CountdownSeconds = 3.0;
         public const int MaxChatLength = 160;
         public const string DefaultMapId = DriftPaint.Match.MapCatalog.DefaultMapId;
     }

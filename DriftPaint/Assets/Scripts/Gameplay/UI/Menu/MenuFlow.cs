@@ -115,15 +115,20 @@ namespace DriftPaint.UI.Menu
                 return;
             }
 
-            string scene = MapCatalog.SceneFor(_mediator.CurrentRoom.MapId);
+            string mapId = _mediator.CurrentRoom.MapId;
+            string scene = MapCatalog.SceneFor(mapId);
             if (!SceneLoader.CanLoad(scene))
             {
+                Loading.LoadingScreen.Hide();
                 ShowError(string.Format(GameLanguage.Text("La escena \"{0}\" no está en la lista de escenas del build. Generala con DriftPaint > Generar escena de partida."), scene));
                 return;
             }
 
             _loadingMatch = SceneLoader.Load(scene, keepReceivedObjects: true);
-            if (_loadingMatch) SetBusy("CARGANDO PARTIDA...");
+            if (!_loadingMatch) return;
+            SetBusy("CARGANDO PARTIDA...");
+            // También al volver a una partida empezada: ahí se cierra apenas termina de cargar la escena.
+            Loading.LoadingScreen.Show(mapId);
         }
 
         IEnumerator WaitForMenu()

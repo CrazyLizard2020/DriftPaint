@@ -107,7 +107,7 @@ namespace DriftPaint.EditorTools
         }
 
         /// <summary>Prepara la escena abierta: pintura de prueba, tres autos y la cámara sin su seguimiento.</summary>
-        static void Stage(Scene scene, out Camera camera, out List<GameObject> cars)
+        internal static void Stage(Scene scene, out Camera camera, out List<GameObject> cars)
         {
             camera = scene.GetRootGameObjects().Select(root => root.GetComponentInChildren<Camera>(true))
                           .FirstOrDefault(c => c != null && c.CompareTag("MainCamera"));
@@ -152,10 +152,12 @@ namespace DriftPaint.EditorTools
             camera.fieldOfView = shot.Fov;
         }
 
-        static void Render(Camera camera, string file, Canvas hud = null)
+        static void Render(Camera camera, string file, Canvas hud = null) => Render(camera, file, Width, Height, hud);
+
+        internal static void Render(Camera camera, string file, int width, int height, Canvas hud = null)
         {
-            var target = RenderTexture.GetTemporary(Width, Height, 24, RenderTextureFormat.DefaultHDR);
-            var display = RenderTexture.GetTemporary(Width, Height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
+            var target = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.DefaultHDR);
+            var display = RenderTexture.GetTemporary(width, height, 24, RenderTextureFormat.ARGB32, RenderTextureReadWrite.sRGB);
             RenderTexture previousTarget = camera.targetTexture;
             RenderTexture previousActive = RenderTexture.active;
             RawImage plate = null;
@@ -188,8 +190,8 @@ namespace DriftPaint.EditorTools
                     hudCamera.targetTexture = null;
                 }
                 RenderTexture.active = display;
-                image = new Texture2D(Width, Height, TextureFormat.RGB24, false);
-                image.ReadPixels(new Rect(0, 0, Width, Height), 0, 0);
+                image = new Texture2D(width, height, TextureFormat.RGB24, false);
+                image.ReadPixels(new Rect(0, 0, width, height), 0, 0);
                 image.Apply();
                 File.WriteAllBytes(file, image.EncodeToPNG());
             }
@@ -301,7 +303,13 @@ namespace DriftPaint.EditorTools
             };
             texture.SetPixels32(pixels);
             texture.Apply();
+            ApplyPaint(scene, texture);
+            return texture;
+        }
 
+        /// <summary>Muestra una grilla de pintura (una celda por píxel) sobre el piso y las rampas de la escena.</summary>
+        internal static void ApplyPaint(Scene scene, Texture2D texture)
+        {
             var block = new MaterialPropertyBlock();
             block.SetTexture("_BaseMap", texture);
             block.SetTexture("_MainTex", texture);
@@ -314,7 +322,6 @@ namespace DriftPaint.EditorTools
                         if (ramps.GetArrayElementAtIndex(i).objectReferenceValue is MeshRenderer ramp)
                             ramp.SetPropertyBlock(block);
                 }
-            return texture;
         }
     }
 }

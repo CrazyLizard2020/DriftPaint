@@ -229,7 +229,8 @@ namespace DriftPaint.Match
                 _clockText.text = $"{whole / 60:00}:{whole % 60:00}";
             }
 
-            bool countdown = phase == MatchPhase.Countdown;
+            // Mientras se espera a los demás (o se ve la pantalla de carga) no hay número que mostrar.
+            bool countdown = _match.ShowsCountdown;
             // El "¡YA!" se ve al arrancar la partida y también al arrancar cada desempate.
             bool go = phase.IsRound() && _match.TimeSinceStart >= 0f && _match.TimeSinceStart < _goMessageSeconds;
             if (_countdownRoot != null && _countdownRoot.activeSelf != (countdown || go))

@@ -101,10 +101,17 @@ namespace DriftPaint.Net
         public readonly int Barrels;
         /// <summary>Auto elegido (identificador del prefab), o null si todavía no eligió.</summary>
         public readonly string CarId;
+        /// <summary>Ya cargó la escena de la partida en curso.</summary>
+        public readonly bool IsLoaded;
+        /// <summary>Marcó como leídas las instrucciones de la pantalla de carga de la partida en curso.</summary>
+        public readonly bool HasRead;
 
         public PlayerSummary(int actorId, string nickname, byte team, bool isMaster, bool isLocal, bool isInactive,
-            int points = 0, int standing = 0, int barrels = -1, string carId = null, bool isReady = false)
+            int points = 0, int standing = 0, int barrels = -1, string carId = null, bool isReady = false, bool isLoaded = false,
+            bool hasRead = false)
         {
+            HasRead = hasRead;
+            IsLoaded = isLoaded;
             IsReady = isReady;
             Barrels = barrels;
             CarId = carId;
@@ -116,6 +123,40 @@ namespace DriftPaint.Net
             IsInactive = isInactive;
             Points = points;
             Standing = standing;
+        }
+    }
+
+    /// <summary>Qué le pasó a un jugador de la sala, o a la conexión propia.</summary>
+    public enum RoomNoticeKind : byte
+    {
+        Joined,
+        /// <summary>Volvió como el mismo jugador después de un corte.</summary>
+        Rejoined,
+        /// <summary>Se cortó, pero su lugar sigue reservado.</summary>
+        Disconnected,
+        Left,
+        /// <summary>Venció la reserva de un jugador desconectado sin que volviera.</summary>
+        TimedOut,
+        NewHost,
+        /// <summary>Este cliente perdió la conexión y está intentando volver.</summary>
+        LocalConnectionLost,
+        LocalRejoined
+    }
+
+    /// <summary>Aviso de la sala para mostrar al jugador. Los avisos propios no tienen jugador.</summary>
+    public readonly struct RoomNotice
+    {
+        public readonly RoomNoticeKind Kind;
+        public readonly int ActorId;
+        public readonly string PlayerName;
+        public readonly byte Team;
+
+        public RoomNotice(RoomNoticeKind kind, int actorId = -1, string playerName = null, byte team = 0)
+        {
+            Kind = kind;
+            ActorId = actorId;
+            PlayerName = playerName;
+            Team = team;
         }
     }
 
@@ -292,12 +333,34 @@ namespace DriftPaint.Net
         /// <summary>Jugadores ordenados por orden de entrada.</summary>
         IReadOnlyList<PlayerSummary> Players { get; }
         MatchPhase Phase { get; }
-        /// <summary>Tiempo del servidor en el que arranca la partida (fin de la cuenta regresiva).</summary>
+        /// <summary>
+        /// Tiempo del servidor en el que arranca la partida (fin de la cuenta regresiva). En la cuenta regresiva
+        /// vale 0 mientras los jugadores cargan la escena: el host lo publica cuando todos terminaron.
+        /// </summary>
         double MatchStartTime { get; }
+        /// <summary>Tiempo del servidor en el que el host arrancó la partida, o 0 si no se conoce.</summary>
+        double LoadStartTime { get; }
+        /// <summary>Jugadores conectados que ya cargaron la escena de la partida en curso, sobre el total conectado.</summary>
+        (int loaded, int required) MatchLoading { get; }
+        bool LocalLoaded { get; }
+        /// <summary>Avisa a la sala que este cliente terminó de cargar la escena de la partida en curso.</summary>
+        void SetLocalLoaded();
+        /// <summary>Jugadores conectados que ya cargaron y marcaron las instrucciones como leídas.</summary>
+        int MatchDoneReading { get; }
+        bool LocalDoneReading { get; }
+        /// <summary>Avisa que el jugador local ya leyó las instrucciones: si todos lo hacen, no se espera el mínimo.</summary>
+        void SetLocalDoneReading();
+        /// <summary>
+        /// Solo el Master, durante la carga: fija el fin de la cuenta regresiva (reloj del servidor). Si ya estaba
+        /// fijado, solo acepta adelantarlo; quien llama decide si todavía no empezó a verse la cuenta.
+        /// </summary>
+        bool BeginCountdown(double startTime);
         event Action RoomChanged;
         event Action PlayersChanged;
         event Action<MatchPhase> PhaseChanged;
         event Action<ChatMessage> ChatReceived;
+        /// <summary>Entradas, salidas, cortes y cambios de host, para los avisos en pantalla.</summary>
+        event Action<RoomNotice> NoticeRaised;
 
         /// <summary>Solo el Master y en el lobby: cambia la duración de la partida.</summary>
         void SetRoomDuration(int seconds);
@@ -314,7 +377,10 @@ namespace DriftPaint.Net
         (int ready, int required) ClientReadiness { get; }
         void SetLocalReady(bool ready);
         void SendChat(string text);
-        /// <summary>Solo el Master, en el lobby o en resultados: pasa la sala a la cuenta regresiva y limpia los puntajes.</summary>
+        /// <summary>
+        /// Solo el Master, en el lobby o en resultados: pasa la sala a la cuenta regresiva y limpia los puntajes.
+        /// La cuenta queda sin hora de fin hasta que todos cargan (ver BeginCountdown).
+        /// </summary>
         bool RequestStartMatch();
         /// <summary>Solo el Master: cambia el estado de la partida. Volver a Lobby limpia el reloj y la ronda.</summary>
         bool SetMatchPhase(MatchPhase phase);

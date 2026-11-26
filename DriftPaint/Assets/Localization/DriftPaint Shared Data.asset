@@ -743,15 +743,159 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875787
-    m_Key: "CANCELAR LISTO"
+    m_Key: CANCELAR LISTO
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875788
-    m_Key: "ESPERANDO · {0}/{1} LISTOS"
+    m_Key: "ESPERANDO \xB7 {0}/{1} LISTOS"
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875789
-    m_Key: "{0} · Preparándose"
+    m_Key: "{0} \xB7 Prepar\xE1ndose"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519143686144
+    m_Key: "Cubr\xED la arena con tu color antes de que se acabe el tiempo."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989312
+    m_Key: "PINT\xC1 EL PISO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989313
+    m_Key: "Tu auto pinta todo lo que pisa. Pas\xE1 sobre la pintura rival para robarla."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989314
+    m_Key: "US\xC1 LOS AROS"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989315
+    m_Key: "Salt\xE1 desde la rampa y cruz\xE1 el aro para cargarlo. Cargado, gira
+      y ba\xF1a la zona con tu color. Si lo cruza el rival, le quita una carga."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989316
+    m_Key: "GAN\xC1 EL TERRITORIO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989317
+    m_Key: "Al terminar el tiempo gana el equipo con m\xE1s piso pintado. Si empatan,
+      hay desempate."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989318
+    m_Key: ESPERANDO JUGADORES {0}/{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989319
+    m_Key: "\xA1TODOS LISTOS! ARRANCA EN {0}"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267884781568
+    m_Key: CARGANDO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918912
+    m_Key: CARGADO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918913
+    m_Key: "\xA1LISTO!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918914
+    m_Key: ESPERANDO AL RESTO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918915
+    m_Key: "\xBFSALIR? TOC\xC1 DE NUEVO"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918916
+    m_Key: CONSEJO
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918917
+    m_Key: "Manten\xE9 el drift m\xE1s tiempo: al soltarlo, el turbo es m\xE1s fuerte."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918918
+    m_Key: "Sobre tu propia pintura aceler\xE1s m\xE1s r\xE1pido."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918919
+    m_Key: 'Un disparo directo aturde al rival: no acelera ni pinta por un momento.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918920
+    m_Key: "Junt\xE1 barriles y soltalos en el camino rival: explotan cuando los
+      pisa."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918921
+    m_Key: "La explosi\xF3n de un barril frena a todos los que agarra cerca."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918922
+    m_Key: "\xBFQuedaste trabado o dado vuelta? Manten\xE9 Reaparecer para volver
+      a la pista."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918923
+    m_Key: "Robar pintura rival tambi\xE9n suma a tu puntaje."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918924
+    m_Key: "Cuid\xE1 tus aros: cada rival que los cruza les quita una carga."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918925
+    m_Key: '{0} se ha conectado'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918926
+    m_Key: '{0} se ha reconectado'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918927
+    m_Key: '{0} se ha desconectado'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918928
+    m_Key: "{0} abandon\xF3 la partida"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918929
+    m_Key: "{0} no volvi\xF3 a tiempo"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918930
+    m_Key: '{0} es ahora el host'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918931
+    m_Key: "Se perdi\xF3 la conexi\xF3n. Reconectando..."
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918932
+    m_Key: Volviste a la partida
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918933
+    m_Key: '{0} es ahora el MVP'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918934
+    m_Key: '{0} le ha arrebatado el MVP a {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918935
+    m_Key: "\xA1El equipo {0} toma la delantera!"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918936
+    m_Key: "\xA1\xDAltimo minuto!"
     m_Metadata:
       m_Items: []
   m_Metadata:

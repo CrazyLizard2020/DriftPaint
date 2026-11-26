@@ -11,9 +11,17 @@ namespace DriftPaint.Match
     public static class SceneLoader
     {
         public static bool IsLoading { get; private set; }
+        static AsyncOperation _operation;
+
+        /// <summary>Avance de la carga en curso, de 0 a 1. Sin carga en curso vale 1.</summary>
+        public static float Progress => IsLoading && _operation != null ? Mathf.Clamp01(_operation.progress / 0.9f) : 1f;
 
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-        static void ResetState() => IsLoading = false;
+        static void ResetState()
+        {
+            IsLoading = false;
+            _operation = null;
+        }
 
         public static bool CanLoad(string scene) => Application.CanStreamedLevelBeLoaded(scene);
 
@@ -39,9 +47,11 @@ namespace DriftPaint.Match
                 }
             }
             AsyncOperation operation = SceneManager.LoadSceneAsync(scene, LoadSceneMode.Single);
+            _operation = operation;
             operation.completed += _ =>
             {
                 IsLoading = false;
+                _operation = null;
                 Scene destination = SceneManager.GetActiveScene();
                 foreach (GameObject instance in received)
                     if (instance != null) SceneManager.MoveGameObjectToScene(instance, destination);

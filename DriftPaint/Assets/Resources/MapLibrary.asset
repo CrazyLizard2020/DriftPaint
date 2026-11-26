@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 847e446efefaf824194a64c3875ec6e7, type: 3}
+  m_Name: MapLibrary
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.Match.MapLibrarySO
+  _maps:
+  - {fileID: 11400000, guid: cd745630ed7b94a419173f677722f874, type: 2}
+  - {fileID: 11400000, guid: b7ed231f8d931e842928aae84d0cf227, type: 2}
+  _loadingScreen: {fileID: 2543637717553786366, guid: 414e432ff28efc949a81150534acb9ab, type: 3}
+  _tips:
+  - "Manten\xE9 el drift m\xE1s tiempo: al soltarlo, el turbo es m\xE1s fuerte."
+  - "Sobre tu propia pintura aceler\xE1s m\xE1s r\xE1pido."
+  - 'Un disparo directo aturde al rival: no acelera ni pinta por un momento.'
+  - "Junt\xE1 barriles y soltalos en el camino rival: explotan cuando los pisa."
+  - "La explosi\xF3n de un barril frena a todos los que agarra cerca."
+  - "\xBFQuedaste trabado o dado vuelta? Manten\xE9 Reaparecer para volver a la pista."
+  - "Robar pintura rival tambi\xE9n suma a tu puntaje."

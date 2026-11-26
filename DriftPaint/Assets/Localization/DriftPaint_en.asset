@@ -759,27 +759,173 @@ MonoBehaviour:
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875784
-    m_Localized: "Left/Right"
+    m_Localized: Left/Right
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875785
-    m_Localized: "STUNNED  {0:0.0} s"
+    m_Localized: STUNNED  {0:0.0} s
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875786
-    m_Localized: "SLOWED  {0:0.0} s"
+    m_Localized: SLOWED  {0:0.0} s
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875787
-    m_Localized: "CANCEL READY"
+    m_Localized: CANCEL READY
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875788
-    m_Localized: "WAITING · {0}/{1} READY"
+    m_Localized: "WAITING \xB7 {0}/{1} READY"
     m_Metadata:
       m_Items: []
   - m_Id: 1067372875789
-    m_Localized: "{0} · Getting ready"
+    m_Localized: "{0} \xB7 Getting ready"
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519143686144
+    m_Localized: Cover the arena in your color before time runs out.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989312
+    m_Localized: PAINT THE FLOOR
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989313
+    m_Localized: Your car paints everything it drives over. Drive over enemy paint
+      to steal it.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989314
+    m_Localized: USE THE RINGS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989315
+    m_Localized: Jump off the ramp through the ring to charge it. Once charged, it
+      spins and floods the area with your color. If a rival crosses it, they remove
+      a charge.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989316
+    m_Localized: WIN THE TERRITORY
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989317
+    m_Localized: When time runs out, the team with the most painted floor wins. A
+      tie means a tiebreaker.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989318
+    m_Localized: WAITING FOR PLAYERS {0}/{1}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 841519214989319
+    m_Localized: ALL READY! STARTING IN {0}
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267884781568
+    m_Localized: LOADING
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918912
+    m_Localized: LOADED
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918913
+    m_Localized: READY!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918914
+    m_Localized: WAITING FOR OTHERS
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918915
+    m_Localized: LEAVE? PRESS AGAIN
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918916
+    m_Localized: TIP
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918917
+    m_Localized: 'Hold your drift longer: the boost is stronger when you let go.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918918
+    m_Localized: You accelerate faster on your own paint.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918919
+    m_Localized: 'A direct hit stuns your rival: they can''t accelerate or paint
+      for a moment.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918920
+    m_Localized: 'Grab barrels and drop them in your rival''s path: they blow up
+      when driven over.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918921
+    m_Localized: A barrel blast slows down everyone caught nearby.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918922
+    m_Localized: Stuck or flipped? Hold Respawn to get back on track.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918923
+    m_Localized: Stealing enemy paint also adds to your score.
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918924
+    m_Localized: 'Guard your rings: every rival who crosses one takes away a charge.'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918925
+    m_Localized: '{0} has connected'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918926
+    m_Localized: '{0} has reconnected'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918927
+    m_Localized: '{0} has disconnected'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918928
+    m_Localized: '{0} left the match'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918929
+    m_Localized: '{0} didn''t make it back in time'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918930
+    m_Localized: '{0} is now the host'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918931
+    m_Localized: Connection lost. Reconnecting...
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918932
+    m_Localized: You're back in the match
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918933
+    m_Localized: '{0} is now the MVP'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918934
+    m_Localized: '{0} stole the MVP from {1}'
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918935
+    m_Localized: Team {0} takes the lead!
+    m_Metadata:
+      m_Items: []
+  - m_Id: 851267930918936
+    m_Localized: Final minute!
     m_Metadata:
       m_Items: []
   references:
