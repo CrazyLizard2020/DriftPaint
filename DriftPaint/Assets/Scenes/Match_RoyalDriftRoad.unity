@@ -3197,6 +3197,7 @@ GameObject:
   - component: {fileID: 202366402}
   - component: {fileID: 202366401}
   - component: {fileID: 202366404}
+  - component: {fileID: 202366405}
   m_Layer: 0
   m_Name: Close Button
   m_TagString: Untagged
@@ -3294,7 +3295,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -3319,6 +3320,30 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &202366405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 202366399}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 202366402}
+  _labels:
+  - {fileID: 1000817379}
+  _highlighted:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 0.34901962, g: 0.9529412, b: 1, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &204316515
 GameObject:
   m_ObjectHideFlags: 0
@@ -7878,6 +7903,7 @@ GameObject:
   - component: {fileID: 508583287}
   - component: {fileID: 508583286}
   - component: {fileID: 508583290}
+  - component: {fileID: 508583291}
   m_Layer: 0
   m_Name: Leave Match Button
   m_TagString: Untagged
@@ -7990,7 +8016,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -8015,6 +8041,30 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &508583291
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 508583284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 508583288}
+  _labels:
+  - {fileID: 662040991}
+  _highlighted:
+    fill: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &515751212
 GameObject:
   m_ObjectHideFlags: 0
@@ -12017,6 +12067,7 @@ GameObject:
   - component: {fileID: 751360933}
   - component: {fileID: 751360932}
   - component: {fileID: 751360930}
+  - component: {fileID: 751360936}
   m_Layer: 0
   m_Name: Leave Button
   m_TagString: Untagged
@@ -12043,7 +12094,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -12154,6 +12205,30 @@ RectTransform:
   m_AnchoredPosition: {x: 230, y: 40}
   m_SizeDelta: {x: 440, y: 84}
   m_Pivot: {x: 0.5, y: 0}
+--- !u!114 &751360936
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 751360929}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 751360931}
+  _labels:
+  - {fileID: 1599171970}
+  _highlighted:
+    fill: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &757194907
 GameObject:
   m_ObjectHideFlags: 0
@@ -12898,6 +12973,7 @@ GameObject:
   - component: {fileID: 813761380}
   - component: {fileID: 813761383}
   - component: {fileID: 813761384}
+  - component: {fileID: 813761385}
   m_Layer: 0
   m_Name: Rematch Button
   m_TagString: Untagged
@@ -12997,7 +13073,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -13037,6 +13113,30 @@ MonoBehaviour:
   m_EffectColor: {r: 0.039215688, g: 0.07058824, b: 0.15294118, a: 0.88235295}
   m_EffectDistance: {x: 4, y: -7}
   m_UseGraphicAlpha: 1
+--- !u!114 &813761385
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 813761378}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 813761381}
+  _labels:
+  - {fileID: 1824799782}
+  _highlighted:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 0.34901962, g: 0.9529412, b: 1, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &821234733
 GameObject:
   m_ObjectHideFlags: 0
@@ -18659,6 +18759,7 @@ GameObject:
   - component: {fileID: 1224861404}
   - component: {fileID: 1224861403}
   - component: {fileID: 1224861402}
+  - component: {fileID: 1224861406}
   m_Layer: 0
   m_Name: Windowed
   m_TagString: Untagged
@@ -18705,7 +18806,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -18781,6 +18882,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1224861400}
   m_CullTransparentMesh: 1
+--- !u!114 &1224861406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1224861400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 1224861404}
+  _labels:
+  - {fileID: 1517020106}
+  _highlighted:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 0.34901962, g: 0.9529412, b: 1, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &1233097252
 GameObject:
   m_ObjectHideFlags: 0
@@ -34499,6 +34624,7 @@ GameObject:
   - component: {fileID: 1603442200}
   - component: {fileID: 1603442199}
   - component: {fileID: 1603442198}
+  - component: {fileID: 1603442202}
   m_Layer: 0
   m_Name: Fullscreen
   m_TagString: Untagged
@@ -34545,7 +34671,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -34621,6 +34747,30 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1603442196}
   m_CullTransparentMesh: 1
+--- !u!114 &1603442202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1603442196}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 1603442200}
+  _labels:
+  - {fileID: 538973879}
+  _highlighted:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 0.34901962, g: 0.9529412, b: 1, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &1604094630
 GameObject:
   m_ObjectHideFlags: 0
@@ -44433,6 +44583,7 @@ GameObject:
   - component: {fileID: 1854024175}
   - component: {fileID: 1854024174}
   - component: {fileID: 1854024178}
+  - component: {fileID: 1854024179}
   m_Layer: 0
   m_Name: Restore Defaults
   m_TagString: Untagged
@@ -44546,7 +44697,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -44571,6 +44722,30 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1854024179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1854024172}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 1854024176}
+  _labels:
+  - {fileID: 1942176110}
+  _highlighted:
+    fill: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &1854518837
 GameObject:
   m_ObjectHideFlags: 0
@@ -44748,6 +44923,7 @@ GameObject:
   - component: {fileID: 1859959426}
   - component: {fileID: 1859959425}
   - component: {fileID: 1859959428}
+  - component: {fileID: 1859959429}
   m_Layer: 0
   m_Name: Cancel
   m_TagString: Untagged
@@ -44845,7 +45021,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 2077741746}
     m_SelectOnRight: {fileID: 2077741746}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -44870,6 +45046,30 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1859959429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1859959423}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 1859959426}
+  _labels:
+  - {fileID: 155439551}
+  _highlighted:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 0.34901962, g: 0.9529412, b: 1, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &1860992923
 GameObject:
   m_ObjectHideFlags: 0
@@ -46896,6 +47096,7 @@ GameObject:
   - component: {fileID: 1935156007}
   - component: {fileID: 1935156006}
   - component: {fileID: 1935156010}
+  - component: {fileID: 1935156011}
   m_Layer: 0
   m_Name: Leave Button
   m_TagString: Untagged
@@ -47008,7 +47209,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -47033,6 +47234,30 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1935156011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1935156004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 1935156008}
+  _labels:
+  - {fileID: 1486835213}
+  _highlighted:
+    fill: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &1942176108
 GameObject:
   m_ObjectHideFlags: 0
@@ -48784,6 +49009,7 @@ GameObject:
   - component: {fileID: 2077741743}
   - component: {fileID: 2077741742}
   - component: {fileID: 2077741746}
+  - component: {fileID: 2077741747}
   m_Layer: 0
   m_Name: Confirm
   m_TagString: Untagged
@@ -48896,7 +49122,7 @@ MonoBehaviour:
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 1859959428}
     m_SelectOnRight: {fileID: 1859959428}
-  m_Transition: 1
+  m_Transition: 0
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.85, g: 0.95, b: 1, a: 1}
@@ -48921,6 +49147,30 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2077741747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2077741740}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7c3e1a9f52d84b6e9a0f4d2b8e61c5a7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: DriftPaint.Gameplay::DriftPaint.UI.ButtonStateColors
+  _fill: {fileID: 2077741744}
+  _labels:
+  - {fileID: 296224493}
+  _highlighted:
+    fill: {r: 0.09411765, g: 0.8745098, b: 0.9411765, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _pressed:
+    fill: {r: 1, g: 0.47843137, b: 0.101960786, a: 1}
+    text: {r: 0.12156863, g: 0.13725491, b: 0.21960784, a: 1}
+  _disabledTint: {r: 0.55, g: 0.55, b: 0.6, a: 0.7}
+  _fadeSeconds: 0.06
+  _submitFlashSeconds: 0.12
 --- !u!1 &2091921754
 GameObject:
   m_ObjectHideFlags: 0

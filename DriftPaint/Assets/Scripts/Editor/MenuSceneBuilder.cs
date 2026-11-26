@@ -849,6 +849,7 @@ namespace DriftPaint.EditorTools
             TextMeshProUGUI text = UiFactory.CreateText(image.transform, "Label", _titleFont, fontSize, TextAlignmentOptions.Center,
                 textColor, FontStyles.Bold | FontStyles.Italic);
             text.text = label;
+            ButtonColorsBuilder.Style(button);
             return button;
         }
 
